@@ -1,6 +1,6 @@
 # gmeet
 
-A clone of the video conferencing application of Google, Meet.
+A clone of the video conferencing application, Google Meet.
 
 ## Getting Started
 
