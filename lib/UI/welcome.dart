@@ -79,7 +79,7 @@ class Welcome extends StatelessWidget {
             ElevatedButton(
                 onPressed: nextPage,
                 style: ButtonStyle(
-                  overlayColor: MaterialStateProperty.all(Colors.green[800]),
+                  overlayColor: MaterialStateProperty.all(Colors.lightGreen[900]),
                   elevation: MaterialStateProperty.all(0),
                   minimumSize: MaterialStateProperty.all(Size.zero),
                   padding: MaterialStateProperty.all(EdgeInsets.only(left: 21, right: 21, top: 8, bottom: 8)),
