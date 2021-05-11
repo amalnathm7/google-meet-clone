@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gmeet/UI/acc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Welcome extends StatelessWidget {
+
   void _launchURL1() async {
     const _url = 'https://policies.google.com/terms';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
@@ -12,8 +15,6 @@ class Welcome extends StatelessWidget {
     const _url = 'https://policies.google.com/privacy';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
   }
-
-  void nextPage() {}
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,16 @@ class Welcome extends StatelessWidget {
               height: 20,
             ),
             ElevatedButton(
-                onPressed: nextPage,
+                onPressed: () async {
+                  if(await Permission.camera.isPermanentlyDenied)
+                    openAppSettings();
+                  if(await Permission.microphone.isPermanentlyDenied)
+                    openAppSettings();
+                  while(await Permission.camera.request().isDenied){}
+                  while(await Permission.microphone.request().isDenied){}
+
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => GAccounts()),);
+                },
                 style: ButtonStyle(
                   overlayColor: MaterialStateProperty.all(Colors.lightGreen[900]),
                   elevation: MaterialStateProperty.all(0),
