@@ -30,6 +30,12 @@ dependencies:
   cupertino_icons: ^1.0.2
   url_launcher: ^6.0.3
   permission_handler: ^7.1.0
+  google_sign_in: ^5.0.2
+  firebase_core: ^1.1.1
+  fluttertoast: ^8.0.6
+  provider: ^5.0.0
+  cloud_firestore: ^2.1.0
+  firebase_auth: ^1.1.4
 
 dev_dependencies:
   flutter_test:

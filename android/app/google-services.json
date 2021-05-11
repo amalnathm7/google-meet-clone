@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "729744357764",
+    "project_id": "gmeet-7e8a3",
+    "storage_bucket": "gmeet-7e8a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:729744357764:android:01d97f2fdb7ec9a1bb85d1",
+        "android_client_info": {
+          "package_name": "com.amalmeenu.gmeet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "729744357764-qli2vrviidovvh2b4ha871cm3j9r5f7i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.amalmeenu.gmeet",
+            "certificate_hash": "d8a200288bb0a60a6cf57ed1968dc63f85665c9a"
+          }
+        },
+        {
+          "client_id": "729744357764-vovc544cev62fkllud9kcpkp94dii1kg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoysIsz_YPV953PC0lDmqf_2xSJhx_Zi8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "729744357764-vovc544cev62fkllud9kcpkp94dii1kg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gmeet/UI/acc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'login.dart';
 
 class Welcome extends StatelessWidget {
-
   void _launchURL1() async {
     const _url = 'https://policies.google.com/terms';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
@@ -79,22 +78,27 @@ class Welcome extends StatelessWidget {
             ),
             ElevatedButton(
                 onPressed: () async {
-                  if(await Permission.camera.isPermanentlyDenied)
+                  if (await Permission.camera.isPermanentlyDenied)
                     openAppSettings();
-                  if(await Permission.microphone.isPermanentlyDenied)
+                  if (await Permission.microphone.isPermanentlyDenied)
                     openAppSettings();
-                  while(await Permission.camera.request().isDenied){}
-                  while(await Permission.microphone.request().isDenied){}
+                  while (await Permission.camera.request().isDenied) {}
+                  while (await Permission.microphone.request().isDenied) {}
 
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => GAccounts()),);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Login()),
+                  );
                 },
                 style: ButtonStyle(
-                  overlayColor: MaterialStateProperty.all(Colors.lightGreen[900]),
-                  elevation: MaterialStateProperty.all(0),
-                  minimumSize: MaterialStateProperty.all(Size.zero),
-                  padding: MaterialStateProperty.all(EdgeInsets.only(left: 21, right: 21, top: 8, bottom: 8)),
-                  backgroundColor: MaterialStateProperty.all(Colors.green[900])
-                ),
+                    overlayColor:
+                        MaterialStateProperty.all(Colors.lightGreen[900]),
+                    elevation: MaterialStateProperty.all(0),
+                    minimumSize: MaterialStateProperty.all(Size.zero),
+                    padding: MaterialStateProperty.all(EdgeInsets.only(
+                        left: 21, right: 21, top: 8, bottom: 8)),
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.green[900])),
                 child: Text(
                   "Continue",
                   style: TextStyle(
