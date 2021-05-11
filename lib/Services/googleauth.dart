@@ -32,7 +32,11 @@ class GoogleAuth {
           accessToken: googleSignInAuthentication.accessToken);
 
       try {
-        await auth.signInWithCredential(credential);
+        UserCredential userCredential =
+            await auth.signInWithCredential(credential);
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Signed in as " + userCredential.user.email)));
 
         Navigator.pushReplacement(
           context,
