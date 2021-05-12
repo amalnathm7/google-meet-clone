@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -23,6 +25,24 @@ class HomeState extends State<Home> {
   void meetingCode() {}
 
   void menu() {}
+
+  void settings() {}
+
+  void feedback() {}
+
+  void abuse() {}
+
+  void help() {}
+
+  void _launchURL1() async {
+    const _url = 'https://policies.google.com/terms';
+    await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
+  }
+
+  void _launchURL2() async {
+    const _url = 'https://policies.google.com/privacy';
+    await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
+  }
 
   void speaker() {
     setState(() {
@@ -70,8 +90,7 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Speaker",
-                  style: TextStyle(
-                      color: Colors.black),
+                  style: TextStyle(color: Colors.black),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -86,8 +105,7 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Phone",
-                  style: TextStyle(
-                      color: Colors.black),
+                  style: TextStyle(color: Colors.black),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -102,8 +120,7 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Audio off",
-                  style: TextStyle(
-                      color: Colors.black),
+                  style: TextStyle(color: Colors.black),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -120,8 +137,7 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Cancel",
-                  style: TextStyle(
-                      color: Colors.black),
+                  style: TextStyle(color: Colors.black),
                 ),
               ),
             ],
@@ -144,16 +160,6 @@ class HomeState extends State<Home> {
             ),
           ),
         ),
-        leading: IconButton(
-          onPressed: menu,
-          splashRadius: 20,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.white10,
-          icon: Icon(
-            Icons.menu,
-            color: Colors.white,
-          ),
-        ),
         actions: <Widget>[
           IconButton(
             onPressed: btm,
@@ -165,6 +171,139 @@ class HomeState extends State<Home> {
             ),
           )
         ],
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            Container(
+              height: 120,
+              child: DrawerHeader(
+                padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  minLeadingWidth: 20,
+                  leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Image.network(
+                        FirebaseAuth.instance.currentUser.photoURL,
+                        height: 40,
+                      )),
+                  title: Text(FirebaseAuth.instance.currentUser.displayName),
+                  subtitle: Text(FirebaseAuth.instance.currentUser.email),
+                  trailing: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(
+                      "assets/logo.png",
+                      height: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              minLeadingWidth: 20,
+              onTap: settings,
+              leading: Icon(
+                Icons.settings_outlined,
+                size: 22,
+                color: Colors.black,
+              ),
+              title: Text(
+                "Settings",
+                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
+              ),
+            ),
+            ListTile(
+              onTap: feedback,
+              minLeadingWidth: 20,
+              leading: Icon(
+                Icons.feedback_outlined,
+                size: 22,
+                color: Colors.black,
+              ),
+              title: Text(
+                "Send feedback",
+                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
+              ),
+            ),
+            ListTile(
+              onTap: abuse,
+              minLeadingWidth: 20,
+              leading: Icon(
+                Icons.report_gmailerrorred_outlined,
+                size: 22,
+                color: Colors.black,
+              ),
+              title: Text(
+                "Report abuse",
+                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
+              ),
+            ),
+            ListTile(
+              onTap: help,
+              minLeadingWidth: 20,
+              leading: Icon(
+                Icons.help,
+                size: 22,
+                color: Colors.black,
+              ),
+              title: Text(
+                "Help",
+                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
+              ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: _launchURL2,
+                            style: ButtonStyle(
+                                overlayColor:
+                                    MaterialStateProperty.all(Colors.black12),
+                                padding: MaterialStateProperty.all(
+                                    EdgeInsets.only(left: 5, right: 5))),
+                            child: Text(
+                              "Privacy Policy",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ),
+                          Text("  •  "),
+                          TextButton(
+                            onPressed: _launchURL1,
+                            style: ButtonStyle(
+                                overlayColor:
+                                    MaterialStateProperty.all(Colors.black12),
+                                padding: MaterialStateProperty.all(
+                                    EdgeInsets.only(left: 5, right: 5))),
+                            child: Text(
+                              "Terms of Service",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.transparent,
@@ -180,6 +319,7 @@ class HomeState extends State<Home> {
                       border: Border.all(color: Colors.white)),
                   child: IconButton(
                     splashRadius: 25,
+                    splashColor: Colors.transparent,
                     icon: Icon(Icons.mic_none),
                     onPressed: mic,
                     color: Colors.white,
@@ -194,6 +334,7 @@ class HomeState extends State<Home> {
                       border: Border.all(color: Colors.white)),
                   child: IconButton(
                     splashRadius: 25,
+                    splashColor: Colors.transparent,
                     icon: Icon(Icons.videocam_outlined),
                     onPressed: video,
                     color: Colors.white,
@@ -209,11 +350,6 @@ class HomeState extends State<Home> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Divider(
-                    thickness: 2,
-                    indent: 195,
-                    endIndent: 195,
-                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
