@@ -9,6 +9,10 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
+  var clr1 = Colors.green[800];
+  var clr2 = Colors.transparent;
+  var clr3 = Colors.transparent;
+
   void mic() {}
 
   void video() {}
@@ -16,6 +20,110 @@ class HomeState extends State<Home> {
   void newMeeting() {}
 
   void meetingCode() {}
+
+  void menu() {}
+
+  void speaker() {
+    setState(() {
+      clr1 = Colors.green[800];
+      clr2 = Colors.transparent;
+      clr3 = Colors.transparent;
+    });
+    Navigator.pop(context);
+  }
+
+  void phone() {
+    setState(() {
+      clr2 = Colors.green[800];
+      clr1 = Colors.transparent;
+      clr3 = Colors.transparent;
+    });
+    Navigator.pop(context);
+  }
+
+  void audioOff() {
+    setState(() {
+      clr3 = Colors.green[800];
+      clr2 = Colors.transparent;
+      clr1 = Colors.transparent;
+    });
+    Navigator.pop(context);
+  }
+
+  void btm() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                onTap: speaker,
+                leading: Icon(
+                  Icons.volume_up_outlined,
+                  color: Colors.black54,
+                ),
+                title: Text(
+                  "Speaker",
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Product Sans'),
+                ),
+                trailing: Icon(
+                  Icons.check,
+                  color: clr1,
+                ),
+              ),
+              ListTile(
+                onTap: phone,
+                leading: Icon(
+                  Icons.phone_in_talk_sharp,
+                  color: Colors.black54,
+                ),
+                title: Text(
+                  "Phone",
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Product Sans'),
+                ),
+                trailing: Icon(
+                  Icons.check,
+                  color: clr2,
+                ),
+              ),
+              ListTile(
+                onTap: audioOff,
+                leading: Icon(
+                  Icons.volume_off_outlined,
+                  color: Colors.black54,
+                ),
+                title: Text(
+                  "Audio off",
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Product Sans'),
+                ),
+                trailing: Icon(
+                  Icons.check,
+                  color: clr3,
+                ),
+              ),
+              ListTile(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                leading: Icon(
+                  Icons.close_sharp,
+                  color: Colors.black54,
+                ),
+                title: Text(
+                  "Cancel",
+                  style: TextStyle(
+                      color: Colors.black, fontFamily: 'Product Sans'),
+                ),
+              ),
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +140,26 @@ class HomeState extends State<Home> {
             ),
           ),
         ),
-        leading: Icon(Icons.menu),
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: DropdownButton(
-              icon: Icon(Icons.volume_up_outlined),
-              underline: SizedBox(),
-            ),
+        leading: IconButton(
+          onPressed: menu,
+          splashRadius: 20,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.white10,
+          icon: Icon(
+            Icons.menu,
+            color: Colors.white,
           ),
+        ),
+        actions: <Widget>[
+          IconButton(
+            onPressed: btm,
+            splashRadius: 25,
+            splashColor: Colors.transparent,
+            icon: Icon(
+              Icons.volume_up_outlined,
+              color: Colors.white,
+            ),
+          )
         ],
       ),
       bottomNavigationBar: BottomAppBar(
@@ -56,6 +175,7 @@ class HomeState extends State<Home> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white)),
                   child: IconButton(
+                    splashRadius: 25,
                     icon: Icon(Icons.mic_none),
                     onPressed: mic,
                     color: Colors.white,
@@ -69,6 +189,7 @@ class HomeState extends State<Home> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white)),
                   child: IconButton(
+                    splashRadius: 25,
                     icon: Icon(Icons.videocam_outlined),
                     onPressed: video,
                     color: Colors.white,
@@ -94,7 +215,8 @@ class HomeState extends State<Home> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 5, bottom: 30, left: 10, right: 5),
+                          padding: const EdgeInsets.only(
+                              top: 5, bottom: 20, left: 10, right: 5),
                           child: ElevatedButton.icon(
                               icon: Icon(
                                 Icons.add,
@@ -108,7 +230,8 @@ class HomeState extends State<Home> {
                               ),
                               onPressed: newMeeting,
                               style: ElevatedButton.styleFrom(
-                                side: BorderSide(color: Colors.grey[300], width: 1),
+                                side: BorderSide(
+                                    color: Colors.grey[300], width: 1),
                                 elevation: 0,
                                 primary: Colors.white,
                                 onPrimary: Colors.green[900],
@@ -118,7 +241,8 @@ class HomeState extends State<Home> {
                       ),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 5, bottom: 30, left: 5, right: 10),
+                          padding: const EdgeInsets.only(
+                              top: 5, bottom: 20, left: 5, right: 10),
                           child: ElevatedButton.icon(
                             icon: Icon(
                               Icons.keyboard,
@@ -132,7 +256,8 @@ class HomeState extends State<Home> {
                             ),
                             onPressed: meetingCode,
                             style: ElevatedButton.styleFrom(
-                              side: BorderSide(color: Colors.grey[300], width: 1),
+                              side:
+                                  BorderSide(color: Colors.grey[300], width: 1),
                               elevation: 0,
                               primary: Colors.white,
                               onPrimary: Colors.green[900],
@@ -142,6 +267,16 @@ class HomeState extends State<Home> {
                         ),
                       ),
                     ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Swipe up to see your meetings",
+                      style: TextStyle(
+                          color: Colors.grey[700],
+                          fontFamily: 'Product Sans',
+                          fontSize: 12.5),
+                    ),
                   )
                 ],
               ),
