@@ -6,6 +6,8 @@ class Login extends StatelessWidget{
   Widget build(BuildContext context) {
     GoogleAuth().signInWithGoogle(context);
 
-    return Scaffold();
+    return Scaffold(
+      body: CircularProgressIndicator(),
+    );
   }
 }
