@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder<Object>(
           stream: GoogleAuth().userIn,
           builder: (context, snapshot) {
-            return snapshot.data != null
+            return snapshot.hasData
                 ? Home()
                 : Welcome();
           }),
