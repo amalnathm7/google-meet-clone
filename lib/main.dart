@@ -16,6 +16,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Gmeet',
+      theme: ThemeData(
+        accentColor: Colors.green[700],
+      ),
       home: StreamBuilder<Object>(
           stream: GoogleAuth().userIn,
           builder: (context, snapshot) {

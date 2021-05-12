@@ -7,7 +7,7 @@ class Login extends StatelessWidget{
     GoogleAuth().signInWithGoogle(context);
 
     return Scaffold(
-      body: CircularProgressIndicator(),
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
