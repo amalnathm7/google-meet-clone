@@ -201,8 +201,9 @@ class HomeState extends State<Home> {
               ),
             ),
             ListTile(
-              minLeadingWidth: 20,
               onTap: settings,
+              dense: true,
+              minLeadingWidth: 20,
               leading: Icon(
                 Icons.settings_outlined,
                 size: 22,
@@ -215,6 +216,7 @@ class HomeState extends State<Home> {
             ),
             ListTile(
               onTap: feedback,
+              dense: true,
               minLeadingWidth: 20,
               leading: Icon(
                 Icons.feedback_outlined,
@@ -228,6 +230,7 @@ class HomeState extends State<Home> {
             ),
             ListTile(
               onTap: abuse,
+              dense: true,
               minLeadingWidth: 20,
               leading: Icon(
                 Icons.report_gmailerrorred_outlined,
@@ -241,6 +244,7 @@ class HomeState extends State<Home> {
             ),
             ListTile(
               onTap: help,
+              dense: true,
               minLeadingWidth: 20,
               leading: Icon(
                 Icons.help,
@@ -254,13 +258,14 @@ class HomeState extends State<Home> {
             ),
             Expanded(
               child: Align(
-                alignment: FractionalOffset.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 10.0),
-                  child: Column(
+                alignment: Alignment.bottomCenter,
+                child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Divider(),
+                      Divider(
+                        thickness: 1,
+                        height: 0,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -301,7 +306,6 @@ class HomeState extends State<Home> {
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
