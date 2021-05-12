@@ -85,10 +85,12 @@ class Welcome extends StatelessWidget {
                   while (await Permission.camera.request().isDenied) {}
                   while (await Permission.microphone.request().isDenied) {}
 
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => Login()),
-                  );
+                  if(await Permission.camera.isGranted && await Permission.microphone.isGranted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => Login()),
+                    );
+                  }
                 },
                 style: ButtonStyle(
                     overlayColor:
