@@ -71,7 +71,7 @@ class HomeState extends State<Home> {
                 title: Text(
                   "Speaker",
                   style: TextStyle(
-                      color: Colors.black, fontFamily: 'Product Sans'),
+                      color: Colors.black),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -87,7 +87,7 @@ class HomeState extends State<Home> {
                 title: Text(
                   "Phone",
                   style: TextStyle(
-                      color: Colors.black, fontFamily: 'Product Sans'),
+                      color: Colors.black),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -103,7 +103,7 @@ class HomeState extends State<Home> {
                 title: Text(
                   "Audio off",
                   style: TextStyle(
-                      color: Colors.black, fontFamily: 'Product Sans'),
+                      color: Colors.black),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -121,7 +121,7 @@ class HomeState extends State<Home> {
                 title: Text(
                   "Cancel",
                   style: TextStyle(
-                      color: Colors.black, fontFamily: 'Product Sans'),
+                      color: Colors.black),
                 ),
               ),
             ],
