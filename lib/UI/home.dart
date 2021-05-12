@@ -12,6 +12,7 @@ class HomeState extends State<Home> {
   var clr1 = Colors.green[800];
   var clr2 = Colors.transparent;
   var clr3 = Colors.transparent;
+  var icon = Icons.volume_up_outlined;
 
   void mic() {}
 
@@ -28,6 +29,7 @@ class HomeState extends State<Home> {
       clr1 = Colors.green[800];
       clr2 = Colors.transparent;
       clr3 = Colors.transparent;
+      icon = Icons.volume_up_outlined;
     });
     Navigator.pop(context);
   }
@@ -37,6 +39,7 @@ class HomeState extends State<Home> {
       clr2 = Colors.green[800];
       clr1 = Colors.transparent;
       clr3 = Colors.transparent;
+      icon = Icons.phone_in_talk;
     });
     Navigator.pop(context);
   }
@@ -46,6 +49,7 @@ class HomeState extends State<Home> {
       clr3 = Colors.green[800];
       clr2 = Colors.transparent;
       clr1 = Colors.transparent;
+      icon = Icons.volume_off_outlined;
     });
     Navigator.pop(context);
   }
@@ -77,7 +81,7 @@ class HomeState extends State<Home> {
               ListTile(
                 onTap: phone,
                 leading: Icon(
-                  Icons.phone_in_talk_sharp,
+                  Icons.phone_in_talk,
                   color: Colors.black54,
                 ),
                 title: Text(
@@ -156,7 +160,7 @@ class HomeState extends State<Home> {
             splashRadius: 25,
             splashColor: Colors.transparent,
             icon: Icon(
-              Icons.volume_up_outlined,
+              icon,
               color: Colors.white,
             ),
           )
