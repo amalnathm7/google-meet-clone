@@ -15,10 +15,21 @@ class HomeState extends State<Home> {
   var clr2 = Colors.transparent;
   var clr3 = Colors.transparent;
   var icon = Icons.volume_up_outlined;
+  var isMicPressed = false;
+  var isVidPressed = false;
+  var isAccPressed = false;
 
-  void mic() {}
+  void mic() {
+    setState(() {
+      isMicPressed = !isMicPressed;
+    });
+  }
 
-  void video() {}
+  void video() {
+    setState(() {
+      isVidPressed = !isVidPressed;
+    });
+  }
 
   void newMeeting() {}
 
@@ -33,6 +44,19 @@ class HomeState extends State<Home> {
   void abuse() {}
 
   void help() {}
+
+  void account() {
+    setState(() {
+      /*if (arrIcon == Icons.keyboard_arrow_down)
+        arrIcon = Icons.keyboard_arrow_up;
+      else
+        arrIcon = Icons.keyboard_arrow_down;*/
+      if (isAccPressed)
+        isAccPressed = false;
+      else
+        isAccPressed = true;
+    });
+  }
 
   void _launchURL1() async {
     const _url = 'https://policies.google.com/terms';
@@ -73,6 +97,8 @@ class HomeState extends State<Home> {
     });
     Navigator.pop(context);
   }
+
+  void logout() {}
 
   void btm() {
     showModalBottomSheet(
@@ -148,118 +174,153 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
         backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        title: Center(
-          child: Text(
-            "Meet",
-            style: TextStyle(
-              fontFamily: 'Product Sans',
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          title: Center(
+            child: Text(
+              "Meet",
+              style: TextStyle(
+                fontFamily: 'Product Sans',
+              ),
             ),
           ),
+          actions: <Widget>[
+            IconButton(
+              onPressed: btm,
+              splashRadius: 25,
+              splashColor: Colors.transparent,
+              icon: Icon(
+                icon,
+                color: Colors.white,
+              ),
+            )
+          ],
         ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: btm,
-            splashRadius: 25,
-            splashColor: Colors.transparent,
-            icon: Icon(
-              icon,
-              color: Colors.white,
-            ),
-          )
-        ],
-      ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            Container(
-              height: 120,
-              child: DrawerHeader(
-                padding: EdgeInsets.only(left: 20, right: 20, top: 10),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  minLeadingWidth: 20,
-                  leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Image.network(
-                        FirebaseAuth.instance.currentUser.photoURL,
-                        height: 40,
-                      )),
-                  title: Text(FirebaseAuth.instance.currentUser.displayName),
-                  subtitle: Text(FirebaseAuth.instance.currentUser.email),
-                  trailing: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      "assets/logo.png",
-                      height: 30,
+        drawer: Drawer(
+          child: Column(
+            children: [
+              Container(
+                height: 130,
+                child: DrawerHeader(
+                  decoration: BoxDecoration(
+                      border:
+                          Border(bottom: BorderSide(color: Colors.black12))),
+                  padding: EdgeInsets.only(top: 0),
+                  child: ListTile(
+                    onTap: account,
+                    contentPadding: EdgeInsets.zero,
+                    minLeadingWidth: 0,
+                    leading: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: Image.network(
+                            FirebaseAuth.instance.currentUser.photoURL,
+                            height: 36,
+                          )),
+                    ),
+                    title: Text(
+                      FirebaseAuth.instance.currentUser.displayName,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: RichText(
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      softWrap: false,
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: FirebaseAuth.instance.currentUser.email + " ",
+                          style: TextStyle(color: Colors.black54, fontSize: 12),
+                        ),
+                        WidgetSpan(
+                            child: Icon(
+                          isAccPressed
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          color: Colors.black54,
+                          size: 18,
+                        ))
+                      ]),
+                    ),
+                    trailing: Padding(
+                      padding: const EdgeInsets.only(right: 15),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: IconButton(
+                            iconSize: 20,
+                            splashRadius: 20,
+                            splashColor: Colors.transparent,
+                            icon: Icon(
+                              Icons.logout,
+                            ),
+                            onPressed: logout,
+                          )),
                     ),
                   ),
                 ),
               ),
-            ),
-            ListTile(
-              onTap: settings,
-              dense: true,
-              minLeadingWidth: 20,
-              leading: Icon(
-                Icons.settings_outlined,
-                size: 22,
-                color: Colors.black,
+              ListTile(
+                onTap: settings,
+                dense: true,
+                minLeadingWidth: 20,
+                leading: Icon(
+                  Icons.settings_outlined,
+                  size: 20,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  "Settings",
+                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+                ),
               ),
-              title: Text(
-                "Settings",
-                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
+              ListTile(
+                onTap: feedback,
+                dense: true,
+                minLeadingWidth: 20,
+                leading: Icon(
+                  Icons.feedback_outlined,
+                  size: 20,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  "Send feedback",
+                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+                ),
               ),
-            ),
-            ListTile(
-              onTap: feedback,
-              dense: true,
-              minLeadingWidth: 20,
-              leading: Icon(
-                Icons.feedback_outlined,
-                size: 22,
-                color: Colors.black,
+              ListTile(
+                onTap: abuse,
+                dense: true,
+                minLeadingWidth: 20,
+                leading: Icon(
+                  Icons.report_gmailerrorred_outlined,
+                  size: 20,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  "Report abuse",
+                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+                ),
               ),
-              title: Text(
-                "Send feedback",
-                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
+              ListTile(
+                onTap: help,
+                dense: true,
+                minLeadingWidth: 20,
+                leading: Icon(
+                  Icons.help,
+                  size: 20,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  "Help",
+                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+                ),
               ),
-            ),
-            ListTile(
-              onTap: abuse,
-              dense: true,
-              minLeadingWidth: 20,
-              leading: Icon(
-                Icons.report_gmailerrorred_outlined,
-                size: 22,
-                color: Colors.black,
-              ),
-              title: Text(
-                "Report abuse",
-                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
-              ),
-            ),
-            ListTile(
-              onTap: help,
-              dense: true,
-              minLeadingWidth: 20,
-              leading: Icon(
-                Icons.help,
-                size: 22,
-                color: Colors.black,
-              ),
-              title: Text(
-                "Help",
-                style: TextStyle(fontSize: 15, fontFamily: 'Product Sans'),
-              ),
-            ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Column(
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Divider(
@@ -306,73 +367,126 @@ class HomeState extends State<Home> {
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.transparent,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white)),
-                  child: IconButton(
-                    splashRadius: 25,
-                    splashColor: Colors.transparent,
-                    icon: Icon(Icons.mic_none),
-                    onPressed: mic,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(
-                  width: 40,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white)),
-                  child: IconButton(
-                    splashRadius: 25,
-                    splashColor: Colors.transparent,
-                    icon: Icon(Icons.videocam_outlined),
-                    onPressed: video,
-                    color: Colors.white,
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Container(
-              color: Colors.white,
-              child: Column(
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.transparent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              top: 5, bottom: 20, left: 10, right: 5),
-                          child: ElevatedButton.icon(
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                        color:
+                            isMicPressed ? Colors.red[900] : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: isMicPressed
+                                ? Colors.transparent
+                                : Colors.white)),
+                    child: IconButton(
+                      splashRadius: 25,
+                      splashColor: Colors.transparent,
+                      icon: Icon(isMicPressed
+                          ? Icons.mic_off_outlined
+                          : Icons.mic_none_outlined),
+                      onPressed: mic,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 40,
+                  ),
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                        color:
+                            isVidPressed ? Colors.red[900] : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: isVidPressed
+                                ? Colors.transparent
+                                : Colors.white)),
+                    child: IconButton(
+                      splashRadius: 25,
+                      splashColor: Colors.transparent,
+                      icon: Icon(isVidPressed
+                          ? Icons.videocam_off_outlined
+                          : Icons.videocam_outlined),
+                      onPressed: video,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Container(
+                color: Colors.white,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 10,
+                      width: 25,
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom:
+                                  BorderSide(width: 2, color: Colors.black12))),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 5, bottom: 20, left: 10, right: 5),
+                            child: ElevatedButton.icon(
+                                icon: Icon(
+                                  Icons.add,
+                                  color: Colors.green[900],
+                                ),
+                                label: Text(
+                                  "New meeting",
+                                  style: TextStyle(
+                                      color: Colors.green[900],
+                                      fontFamily: 'Product Sans'),
+                                ),
+                                onPressed: newMeeting,
+                                style: ElevatedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.grey[300], width: 1),
+                                  elevation: 0,
+                                  primary: Colors.white,
+                                  onPrimary: Colors.green[900],
+                                  shadowColor: Colors.transparent,
+                                )),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 5, bottom: 20, left: 5, right: 10),
+                            child: ElevatedButton.icon(
                               icon: Icon(
-                                Icons.add,
+                                Icons.keyboard,
                                 color: Colors.green[900],
                               ),
                               label: Text(
-                                "New meeting",
+                                "Meeting code",
                                 style: TextStyle(
                                     color: Colors.green[900],
                                     fontFamily: 'Product Sans'),
                               ),
-                              onPressed: newMeeting,
+                              onPressed: meetingCode,
                               style: ElevatedButton.styleFrom(
                                 side: BorderSide(
                                     color: Colors.grey[300], width: 1),
@@ -380,54 +494,24 @@ class HomeState extends State<Home> {
                                 primary: Colors.white,
                                 onPrimary: Colors.green[900],
                                 shadowColor: Colors.transparent,
-                              )),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              top: 5, bottom: 20, left: 5, right: 10),
-                          child: ElevatedButton.icon(
-                            icon: Icon(
-                              Icons.keyboard,
-                              color: Colors.green[900],
-                            ),
-                            label: Text(
-                              "Meeting code",
-                              style: TextStyle(
-                                  color: Colors.green[900],
-                                  fontFamily: 'Product Sans'),
-                            ),
-                            onPressed: meetingCode,
-                            style: ElevatedButton.styleFrom(
-                              side:
-                                  BorderSide(color: Colors.grey[300], width: 1),
-                              elevation: 0,
-                              primary: Colors.white,
-                              onPrimary: Colors.green[900],
-                              shadowColor: Colors.transparent,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Swipe up to see your meetings",
-                      style: TextStyle(
-                          color: Colors.grey[700],
-                          fontFamily: 'Product Sans',
-                          fontSize: 12.5),
+                      ],
                     ),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Swipe up to see your meetings",
+                        style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        ));
   }
 }
