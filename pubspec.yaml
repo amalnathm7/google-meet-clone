@@ -72,7 +72,6 @@ flutter:
     - family: Product Sans
       fonts:
         - asset: fonts/Product Sans Regular.ttf
-          weight: 500
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

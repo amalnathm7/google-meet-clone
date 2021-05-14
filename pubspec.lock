@@ -148,7 +148,7 @@ packages:
       name: google_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.2"
+    version: "5.0.3"
   google_sign_in_platform_interface:
     dependency: transitive
     description:

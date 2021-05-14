@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
@@ -202,7 +203,7 @@ class HomeState extends State<Home> {
           child: Column(
             children: [
               Container(
-                height: 130,
+                height: 110,
                 child: DrawerHeader(
                   decoration: BoxDecoration(
                       border:
@@ -211,9 +212,8 @@ class HomeState extends State<Home> {
                   child: ListTile(
                     onTap: account,
                     contentPadding: EdgeInsets.zero,
-                    minLeadingWidth: 0,
                     leading: Padding(
-                      padding: const EdgeInsets.only(left: 10),
+                      padding: const EdgeInsets.only(left: 15),
                       child: ClipRRect(
                           borderRadius: BorderRadius.circular(30),
                           child: Image.network(
@@ -224,6 +224,11 @@ class HomeState extends State<Home> {
                     title: Text(
                       FirebaseAuth.instance.currentUser.displayName,
                       overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Product Sans',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15
+                      ),
                     ),
                     subtitle: RichText(
                       overflow: TextOverflow.ellipsis,
@@ -265,10 +270,13 @@ class HomeState extends State<Home> {
                 onTap: settings,
                 dense: true,
                 minLeadingWidth: 20,
-                leading: Icon(
-                  Icons.settings_outlined,
-                  size: 20,
-                  color: Colors.black,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 7),
+                  child: Icon(
+                    Icons.settings_outlined,
+                    size: 20,
+                    color: Colors.black,
+                  ),
                 ),
                 title: Text(
                   "Settings",
@@ -279,10 +287,13 @@ class HomeState extends State<Home> {
                 onTap: feedback,
                 dense: true,
                 minLeadingWidth: 20,
-                leading: Icon(
-                  Icons.feedback_outlined,
-                  size: 20,
-                  color: Colors.black,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 7),
+                  child: Icon(
+                    Icons.feedback_outlined,
+                    size: 20,
+                    color: Colors.black,
+                  ),
                 ),
                 title: Text(
                   "Send feedback",
@@ -293,10 +304,13 @@ class HomeState extends State<Home> {
                 onTap: abuse,
                 dense: true,
                 minLeadingWidth: 20,
-                leading: Icon(
-                  Icons.report_gmailerrorred_outlined,
-                  size: 20,
-                  color: Colors.black,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 7),
+                  child: Icon(
+                    Icons.report_gmailerrorred_outlined,
+                    size: 20,
+                    color: Colors.black,
+                  ),
                 ),
                 title: Text(
                   "Report abuse",
@@ -307,10 +321,13 @@ class HomeState extends State<Home> {
                 onTap: help,
                 dense: true,
                 minLeadingWidth: 20,
-                leading: Icon(
-                  Icons.help,
-                  size: 20,
-                  color: Colors.black,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 7),
+                  child: Icon(
+                    Icons.help,
+                    size: 20,
+                    color: Colors.black,
+                  ),
                 ),
                 title: Text(
                   "Help",
@@ -370,6 +387,9 @@ class HomeState extends State<Home> {
             ],
           ),
         ),
+        /*body: SlidingSheet(
+
+        ),*/
         bottomNavigationBar: BottomAppBar(
           color: Colors.transparent,
           child: Column(
@@ -379,10 +399,12 @@ class HomeState extends State<Home> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   AnimatedContainer(
+                    height: 55,
+                    width: 55,
                     duration: Duration(milliseconds: 200),
                     decoration: BoxDecoration(
                         color:
-                            isMicPressed ? Colors.red[900] : Colors.transparent,
+                            isMicPressed ? Colors.red[800] : Colors.transparent,
                         shape: BoxShape.circle,
                         border: Border.all(
                             color: isMicPressed
@@ -402,11 +424,13 @@ class HomeState extends State<Home> {
                     width: 40,
                   ),
                   AnimatedContainer(
+                    height: 55,
+                    width: 55,
                     duration: Duration(milliseconds: 200),
                     decoration: BoxDecoration(
                         color:
-                            isVidPressed ? Colors.red[900] : Colors.transparent,
-                        shape: BoxShape.circle,
+                            isVidPressed ? Colors.red[800] : Colors.transparent,
+                        borderRadius: BorderRadius.circular(30),
                         border: Border.all(
                             color: isVidPressed
                                 ? Colors.transparent

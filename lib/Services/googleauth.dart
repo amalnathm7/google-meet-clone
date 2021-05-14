@@ -19,19 +19,20 @@ class GoogleAuth {
   }
 
   void signInWithGoogle(BuildContext context) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
 
-    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+      final GoogleSignInAccount googleSignInAccount =
+          await googleSignIn.signIn();
 
-    if (googleSignInAccount != null) {
-      GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount.authentication;
+      if (googleSignInAccount != null) {
+        GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
-          idToken: googleSignInAuthentication.idToken,
-          accessToken: googleSignInAuthentication.accessToken);
+        final AuthCredential credential = GoogleAuthProvider.credential(
+            idToken: googleSignInAuthentication.idToken,
+            accessToken: googleSignInAuthentication.accessToken);
 
-      try {
         UserCredential userCredential =
             await auth.signInWithCredential(credential);
 
@@ -43,10 +44,10 @@ class GoogleAuth {
           MaterialPageRoute(builder: (context) => Home()),
         );
         return;
-      } catch (e) {
-        Fluttertoast.showToast(msg: "Error signing in");
-        return;
       }
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error signing in");
+      return;
     }
     Fluttertoast.showToast(msg: "Selecting an account is required");
     signInWithGoogle(context);
