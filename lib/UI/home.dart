@@ -239,7 +239,8 @@ class HomeState extends State<Home> {
                 decoration: BoxDecoration(
                     border: Border(bottom: BorderSide(color: Colors.black12))),
                 padding: EdgeInsets.only(top: 0),
-                child: ExpansionTile( //Or, use ExpandablePanel plugin
+                child: ExpansionTile(
+//Or, use ExpandablePanel plugin
                   tilePadding: EdgeInsets.zero,
                   childrenPadding: EdgeInsets.zero,
                   onExpansionChanged: (val) {
