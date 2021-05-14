@@ -32,7 +32,8 @@ class GoogleAuth {
             idToken: googleSignInAuthentication.idToken,
             accessToken: googleSignInAuthentication.accessToken);
 
-        UserCredential userCredential = await auth.signInWithCredential(credential);
+        UserCredential userCredential =
+            await auth.signInWithCredential(credential);
 
         Navigator.pushReplacement(
           context,
@@ -50,13 +51,12 @@ class GoogleAuth {
 
   Future signOut(BuildContext context) async {
     try {
-      await auth.signOut();
-      await googleSignIn.signOut();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Login()),
       );
-    } catch (e) {
-    }
+      await auth.signOut();
+      await googleSignIn.signOut();
+    } catch (e) {}
   }
 }

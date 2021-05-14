@@ -272,9 +272,7 @@ class HomeState extends State<Home> {
                     softWrap: false,
                     text: TextSpan(children: [
                       TextSpan(
-                        text: _user == null
-                            ? ""
-                            : _user.email + " ",
+                        text: _user == null ? "" : _user.email + " ",
                         style: TextStyle(color: Colors.black54, fontSize: 12),
                       ),
                       WidgetSpan(
@@ -439,7 +437,6 @@ class HomeState extends State<Home> {
         duration: Duration(milliseconds: 300),
         color: Colors.transparent,
         elevation: 3,
-        cornerRadius: 10,
         cornerRadiusOnFullscreen: 0,
         closeOnBackButtonPressed: true,
         snapSpec: SnapSpec(
@@ -483,7 +480,7 @@ class HomeState extends State<Home> {
           }, builder: (context, state) {
             return state.isExpanded
                 ? Container(
-                    height: 1000,
+                    height: MediaQuery.of(context).size.height,
                     color: Colors.white,
                   )
                 : Column(
@@ -622,7 +619,7 @@ class HomeState extends State<Home> {
                               ],
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(10),
                               child: Text(
                                 "Swipe up to see your meetings",
                                 style: TextStyle(
