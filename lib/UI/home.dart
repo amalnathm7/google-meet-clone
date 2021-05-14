@@ -203,7 +203,7 @@ class HomeState extends State<Home> {
           child: Column(
             children: [
               Container(
-                height: 110,
+                height: 100,
                 child: DrawerHeader(
                   decoration: BoxDecoration(
                       border:
@@ -212,8 +212,10 @@ class HomeState extends State<Home> {
                   child: ListTile(
                     onTap: account,
                     contentPadding: EdgeInsets.zero,
+                    horizontalTitleGap: 10,
+                    dense: true,
                     leading: Padding(
-                      padding: const EdgeInsets.only(left: 15),
+                      padding: const EdgeInsets.only(left: 16),
                       child: ClipRRect(
                           borderRadius: BorderRadius.circular(30),
                           child: Image.network(
@@ -226,7 +228,6 @@ class HomeState extends State<Home> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontFamily: 'Product Sans',
-                        fontWeight: FontWeight.w500,
                         fontSize: 15
                       ),
                     ),
@@ -250,7 +251,7 @@ class HomeState extends State<Home> {
                       ]),
                     ),
                     trailing: Padding(
-                      padding: const EdgeInsets.only(right: 15),
+                      padding: const EdgeInsets.only(right: 10),
                       child: ClipRRect(
                           borderRadius: BorderRadius.circular(30),
                           child: IconButton(
@@ -271,7 +272,7 @@ class HomeState extends State<Home> {
                 dense: true,
                 minLeadingWidth: 20,
                 leading: Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 8),
                   child: Icon(
                     Icons.settings_outlined,
                     size: 20,
@@ -288,7 +289,7 @@ class HomeState extends State<Home> {
                 dense: true,
                 minLeadingWidth: 20,
                 leading: Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 8),
                   child: Icon(
                     Icons.feedback_outlined,
                     size: 20,
@@ -305,7 +306,7 @@ class HomeState extends State<Home> {
                 dense: true,
                 minLeadingWidth: 20,
                 leading: Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 8),
                   child: Icon(
                     Icons.report_gmailerrorred_outlined,
                     size: 20,
@@ -322,7 +323,7 @@ class HomeState extends State<Home> {
                 dense: true,
                 minLeadingWidth: 20,
                 leading: Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 8),
                   child: Icon(
                     Icons.help,
                     size: 20,
