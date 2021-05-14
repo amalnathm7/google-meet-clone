@@ -14,18 +14,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Gmeet',
-      theme: ThemeData(
-        accentColor: Colors.green[700],
-      ),
-      home: StreamBuilder<Object>(
-          stream: GoogleAuth().userIn,
-          builder: (context, snapshot) {
-            return snapshot.hasData
-                ? Home()
-                : Welcome();
-          }),
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Gmeet',
+        theme: ThemeData(
+          accentColor: Colors.green[700],
+        ),
+        home: GoogleAuth().userIn == null ? Welcome() : Home());
   }
 }

@@ -51,12 +51,12 @@ class GoogleAuth {
 
   Future signOut(BuildContext context) async {
     try {
+      await auth.signOut();
+      await googleSignIn.signOut();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Login()),
       );
-      await auth.signOut();
-      await googleSignIn.signOut();
     } catch (e) {}
   }
 }
