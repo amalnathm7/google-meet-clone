@@ -23,6 +23,7 @@ class HomeState extends State<Home> {
   var sheet = false;
   var snack = true;
   var logOut = false;
+  var accHeight = 110.0;
   User _user = FirebaseAuth.instance.currentUser;
 
   void mic() {
@@ -60,15 +61,6 @@ class HomeState extends State<Home> {
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
   }
 
-  void account() {
-    setState(() {
-      if (isAccPressed)
-        isAccPressed = false;
-      else
-        isAccPressed = true;
-    });
-  }
-
   void _launchURL1() async {
     const _url = 'https://policies.google.com/terms';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
@@ -78,6 +70,8 @@ class HomeState extends State<Home> {
     const _url = 'https://policies.google.com/privacy';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
   }
+
+  void manageAccount() {}
 
   void speaker() {
     setState(() {
@@ -240,16 +234,23 @@ class HomeState extends State<Home> {
         child: Column(
           children: [
             Container(
-              height: 100,
+              height: accHeight,
               child: DrawerHeader(
                 decoration: BoxDecoration(
                     border: Border(bottom: BorderSide(color: Colors.black12))),
                 padding: EdgeInsets.only(top: 0),
-                child: ListTile(
-                  onTap: account,
-                  contentPadding: EdgeInsets.zero,
-                  horizontalTitleGap: 10,
-                  dense: true,
+                child: ExpansionTile( //Or, use ExpandablePanel plugin
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: EdgeInsets.zero,
+                  onExpansionChanged: (val) {
+                    setState(() {
+                      isAccPressed = val;
+                      if (isAccPressed)
+                        accHeight = 160;
+                      else
+                        accHeight = 110;
+                    });
+                  },
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 16),
                     child: _user == null
@@ -264,7 +265,10 @@ class HomeState extends State<Home> {
                   title: Text(
                     _user == null ? "" : _user.displayName,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontFamily: 'Product Sans', fontSize: 15),
+                    style: TextStyle(
+                        fontFamily: 'Product Sans',
+                        fontSize: 15,
+                        color: Colors.black),
                   ),
                   subtitle: RichText(
                     overflow: TextOverflow.ellipsis,
@@ -302,6 +306,7 @@ class HomeState extends State<Home> {
                               child: IconButton(
                                 iconSize: 20,
                                 splashRadius: 20,
+                                color: Colors.black54,
                                 splashColor: Colors.transparent,
                                 icon: Icon(
                                   Icons.logout,
@@ -309,6 +314,27 @@ class HomeState extends State<Home> {
                                 onPressed: logout,
                               )),
                         ),
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: Colors.grey)),
+                      height: 36,
+                      child: TextButton(
+                          style: TextButton.styleFrom(
+                            shadowColor: Colors.grey,
+                            onSurface: Colors.grey,
+                          ),
+                          onPressed: manageAccount,
+                          child: Text(
+                            "Manage your Google Account",
+                            style: TextStyle(
+                                color: Colors.black54,
+                                fontFamily: 'Product Sans',
+                                fontSize: 14),
+                          )),
+                    ),
+                  ],
                 ),
               ),
             ),
