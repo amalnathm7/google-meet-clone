@@ -19,6 +19,8 @@ class HomeState extends State<Home> {
   var isMicPressed = false;
   var isVidPressed = false;
   var isAccPressed = false;
+  var sheet = false;
+  var snack = true;
 
   void mic() {
     setState(() {
@@ -40,18 +42,23 @@ class HomeState extends State<Home> {
 
   void settings() {}
 
-  void feedback() {}
+  void feedback() async {
+    const _url = 'mailto:amalnathm7@gmail.com?subject=Feedback';
+    await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
+  }
 
-  void abuse() {}
+  void abuse() async {
+    const _url = 'https://support.google.com/meet/contact/abuse';
+    await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
+  }
 
-  void help() {}
+  void help() async {
+    const _url = 'https://support.google.com';
+    await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
+  }
 
   void account() {
     setState(() {
-      /*if (arrIcon == Icons.keyboard_arrow_down)
-        arrIcon = Icons.keyboard_arrow_up;
-      else
-        arrIcon = Icons.keyboard_arrow_down;*/
       if (isAccPressed)
         isAccPressed = false;
       else
@@ -172,371 +179,432 @@ class HomeState extends State<Home> {
         });
   }
 
+  void refresh() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          title: Center(
-            child: Text(
-              "Meet",
-              style: TextStyle(
-                fontFamily: 'Product Sans',
+      backgroundColor: Colors.transparent,
+      appBar: sheet
+          ? AppBar(
+              backgroundColor: Colors.white,
+              iconTheme: IconThemeData(color: Colors.black54),
+              title: Text(
+                "Your meetings",
+                style: TextStyle(
+                    color: Colors.black87, fontFamily: 'Product Sans'),
+              ),
+              actions: <Widget>[
+                IconButton(
+                  onPressed: refresh,
+                  splashRadius: 20,
+                  splashColor: Colors.transparent,
+                  icon: Icon(
+                    Icons.refresh,
+                    color: Colors.black54,
+                  ),
+                )
+              ],
+            )
+          : AppBar(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              title: Text(
+                "Meet",
+                style: TextStyle(
+                  fontFamily: 'Product Sans',
+                ),
+              ),
+              centerTitle: true,
+              actions: <Widget>[
+                IconButton(
+                  onPressed: btm,
+                  splashRadius: 25,
+                  splashColor: Colors.transparent,
+                  icon: Icon(
+                    icon,
+                    color: Colors.white,
+                  ),
+                )
+              ],
+            ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            Container(
+              height: 100,
+              child: DrawerHeader(
+                decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Colors.black12))),
+                padding: EdgeInsets.only(top: 0),
+                child: ListTile(
+                  onTap: account,
+                  contentPadding: EdgeInsets.zero,
+                  horizontalTitleGap: 10,
+                  dense: true,
+                  leading: Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.network(
+                          FirebaseAuth.instance.currentUser.photoURL,
+                          height: 36,
+                        )),
+                  ),
+                  title: Text(
+                    FirebaseAuth.instance.currentUser.displayName,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontFamily: 'Product Sans', fontSize: 15),
+                  ),
+                  subtitle: RichText(
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: false,
+                    text: TextSpan(children: [
+                      TextSpan(
+                        text: FirebaseAuth.instance.currentUser.email + " ",
+                        style: TextStyle(color: Colors.black54, fontSize: 12),
+                      ),
+                      WidgetSpan(
+                          child: Icon(
+                        isAccPressed
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: Colors.black54,
+                        size: 18,
+                      ))
+                    ]),
+                  ),
+                  trailing: Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: IconButton(
+                          iconSize: 20,
+                          splashRadius: 20,
+                          splashColor: Colors.transparent,
+                          icon: Icon(
+                            Icons.logout,
+                          ),
+                          onPressed: logout,
+                        )),
+                  ),
+                ),
               ),
             ),
-          ),
-          actions: <Widget>[
-            IconButton(
-              onPressed: btm,
-              splashRadius: 25,
-              splashColor: Colors.transparent,
-              icon: Icon(
-                icon,
-                color: Colors.white,
-              ),
-            )
-          ],
-        ),
-        drawer: Drawer(
-          child: Column(
-            children: [
-              Container(
-                height: 100,
-                child: DrawerHeader(
-                  decoration: BoxDecoration(
-                      border:
-                          Border(bottom: BorderSide(color: Colors.black12))),
-                  padding: EdgeInsets.only(top: 0),
-                  child: ListTile(
-                    onTap: account,
-                    contentPadding: EdgeInsets.zero,
-                    horizontalTitleGap: 10,
-                    dense: true,
-                    leading: Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: Image.network(
-                            FirebaseAuth.instance.currentUser.photoURL,
-                            height: 36,
-                          )),
-                    ),
-                    title: Text(
-                      FirebaseAuth.instance.currentUser.displayName,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: 'Product Sans',
-                        fontSize: 15
-                      ),
-                    ),
-                    subtitle: RichText(
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: false,
-                      text: TextSpan(children: [
-                        TextSpan(
-                          text: FirebaseAuth.instance.currentUser.email + " ",
-                          style: TextStyle(color: Colors.black54, fontSize: 12),
-                        ),
-                        WidgetSpan(
-                            child: Icon(
-                          isAccPressed
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                          color: Colors.black54,
-                          size: 18,
-                        ))
-                      ]),
-                    ),
-                    trailing: Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: IconButton(
-                            iconSize: 20,
-                            splashRadius: 20,
-                            splashColor: Colors.transparent,
-                            icon: Icon(
-                              Icons.logout,
-                            ),
-                            onPressed: logout,
-                          )),
-                    ),
-                  ),
+            ListTile(
+              onTap: settings,
+              dense: true,
+              minLeadingWidth: 20,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(
+                  Icons.settings_outlined,
+                  size: 20,
+                  color: Colors.black,
                 ),
               ),
-              ListTile(
-                onTap: settings,
-                dense: true,
-                minLeadingWidth: 20,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Icon(
-                    Icons.settings_outlined,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                ),
-                title: Text(
-                  "Settings",
-                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+              title: Text(
+                "Settings",
+                style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+              ),
+            ),
+            ListTile(
+              onTap: feedback,
+              dense: true,
+              minLeadingWidth: 20,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(
+                  Icons.feedback_outlined,
+                  size: 20,
+                  color: Colors.black,
                 ),
               ),
-              ListTile(
-                onTap: feedback,
-                dense: true,
-                minLeadingWidth: 20,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Icon(
-                    Icons.feedback_outlined,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                ),
-                title: Text(
-                  "Send feedback",
-                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+              title: Text(
+                "Send feedback",
+                style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+              ),
+            ),
+            ListTile(
+              onTap: abuse,
+              dense: true,
+              minLeadingWidth: 20,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(
+                  Icons.report_gmailerrorred_outlined,
+                  size: 20,
+                  color: Colors.black,
                 ),
               ),
-              ListTile(
-                onTap: abuse,
-                dense: true,
-                minLeadingWidth: 20,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Icon(
-                    Icons.report_gmailerrorred_outlined,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                ),
-                title: Text(
-                  "Report abuse",
-                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
-                ),
+              title: Text(
+                "Report abuse",
+                style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
               ),
-              ListTile(
-                onTap: help,
-                dense: true,
-                minLeadingWidth: 20,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Icon(
-                    Icons.help,
-                    size: 20,
-                    color: Colors.black,
-                  ),
-                ),
-                title: Text(
-                  "Help",
-                  style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
+            ),
+            ListTile(
+              onTap: help,
+              dense: true,
+              minLeadingWidth: 20,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(
+                  Icons.help,
+                  size: 20,
+                  color: Colors.black,
                 ),
               ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Divider(
-                        thickness: 1,
-                        height: 0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton(
-                            onPressed: _launchURL2,
-                            style: ButtonStyle(
-                                overlayColor:
-                                    MaterialStateProperty.all(Colors.black12),
-                                padding: MaterialStateProperty.all(
-                                    EdgeInsets.only(left: 5, right: 5))),
-                            child: Text(
-                              "Privacy Policy",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          Text("  •  "),
-                          TextButton(
-                            onPressed: _launchURL1,
-                            style: ButtonStyle(
-                                overlayColor:
-                                    MaterialStateProperty.all(Colors.black12),
-                                padding: MaterialStateProperty.all(
-                                    EdgeInsets.only(left: 5, right: 5))),
-                            child: Text(
-                              "Terms of Service",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
+              title: Text(
+                "Help",
+                style: TextStyle(fontSize: 14, fontFamily: 'Product Sans'),
               ),
-            ],
-          ),
-        ),
-        /*body: SlidingSheet(
-
-        ),*/
-        bottomNavigationBar: BottomAppBar(
-          color: Colors.transparent,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AnimatedContainer(
-                    height: 55,
-                    width: 55,
-                    duration: Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                        color:
-                            isMicPressed ? Colors.red[800] : Colors.transparent,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: isMicPressed
-                                ? Colors.transparent
-                                : Colors.white)),
-                    child: IconButton(
-                      splashRadius: 25,
-                      splashColor: Colors.transparent,
-                      icon: Icon(isMicPressed
-                          ? Icons.mic_off_outlined
-                          : Icons.mic_none_outlined),
-                      onPressed: mic,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 40,
-                  ),
-                  AnimatedContainer(
-                    height: 55,
-                    width: 55,
-                    duration: Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                        color:
-                            isVidPressed ? Colors.red[800] : Colors.transparent,
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                            color: isVidPressed
-                                ? Colors.transparent
-                                : Colors.white)),
-                    child: IconButton(
-                      splashRadius: 25,
-                      splashColor: Colors.transparent,
-                      icon: Icon(isVidPressed
-                          ? Icons.videocam_off_outlined
-                          : Icons.videocam_outlined),
-                      onPressed: video,
-                      color: Colors.white,
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                color: Colors.white,
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      height: 10,
-                      width: 25,
-                      decoration: BoxDecoration(
-                          border: Border(
-                              bottom:
-                                  BorderSide(width: 2, color: Colors.black12))),
-                    ),
-                    SizedBox(
-                      height: 10,
+                    Divider(
+                      thickness: 1,
+                      height: 0,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 5, bottom: 20, left: 10, right: 5),
-                            child: ElevatedButton.icon(
-                                icon: Icon(
-                                  Icons.add,
-                                  color: Colors.green[900],
-                                ),
-                                label: Text(
-                                  "New meeting",
-                                  style: TextStyle(
-                                      color: Colors.green[900],
-                                      fontFamily: 'Product Sans'),
-                                ),
-                                onPressed: newMeeting,
-                                style: ElevatedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.grey[300], width: 1),
-                                  elevation: 0,
-                                  primary: Colors.white,
-                                  onPrimary: Colors.green[900],
-                                  shadowColor: Colors.transparent,
-                                )),
+                        TextButton(
+                          onPressed: _launchURL2,
+                          style: ButtonStyle(
+                              overlayColor:
+                                  MaterialStateProperty.all(Colors.black12),
+                              padding: MaterialStateProperty.all(
+                                  EdgeInsets.only(left: 5, right: 5))),
+                          child: Text(
+                            "Privacy Policy",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400),
                           ),
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 5, bottom: 20, left: 5, right: 10),
-                            child: ElevatedButton.icon(
-                              icon: Icon(
-                                Icons.keyboard,
-                                color: Colors.green[900],
-                              ),
-                              label: Text(
-                                "Meeting code",
-                                style: TextStyle(
-                                    color: Colors.green[900],
-                                    fontFamily: 'Product Sans'),
-                              ),
-                              onPressed: meetingCode,
-                              style: ElevatedButton.styleFrom(
-                                side: BorderSide(
-                                    color: Colors.grey[300], width: 1),
-                                elevation: 0,
-                                primary: Colors.white,
-                                onPrimary: Colors.green[900],
-                                shadowColor: Colors.transparent,
-                              ),
-                            ),
+                        Text("  •  "),
+                        TextButton(
+                          onPressed: _launchURL1,
+                          style: ButtonStyle(
+                              overlayColor:
+                                  MaterialStateProperty.all(Colors.black12),
+                              padding: MaterialStateProperty.all(
+                                  EdgeInsets.only(left: 5, right: 5))),
+                          child: Text(
+                            "Terms of Service",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400),
                           ),
                         ),
                       ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Swipe up to see your meetings",
-                        style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                      ),
                     )
                   ],
                 ),
-              )
-            ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: SlidingSheet(
+        duration: Duration(milliseconds: 300),
+        color: Colors.transparent,
+        elevation: 3,
+        cornerRadius: 10,
+        cornerRadiusOnFullscreen: 0,
+        closeOnBackButtonPressed: true,
+        snapSpec: SnapSpec(
+            initialSnap: 200,
+            snappings: [200, double.infinity],
+            positioning: SnapPositioning.pixelOffset),
+        body: Center(
+          child: Text(
+            "YOU ARE HERE!",
+            style: TextStyle(color: Colors.white),
           ),
-        ));
+        ),
+        builder: (context, state) {
+          return SheetListenerBuilder(buildWhen: (oldState, newState) {
+            if (snack)
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Signed in as " +
+                      FirebaseAuth.instance.currentUser.email)));
+            snack = false;
+            setState(() {
+              if (newState.isExpanded) {
+                sheet = true;
+              } else {
+                sheet = false;
+              }
+            });
+            return true;
+          }, builder: (context, state) {
+            return state.isExpanded
+                ? Container(
+                    height: 1000,
+                    color: Colors.white,
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedContainer(
+                            height: 55,
+                            width: 55,
+                            duration: Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                                color: isMicPressed
+                                    ? Colors.red[800]
+                                    : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: isMicPressed
+                                        ? Colors.transparent
+                                        : Colors.white)),
+                            child: IconButton(
+                              splashRadius: 25,
+                              splashColor: Colors.transparent,
+                              icon: Icon(isMicPressed
+                                  ? Icons.mic_off_outlined
+                                  : Icons.mic_none_outlined),
+                              onPressed: mic,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 40,
+                          ),
+                          AnimatedContainer(
+                            height: 55,
+                            width: 55,
+                            duration: Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                                color: isVidPressed
+                                    ? Colors.red[800]
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                    color: isVidPressed
+                                        ? Colors.transparent
+                                        : Colors.white)),
+                            child: IconButton(
+                              splashRadius: 25,
+                              splashColor: Colors.transparent,
+                              icon: Icon(isVidPressed
+                                  ? Icons.videocam_off_outlined
+                                  : Icons.videocam_outlined),
+                              onPressed: video,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 10,
+                              width: 25,
+                              decoration: BoxDecoration(
+                                  border: Border(
+                                      bottom: BorderSide(
+                                          width: 2, color: Colors.black12))),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 5, bottom: 20, left: 10, right: 5),
+                                    child: ElevatedButton.icon(
+                                        icon: Icon(
+                                          Icons.add,
+                                          color: Colors.green[900],
+                                        ),
+                                        label: Text(
+                                          "New meeting",
+                                          style: TextStyle(
+                                              color: Colors.green[900],
+                                              fontFamily: 'Product Sans'),
+                                        ),
+                                        onPressed: newMeeting,
+                                        style: ElevatedButton.styleFrom(
+                                          side: BorderSide(
+                                              color: Colors.grey[300],
+                                              width: 1),
+                                          elevation: 0,
+                                          primary: Colors.white,
+                                          onPrimary: Colors.green[900],
+                                          shadowColor: Colors.transparent,
+                                        )),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 5, bottom: 20, left: 5, right: 10),
+                                    child: ElevatedButton.icon(
+                                      icon: Icon(
+                                        Icons.keyboard,
+                                        color: Colors.green[900],
+                                      ),
+                                      label: Text(
+                                        "Meeting code",
+                                        style: TextStyle(
+                                            color: Colors.green[900],
+                                            fontFamily: 'Product Sans'),
+                                      ),
+                                      onPressed: meetingCode,
+                                      style: ElevatedButton.styleFrom(
+                                        side: BorderSide(
+                                            color: Colors.grey[300], width: 1),
+                                        elevation: 0,
+                                        primary: Colors.white,
+                                        onPrimary: Colors.green[900],
+                                        shadowColor: Colors.transparent,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Swipe up to see your meetings",
+                                style: TextStyle(
+                                    color: Colors.grey[700], fontSize: 12),
+                              ),
+                            ),
+                            Container(
+                              height: 500,
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  );
+          });
+        },
+      ),
+    );
   }
 }
