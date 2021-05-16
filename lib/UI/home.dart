@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/googleauth.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,7 +30,14 @@ class HomeState extends State<Home> {
   void mic() {
     setState(() {
       isMicPressed = !isMicPressed;
+      Fluttertoast.cancel();
     });
+    Fluttertoast.showToast(
+      msg: isMicPressed ? "Microphone off" : "Microphone on",
+      gravity: ToastGravity.CENTER,
+      textColor: Colors.white,
+      backgroundColor: Colors.transparent,
+    );
   }
 
   void video() {
@@ -71,7 +79,10 @@ class HomeState extends State<Home> {
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
   }
 
-  void manageAccount() {}
+  void manageAccount() async {
+    const _url = 'https://myaccount.google.com';
+    await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
+  }
 
   void speaker() {
     setState(() {
@@ -233,111 +244,113 @@ class HomeState extends State<Home> {
       drawer: Drawer(
         child: Column(
           children: [
-            Container(
-              height: accHeight,
-              child: DrawerHeader(
-                decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Colors.black12))),
-                padding: EdgeInsets.only(top: 0),
-                child: ExpansionTile(
-//Or, use ExpandablePanel plugin
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: EdgeInsets.zero,
-                  onExpansionChanged: (val) {
-                    setState(() {
-                      isAccPressed = val;
-                      if (isAccPressed)
-                        accHeight = 160;
-                      else
-                        accHeight = 110;
-                    });
-                  },
-                  leading: Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: _user == null
-                        ? SizedBox()
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(30),
-                            child: Image.network(
-                              _user.photoURL,
-                              height: 36,
-                            )),
+            SizedBox(
+              height: 20,
+            ),
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: EdgeInsets.zero,
+              onExpansionChanged: (val) {
+                setState(() {
+                  isAccPressed = val;
+                  if (isAccPressed)
+                    accHeight = 170;
+                  else {
+                    accHeight = 110;
+                  }
+                });
+              },
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: _user == null
+                    ? SizedBox()
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.network(
+                          _user.photoURL,
+                          height: 36,
+                        )),
+              ),
+              title: Text(
+                _user == null ? "" : _user.displayName,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontFamily: 'Product Sans',
+                    fontSize: 15,
+                    color: Colors.black),
+              ),
+              subtitle: RichText(
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                softWrap: false,
+                text: TextSpan(children: [
+                  TextSpan(
+                    text: _user == null ? "" : _user.email + " ",
+                    style: TextStyle(color: Colors.black54, fontSize: 12),
                   ),
-                  title: Text(
-                    _user == null ? "" : _user.displayName,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontFamily: 'Product Sans',
-                        fontSize: 15,
-                        color: Colors.black),
-                  ),
-                  subtitle: RichText(
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    softWrap: false,
-                    text: TextSpan(children: [
-                      TextSpan(
-                        text: _user == null ? "" : _user.email + " ",
-                        style: TextStyle(color: Colors.black54, fontSize: 12),
-                      ),
-                      WidgetSpan(
-                          child: Icon(
-                        isAccPressed
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: Colors.black54,
-                        size: 18,
-                      ))
-                    ]),
-                  ),
-                  trailing: logOut
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 28),
-                          child: Container(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                              )),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: ClipRRect(
-                              borderRadius: BorderRadius.circular(30),
-                              child: IconButton(
-                                iconSize: 20,
-                                splashRadius: 20,
-                                color: Colors.black54,
-                                splashColor: Colors.transparent,
-                                icon: Icon(
-                                  Icons.logout,
-                                ),
-                                onPressed: logout,
-                              )),
-                        ),
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
+                  WidgetSpan(
+                      child: Icon(
+                    isAccPressed
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Colors.black54,
+                    size: 18,
+                  ))
+                ]),
+              ),
+              trailing: logOut
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 28),
+                      child: Container(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                          )),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: ClipRRect(
                           borderRadius: BorderRadius.circular(30),
-                          border: Border.all(color: Colors.grey)),
-                      height: 36,
-                      child: TextButton(
-                          style: TextButton.styleFrom(
-                            shadowColor: Colors.grey,
-                            onSurface: Colors.grey,
-                          ),
-                          onPressed: manageAccount,
-                          child: Text(
-                            "Manage your Google Account",
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontFamily: 'Product Sans',
-                                fontSize: 14),
+                          child: IconButton(
+                            iconSize: 20,
+                            splashRadius: 20,
+                            color: Colors.black54,
+                            splashColor: Colors.transparent,
+                            icon: Icon(
+                              Icons.logout,
+                            ),
+                            onPressed: logout,
                           )),
                     ),
-                  ],
-                ),
-              ),
+              children: [
+                TextButton(
+                    style: TextButton.styleFrom(
+                        shadowColor: Colors.grey,
+                        onSurface: Colors.grey,
+                        minimumSize: Size(180, 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          side: BorderSide(width: 0.5),
+                        )),
+                    onPressed: manageAccount,
+                    child: Text(
+                      "Manage your Google Account",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.black54,
+                          fontFamily: 'Product Sans',
+                          fontSize: 12),
+                    )),
+                SizedBox(
+                  height: 5,
+                )
+              ],
+            ),
+            Divider(
+              color: Colors.black12,
+              thickness: 1,
+              height: 0,
             ),
             ListTile(
               onTap: settings,
@@ -492,9 +505,13 @@ class HomeState extends State<Home> {
         builder: (context, state) {
           return SheetListenerBuilder(buildWhen: (oldState, newState) {
             if (snack)
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
                   content: Text("Signed in as " +
-                      FirebaseAuth.instance.currentUser.email)));
+                      FirebaseAuth.instance.currentUser.email),
+                  duration: Duration(seconds: 1),
+                ),
+              );
             snack = false;
             setState(() {
               if (newState.isExpanded) {
