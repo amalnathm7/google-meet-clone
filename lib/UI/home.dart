@@ -486,17 +486,19 @@ class HomeState extends State<Home> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _user == null
-                ? SizedBox()
-                : Center(
-                    child: ClipRRect(
-                      child: Image.network(
-                        _user.photoURL,
-                        height: 80,
-                      ),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  ),
+            isVidPressed
+                ? _user == null
+                    ? SizedBox()
+                    : Center(
+                        child: ClipRRect(
+                          child: Image.network(
+                            _user.photoURL,
+                            height: 80,
+                          ),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      )
+                : SizedBox(),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.3,
             )
@@ -507,8 +509,7 @@ class HomeState extends State<Home> {
             if (snack)
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Signed in as " +
-                      FirebaseAuth.instance.currentUser.email),
+                  content: Text("Signed in as " + _user.email),
                   duration: Duration(seconds: 1),
                 ),
               );
