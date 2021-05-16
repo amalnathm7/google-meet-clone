@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/googleauth.dart';
+import 'package:gmeet/UI/live.dart';
+import 'package:gmeet/UI/meetingcode.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -46,9 +48,12 @@ class HomeState extends State<Home> {
     });
   }
 
-  void newMeeting() {}
+  void newMeeting() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Live()));
+  }
 
-  void meetingCode() {}
+  void meetingCode() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MeetingCode()));}
 
   void menu() {}
 
