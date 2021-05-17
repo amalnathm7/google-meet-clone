@@ -252,7 +252,7 @@ class HomeState extends State<Home> {
         child: Column(
           children: [
             SizedBox(
-              height: 20,
+              height: 40,
             ),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,

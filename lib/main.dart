@@ -17,7 +17,11 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Gmeet',
         theme: ThemeData(
-            accentColor: Colors.green[700], dividerColor: Colors.transparent),
+          accentColor: Colors.green[700],
+          dividerColor: Colors.transparent,
+          primaryColor: Colors.green[800],
+          shadowColor: Colors.transparent,
+        ),
         home: GoogleAuth().userIn == null ? Welcome() : Home());
   }
 }
