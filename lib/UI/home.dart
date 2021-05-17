@@ -49,12 +49,17 @@ class HomeState extends State<Home> {
   }
 
   void newMeeting() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Live()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Live()),
+    );
   }
 
   void meetingCode() {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => MeetingCode()));
+      context,
+      MaterialPageRoute(builder: (context) => MeetingCode()),
+    );
   }
 
   void menu() {}
