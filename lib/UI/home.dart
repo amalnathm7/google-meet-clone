@@ -522,7 +522,7 @@ class HomeState extends State<Home> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text("Signed in as " + _user.email),
-                  duration: Duration(seconds: 1),
+                  duration: Duration(milliseconds: 1000),
                 ),
               );
             snack = false;
