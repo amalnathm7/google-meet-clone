@@ -300,15 +300,15 @@ class HomeState extends State<Home> {
               },
               leading: Padding(
                 padding: const EdgeInsets.only(left: 16),
-                child: ClipRRect(
+                child: _user != null ? ClipRRect(
                     borderRadius: BorderRadius.circular(30),
                     child: Image.network(
-                      _user?.photoURL,
+                      _user.photoURL,
                       height: 36,
-                    )),
+                    )) : SizedBox(),
               ),
               title: Text(
-                _user?.displayName,
+                _user != null ? _user.displayName : "",
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     fontFamily: 'Product Sans',
@@ -321,7 +321,7 @@ class HomeState extends State<Home> {
                 softWrap: false,
                 text: TextSpan(children: [
                   TextSpan(
-                    text: _user == null ? "" : _user.email + " ",
+                    text: _user != null ? _user.email + " " : "",
                     style: TextStyle(color: Colors.black54, fontSize: 12),
                   ),
                   WidgetSpan(
@@ -524,19 +524,22 @@ class HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             isVidPressed
-                ? Center(
-                    child: ClipRRect(
-                      child: Image.network(
-                        _user?.photoURL,
-                        height: 80,
-                      ),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  )
-                : _controller != null ? _controller.value.isInitialized
-                    ? CameraPreview(_controller)
+                ? _user != null
+                    ? Center(
+                        child: ClipRRect(
+                          child: Image.network(
+                            _user.photoURL,
+                            height: 80,
+                          ),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      )
                     : SizedBox()
-                : SizedBox(),
+                : _controller != null
+                    ? _controller.value.isInitialized
+                        ? CameraPreview(_controller)
+                        : SizedBox()
+                    : SizedBox(),
           ],
         ),
         builder: (context, state) {
@@ -544,7 +547,7 @@ class HomeState extends State<Home> {
             if (snack)
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Signed in as " + _user?.email),
+                  content: Text("Signed in as " + _user?.email.toString()),
                   duration: Duration(milliseconds: 1000),
                 ),
               );
