@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -28,6 +29,30 @@ class HomeState extends State<Home> {
   var logOut = false;
   var accHeight = 110.0;
   User _user = FirebaseAuth.instance.currentUser;
+  CameraController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    camera();
+  }
+
+  void camera() async {
+    final cameras = await availableCameras();
+    _controller = CameraController(cameras[0], ResolutionPreset.max);
+    _controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
 
   void mic() {
     setState(() {
@@ -209,6 +234,7 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
       appBar: sheet
           ? AppBar(
@@ -274,17 +300,15 @@ class HomeState extends State<Home> {
               },
               leading: Padding(
                 padding: const EdgeInsets.only(left: 16),
-                child: _user == null
-                    ? SizedBox()
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Image.network(
-                          _user.photoURL,
-                          height: 36,
-                        )),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.network(
+                      _user?.photoURL,
+                      height: 36,
+                    )),
               ),
               title: Text(
-                _user == null ? "" : _user.displayName,
+                _user?.displayName,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     fontFamily: 'Product Sans',
@@ -488,6 +512,7 @@ class HomeState extends State<Home> {
       body: SlidingSheet(
         duration: Duration(milliseconds: 300),
         color: Colors.transparent,
+        shadowColor: Colors.transparent,
         elevation: 3,
         cornerRadiusOnFullscreen: 0,
         closeOnBackButtonPressed: true,
@@ -499,21 +524,19 @@ class HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             isVidPressed
-                ? _user == null
-                    ? SizedBox()
-                    : Center(
-                        child: ClipRRect(
-                          child: Image.network(
-                            _user.photoURL,
-                            height: 80,
-                          ),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                      )
+                ? Center(
+                    child: ClipRRect(
+                      child: Image.network(
+                        _user?.photoURL,
+                        height: 80,
+                      ),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  )
+                : _controller != null ? _controller.value.isInitialized
+                    ? CameraPreview(_controller)
+                    : SizedBox()
                 : SizedBox(),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.3,
-            )
           ],
         ),
         builder: (context, state) {
@@ -521,7 +544,7 @@ class HomeState extends State<Home> {
             if (snack)
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Signed in as " + _user.email),
+                  content: Text("Signed in as " + _user?.email),
                   duration: Duration(milliseconds: 1000),
                 ),
               );
