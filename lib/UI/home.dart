@@ -27,7 +27,6 @@ class HomeState extends State<Home> {
   var sheet = false;
   var snack = true;
   var logOut = false;
-  var accHeight = 110.0;
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
 
@@ -291,11 +290,6 @@ class HomeState extends State<Home> {
               onExpansionChanged: (val) {
                 setState(() {
                   isAccPressed = val;
-                  if (isAccPressed)
-                    accHeight = 170;
-                  else {
-                    accHeight = 110;
-                  }
                 });
               },
               leading: Padding(
@@ -547,6 +541,7 @@ class HomeState extends State<Home> {
             ),
           ],
         ),
+        addTopViewPaddingOnFullscreen: false,
         builder: (context, state) {
           return SheetListenerBuilder(buildWhen: (oldState, newState) {
             if (snack)
