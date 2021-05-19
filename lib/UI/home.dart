@@ -238,11 +238,14 @@ class HomeState extends State<Home> {
       appBar: sheet
           ? AppBar(
               backgroundColor: Colors.white,
+              toolbarHeight: 75,
               iconTheme: IconThemeData(color: Colors.black54),
               title: Text(
                 "Your meetings",
                 style: TextStyle(
-                    color: Colors.black87, fontFamily: 'Product Sans'),
+                  color: Colors.black87,
+                  fontFamily: 'Product Sans'
+                ),
               ),
               actions: <Widget>[
                 IconButton(
@@ -506,6 +509,9 @@ class HomeState extends State<Home> {
         ),
       ),
       body: SlidingSheet(
+        liftOnScrollHeaderElevation: 0,
+        backdropColor: Colors.white,
+        scrollSpec: ScrollSpec(overscroll: false),
         duration: Duration(milliseconds: 300),
         color: Colors.transparent,
         shadowColor: Colors.transparent,
