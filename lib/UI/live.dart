@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gmeet/UI/home.dart';
 
 class Live extends StatefulWidget {
   @override
@@ -11,16 +12,14 @@ class Live extends StatefulWidget {
 
 class LiveState extends State<Live> {
   var _user = FirebaseAuth.instance.currentUser;
-  var isMicPressed = false;
-  var isVidPressed = false;
 
   void mic() {
     setState(() {
-      isMicPressed = !isMicPressed;
+      HomeState.isMicPressed = !HomeState.isMicPressed;
       Fluttertoast.cancel();
     });
     Fluttertoast.showToast(
-      msg: isMicPressed ? "Microphone off" : "Microphone on",
+      msg: HomeState.isMicPressed ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.CENTER,
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
@@ -29,7 +28,7 @@ class LiveState extends State<Live> {
 
   void video() {
     setState(() {
-      isVidPressed = !isVidPressed;
+      HomeState.isVidPressed = !HomeState.isVidPressed;
     });
   }
 

@@ -21,8 +21,8 @@ class HomeState extends State<Home> {
   var clr2 = Colors.transparent;
   var clr3 = Colors.transparent;
   var icon = Icons.volume_up_outlined;
-  var isMicPressed = false;
-  var isVidPressed = false;
+  static var isMicPressed = false;
+  static var isVidPressed = false;
   var isAccPressed = false;
   var sheet = false;
   var snack = true;
@@ -39,7 +39,7 @@ class HomeState extends State<Home> {
 
   void camera() async {
     final cameras = await availableCameras();
-    _controller = CameraController(cameras[0], ResolutionPreset.max);
+    _controller = CameraController(cameras.last, ResolutionPreset.max);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -300,12 +300,14 @@ class HomeState extends State<Home> {
               },
               leading: Padding(
                 padding: const EdgeInsets.only(left: 16),
-                child: _user != null ? ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.network(
-                      _user.photoURL,
-                      height: 36,
-                    )) : SizedBox(),
+                child: _user != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.network(
+                          _user.photoURL,
+                          height: 36,
+                        ))
+                    : SizedBox(),
               ),
               title: Text(
                 _user != null ? _user.displayName : "",
@@ -540,6 +542,9 @@ class HomeState extends State<Home> {
                         ? CameraPreview(_controller)
                         : SizedBox()
                     : SizedBox(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * .15,
+            ),
           ],
         ),
         builder: (context, state) {
