@@ -4,7 +4,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'login.dart';
 
-class Welcome extends StatelessWidget {
+class Welcome extends StatefulWidget{
+  @override
+  State<StatefulWidget> createState() {
+    return WelcomeState();
+  }
+}
+
+class WelcomeState extends State<Welcome> {
   void _launchURL1() async {
     const _url = 'https://policies.google.com/terms';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
@@ -13,6 +20,20 @@ class Welcome extends StatelessWidget {
   void _launchURL2() async {
     const _url = 'https://policies.google.com/privacy';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
+  }
+
+  void checkCamAndMic() async {
+    if(await Permission.camera.isGranted && await Permission.microphone.isGranted)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkCamAndMic();
   }
 
   @override

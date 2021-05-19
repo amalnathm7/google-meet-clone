@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:gmeet/Services/googleauth.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/welcome.dart';
 
@@ -22,6 +22,6 @@ class MyApp extends StatelessWidget {
           primaryColor: Colors.green[800],
           shadowColor: Colors.transparent,
         ),
-        home: GoogleAuth().userIn == null ? Welcome() : Home());
+        home: FirebaseAuth.instance.currentUser == null ? Welcome() : Home());
   }
 }
