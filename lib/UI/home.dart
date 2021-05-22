@@ -238,7 +238,7 @@ class HomeState extends State<Home> {
       appBar: sheet
           ? AppBar(
               backgroundColor: Colors.white,
-              toolbarHeight: 75,
+              //toolbarHeight: 75,
               iconTheme: IconThemeData(color: Colors.black54),
               title: Text(
                 "Your meetings",
@@ -509,7 +509,6 @@ class HomeState extends State<Home> {
         ),
       ),
       body: SlidingSheet(
-        liftOnScrollHeaderElevation: 0,
         backdropColor: Colors.white,
         scrollSpec: ScrollSpec(overscroll: false),
         duration: Duration(milliseconds: 300),
@@ -547,7 +546,6 @@ class HomeState extends State<Home> {
             ),
           ],
         ),
-        addTopViewPaddingOnFullscreen: false,
         builder: (context, state) {
           return SheetListenerBuilder(buildWhen: (oldState, newState) {
             if (snack)
