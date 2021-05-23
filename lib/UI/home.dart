@@ -3,9 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gmeet/Services/googleauth.dart';
+import 'package:gmeet/Services/database.dart';
+import 'package:gmeet/Services/google_auth.dart';
 import 'package:gmeet/UI/live.dart';
-import 'package:gmeet/UI/meetingcode.dart';
+import 'package:gmeet/UI/meeting_code.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -34,6 +35,7 @@ class HomeState extends State<Home> {
   void initState() {
     super.initState();
     camera();
+    Database().initialiseUser();
   }
 
   void camera() async {
