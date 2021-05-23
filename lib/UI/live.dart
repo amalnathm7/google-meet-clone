@@ -24,6 +24,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var capPressed = false;
   var userNameClr = Colors.white;
   var currentIndex = 0;
+  Timer timer = Timer(Duration(seconds: 0), null);
   TabController _tabController;
 
   void mic() {
@@ -48,12 +49,13 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void end() {}
 
   void singleTap() {
+    timer.cancel();
     setState(() {
       if (opacity == 0) {
         opacity = 1;
         bottom = 20;
         userNameClr = Colors.transparent;
-        Timer(Duration(seconds: 5), btnFade);
+        timer = Timer(Duration(seconds: 5), btnFade);
       } else {
         opacity = 0;
         bottom = -60;
@@ -396,18 +398,18 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                     ),
                   ),
                   Positioned(
-                    top: 50,
+                    top: 40,
                     right: 0,
                     child: AnimatedOpacity(
                       curve: Curves.easeInOut,
                       opacity: opacity,
-                      duration: Duration(milliseconds: 200),
+                      duration: Duration(milliseconds: 300),
                       child: Container(
                         child: Row(
                           children: [
                             IconButton(
                               icon: Icon(volIcon),
-                              onPressed: vol,
+                              onPressed: opacity == 0 ? null : vol,
                               color: Colors.white,
                               highlightColor: Colors.white10,
                               splashRadius: 25,
@@ -416,12 +418,12 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               icon: Icon(capPressed
                                   ? Icons.closed_caption
                                   : Icons.closed_caption_off),
-                              onPressed: cap,
+                              onPressed: opacity == 0 ? null : cap,
                               color: Colors.white,
                             ),
                             IconButton(
                               icon: Icon(Icons.more_horiz),
-                              onPressed: moreOptions,
+                              onPressed: opacity == 0 ? null : moreOptions,
                               color: Colors.white,
                             )
                           ],
@@ -431,9 +433,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                   ),
                   AnimatedPositioned(
                     bottom: bottom,
-                    left: 100,
-                    curve: Curves.bounceInOut,
-                    duration: Duration(milliseconds: 200),
+                    left: (MediaQuery.of(context).size.width - 215) / 2,
+                    curve: Curves.easeInOut,
+                    duration: Duration(milliseconds: 300),
                     child: Column(
                       children: [
                         Row(
@@ -442,7 +444,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                             AnimatedContainer(
                               height: 55,
                               width: 55,
-                              duration: Duration(milliseconds: 200),
+                              duration: Duration(milliseconds: 300),
                               decoration: BoxDecoration(
                                   color: HomeState.isMicPressed
                                       ? Colors.red[800]
@@ -489,7 +491,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                             AnimatedContainer(
                               height: 55,
                               width: 55,
-                              duration: Duration(milliseconds: 200),
+                              duration: Duration(milliseconds: 300),
                               decoration: BoxDecoration(
                                   color: HomeState.isVidPressed
                                       ? Colors.red[800]
@@ -533,8 +535,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                           child: TabBar(
                             controller: _tabController,
                             indicatorColor: Colors.green[900],
-                            labelColor: Colors.green[900],
-                            unselectedLabelColor: Colors.grey,
                             indicatorSize: TabBarIndicatorSize.label,
                             tabs: [
                               Tab(
@@ -542,6 +542,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   currentIndex == 0
                                       ? Icons.people_alt
                                       : Icons.people_alt_outlined,
+                                  color: currentIndex == 0
+                                      ? Colors.green[900]
+                                      : Colors.grey,
                                 ),
                               ),
                               Tab(
@@ -549,6 +552,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   currentIndex == 1
                                       ? Icons.messenger_outlined
                                       : Icons.message_outlined,
+                                  color: currentIndex == 1
+                                      ? Colors.green[900]
+                                      : Colors.grey,
                                 ),
                               ),
                               Tab(
@@ -556,6 +562,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   currentIndex == 2
                                       ? Icons.info
                                       : Icons.info_outline,
+                                  color: currentIndex == 2
+                                      ? Colors.green[900]
+                                      : Colors.grey,
                                 ),
                               ),
                             ],

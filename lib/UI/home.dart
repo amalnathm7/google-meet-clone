@@ -289,7 +289,6 @@ class HomeState extends State<Home> {
             ),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
-              childrenPadding: EdgeInsets.zero,
               onExpansionChanged: (val) {
                 setState(() {
                   isAccPressed = val;
