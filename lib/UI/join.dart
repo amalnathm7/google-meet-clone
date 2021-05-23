@@ -354,7 +354,7 @@ class JoinState extends State<Join> {
                             borderRadius: BorderRadius.circular(50),
                           )
                         : SizedBox(),
-                    Text("  " + _user.email)
+                    Text("  " + _user?.email)
                   ],
                 )
               ],
