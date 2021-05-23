@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gmeet/Services/database.dart';
+import 'package:gmeet/UI/join.dart';
 
 class MeetingCode extends StatefulWidget {
   @override
@@ -10,11 +11,14 @@ class MeetingCode extends StatefulWidget {
 }
 
 class MeetingCodeState extends State<MeetingCode> {
-  TextEditingController _controller;
+  TextEditingController _controller = TextEditingController();
   var ifCode = false;
 
   void join() {
     Database().joinMeeting(_controller.text);
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Join();
+    }));
   }
 
   void present() {}

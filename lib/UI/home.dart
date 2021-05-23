@@ -245,9 +245,7 @@ class HomeState extends State<Home> {
               title: Text(
                 "Your meetings",
                 style: TextStyle(
-                  color: Colors.black87,
-                  fontFamily: 'Product Sans'
-                ),
+                    color: Colors.black87, fontFamily: 'Product Sans'),
               ),
               actions: <Widget>[
                 IconButton(
@@ -522,31 +520,31 @@ class HomeState extends State<Home> {
             initialSnap: 200,
             snappings: [200, double.infinity],
             positioning: SnapPositioning.pixelOffset),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            isVidPressed
-                ? _user != null
-                    ? Center(
-                        child: ClipRRect(
-                          child: Image.network(
-                            _user.photoURL,
-                            height: 80,
+        body: isVidPressed
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _user != null
+                      ? Center(
+                          child: ClipRRect(
+                            child: Image.network(
+                              _user.photoURL,
+                              height: 80,
+                            ),
+                            borderRadius: BorderRadius.circular(50),
                           ),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                      )
+                        )
+                      : SizedBox(),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * .15,
+                  ),
+                ],
+              )
+            : _controller != null
+                ? _controller.value.isInitialized
+                    ? CameraPreview(_controller)
                     : SizedBox()
-                : _controller != null
-                    ? _controller.value.isInitialized
-                        ? CameraPreview(_controller)
-                        : SizedBox()
-                    : SizedBox(),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * .15,
-            ),
-          ],
-        ),
+                : SizedBox(),
         builder: (context, state) {
           return SheetListenerBuilder(buildWhen: (oldState, newState) {
             if (snack)
