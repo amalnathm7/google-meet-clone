@@ -167,7 +167,7 @@ class HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 8,),
+              SizedBox(height: 7,),
               ListTile(
                 dense: true,
                 onTap: speaker,
