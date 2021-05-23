@@ -29,8 +29,8 @@ class GoogleAuth {
           context,
           MaterialPageRoute(builder: (context) => Home()),
         );
+        return;
       }
-      return;
     } catch (e) {
       Fluttertoast.showToast(msg: "Error signing in");
       signInWithGoogle(context);
