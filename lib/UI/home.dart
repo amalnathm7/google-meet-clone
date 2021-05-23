@@ -35,7 +35,6 @@ class HomeState extends State<Home> {
   void initState() {
     super.initState();
     camera();
-    Database().initialiseUser();
   }
 
   void camera() async {
@@ -75,6 +74,7 @@ class HomeState extends State<Home> {
   }
 
   void newMeeting() {
+    Database().createMeeting();
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Live()),

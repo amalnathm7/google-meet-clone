@@ -34,7 +34,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     });
     Fluttertoast.showToast(
       msg: HomeState.isMicPressed ? "Microphone off" : "Microphone on",
-      gravity: ToastGravity.CENTER,
+      gravity: ToastGravity.TOP,
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
@@ -46,7 +46,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     });
   }
 
-  void end() {}
+  void end() {
+    Navigator.pop(context);
+  }
 
   void singleTap() {
     timer.cancel();
