@@ -2,7 +2,6 @@ import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gmeet/UI/meeting_code.dart';
 
 class Join extends StatefulWidget {
   @override
@@ -101,7 +100,9 @@ class JoinState extends State<Join> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(height: 8,),
               ListTile(
+                dense: true,
                 onTap: speaker,
                 leading: Icon(
                   Icons.volume_up_outlined,
@@ -109,7 +110,10 @@ class JoinState extends State<Join> {
                 ),
                 title: Text(
                   "Speaker",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -117,6 +121,7 @@ class JoinState extends State<Join> {
                 ),
               ),
               ListTile(
+                dense: true,
                 onTap: phone,
                 leading: Icon(
                   Icons.phone_in_talk,
@@ -124,7 +129,10 @@ class JoinState extends State<Join> {
                 ),
                 title: Text(
                   "Phone",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -132,6 +140,7 @@ class JoinState extends State<Join> {
                 ),
               ),
               ListTile(
+                dense: true,
                 onTap: audioOff,
                 leading: Icon(
                   Icons.volume_off_outlined,
@@ -139,7 +148,10 @@ class JoinState extends State<Join> {
                 ),
                 title: Text(
                   "Audio off",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -147,6 +159,7 @@ class JoinState extends State<Join> {
                 ),
               ),
               ListTile(
+                dense: true,
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -156,7 +169,10 @@ class JoinState extends State<Join> {
                 ),
                 title: Text(
                   "Cancel",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
@@ -171,6 +187,22 @@ class JoinState extends State<Join> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        actions: <Widget>[
+          IconButton(
+            onPressed: btm,
+            splashRadius: 25,
+            splashColor: Colors.transparent,
+            icon: Icon(
+              icon,
+              color: Colors.white,
+            ),
+          )
+        ],
+      ),
       body: Column(
         children: [
           Stack(

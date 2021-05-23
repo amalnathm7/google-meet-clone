@@ -16,7 +16,7 @@ class MeetingCodeState extends State<MeetingCode> {
 
   void join() {
     Database().joinMeeting(_controller.text);
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
       return Join();
     }));
   }

@@ -167,7 +167,9 @@ class HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(height: 8,),
               ListTile(
+                dense: true,
                 onTap: speaker,
                 leading: Icon(
                   Icons.volume_up_outlined,
@@ -175,7 +177,10 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Speaker",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -183,6 +188,7 @@ class HomeState extends State<Home> {
                 ),
               ),
               ListTile(
+                dense: true,
                 onTap: phone,
                 leading: Icon(
                   Icons.phone_in_talk,
@@ -190,7 +196,10 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Phone",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -198,6 +207,7 @@ class HomeState extends State<Home> {
                 ),
               ),
               ListTile(
+                dense: true,
                 onTap: audioOff,
                 leading: Icon(
                   Icons.volume_off_outlined,
@@ -205,7 +215,10 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Audio off",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -213,6 +226,7 @@ class HomeState extends State<Home> {
                 ),
               ),
               ListTile(
+                dense: true,
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -222,7 +236,10 @@ class HomeState extends State<Home> {
                 ),
                 title: Text(
                   "Cancel",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
