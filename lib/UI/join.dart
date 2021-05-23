@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gmeet/UI/meeting_code.dart';
 
 class Join extends StatefulWidget {
   @override
@@ -163,6 +164,8 @@ class JoinState extends State<Join> {
         });
   }
 
+  void askToJoin() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,29 +175,158 @@ class JoinState extends State<Join> {
         children: [
           Stack(
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  isVidPressed
-                      ? _user != null
-                          ? Center(
-                              child: ClipRRect(
-                                child: Image.network(
-                                  _user.photoURL,
-                                  height: 80,
-                                ),
-                                borderRadius: BorderRadius.circular(50),
+              isVidPressed
+                  ? _user != null
+                      ? Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height - 160,
+                          child: Center(
+                            child: ClipRRect(
+                              child: Image.network(
+                                _user.photoURL,
+                                height: 80,
                               ),
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          ),
+                        )
+                      : SizedBox()
+                  : _controller != null
+                      ? _controller.value.isInitialized
+                          ? Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height - 160,
+                              child: CameraPreview(_controller),
                             )
                           : SizedBox()
-                      : _controller != null
-                          ? _controller.value.isInitialized
-                              ? CameraPreview(_controller)
-                              : SizedBox()
-                          : SizedBox(),
-                ],
+                      : SizedBox(),
+              Positioned(
+                bottom: 0,
+                left: (MediaQuery.of(context).size.width - 150) / 2,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        AnimatedContainer(
+                          height: 55,
+                          width: 55,
+                          duration: Duration(milliseconds: 200),
+                          decoration: BoxDecoration(
+                              color: isMicPressed
+                                  ? Colors.red[800]
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: isMicPressed
+                                      ? Colors.transparent
+                                      : Colors.white)),
+                          child: IconButton(
+                            splashRadius: 25,
+                            splashColor: Colors.transparent,
+                            icon: Icon(isMicPressed
+                                ? Icons.mic_off_outlined
+                                : Icons.mic_none_outlined),
+                            onPressed: mic,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 40,
+                        ),
+                        AnimatedContainer(
+                          height: 55,
+                          width: 55,
+                          duration: Duration(milliseconds: 200),
+                          decoration: BoxDecoration(
+                              color: isVidPressed
+                                  ? Colors.red[800]
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                  color: isVidPressed
+                                      ? Colors.transparent
+                                      : Colors.white)),
+                          child: IconButton(
+                            splashRadius: 25,
+                            splashColor: Colors.transparent,
+                            icon: Icon(isVidPressed
+                                ? Icons.videocam_off_outlined
+                                : Icons.videocam_outlined),
+                            onPressed: video,
+                            color: Colors.white,
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                  ],
+                ),
               ),
             ],
+          ),
+          Container(
+            color: Colors.white,
+            height: 160,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Text(
+                    "mee-ting-cod",
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  ),
+                ),
+                ElevatedButton(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    child: Text(
+                      "Ask to join",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Product Sans',
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  onPressed: askToJoin,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    primary: Colors.green[900],
+                    onPrimary: Colors.green[900],
+                    shadowColor: Colors.transparent,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Joining as",
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _user != null
+                        ? ClipRRect(
+                            child: Image.network(
+                              _user.photoURL,
+                              height: 20,
+                            ),
+                            borderRadius: BorderRadius.circular(50),
+                          )
+                        : SizedBox(),
+                    Text("  "+_user.email)
+                  ],
+                )
+              ],
+            ),
           )
         ],
       ),
