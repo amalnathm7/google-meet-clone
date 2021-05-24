@@ -28,7 +28,7 @@ class JoinState extends State<Join> {
 
   void camera() async {
     final cameras = await availableCameras();
-    _controller = CameraController(cameras.first, ResolutionPreset.max);
+    _controller = CameraController(cameras.last, ResolutionPreset.max);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
