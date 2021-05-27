@@ -25,8 +25,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var currentIndex = 0;
   Timer timer = Timer(Duration(seconds: 0), null);
   TabController _tabController;
-  static final _users = <int>[];
-  final _infoStrings = <String>[];
 
   void mic() {
     setState(() {
