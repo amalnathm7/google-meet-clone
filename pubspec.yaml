@@ -39,6 +39,7 @@ dependencies:
   sliding_sheet: ^0.5.0
   camera: ^0.8.1
   flutter_sound: ^8.1.1
+  agora_rtc_engine: ^4.0.1
 
 dev_dependencies:
   flutter_test:

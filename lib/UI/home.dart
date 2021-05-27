@@ -22,8 +22,8 @@ class HomeState extends State<Home> {
   var clr2 = Colors.transparent;
   var clr3 = Colors.transparent;
   var icon = Icons.volume_up_outlined;
-  static var isMicPressed = false;
-  static var isVidPressed = false;
+  static var isMuted = false;
+  static var isVidOff = false;
   var isAccPressed = false;
   var sheet = false;
   var snack = true;
@@ -56,11 +56,11 @@ class HomeState extends State<Home> {
 
   void mic() {
     setState(() {
-      isMicPressed = !isMicPressed;
+      isMuted = !isMuted;
       Fluttertoast.cancel();
     });
     Fluttertoast.showToast(
-      msg: isMicPressed ? "Microphone off" : "Microphone on",
+      msg: isMuted ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.CENTER,
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
@@ -69,7 +69,7 @@ class HomeState extends State<Home> {
 
   void video() {
     setState(() {
-      isVidPressed = !isVidPressed;
+      isVidOff = !isVidOff;
     });
   }
 
@@ -537,7 +537,7 @@ class HomeState extends State<Home> {
             initialSnap: 200,
             snappings: [200, double.infinity],
             positioning: SnapPositioning.pixelOffset),
-        body: isVidPressed
+        body: isVidOff
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -597,18 +597,18 @@ class HomeState extends State<Home> {
                             width: 55,
                             duration: Duration(milliseconds: 200),
                             decoration: BoxDecoration(
-                                color: isMicPressed
+                                color: isMuted
                                     ? Colors.red[800]
                                     : Colors.transparent,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                    color: isMicPressed
+                                    color: isMuted
                                         ? Colors.transparent
                                         : Colors.white)),
                             child: IconButton(
                               splashRadius: 25,
                               splashColor: Colors.transparent,
-                              icon: Icon(isMicPressed
+                              icon: Icon(isMuted
                                   ? Icons.mic_off_outlined
                                   : Icons.mic_none_outlined),
                               onPressed: mic,
@@ -623,18 +623,18 @@ class HomeState extends State<Home> {
                             width: 55,
                             duration: Duration(milliseconds: 200),
                             decoration: BoxDecoration(
-                                color: isVidPressed
+                                color: isVidOff
                                     ? Colors.red[800]
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(
-                                    color: isVidPressed
+                                    color: isVidOff
                                         ? Colors.transparent
                                         : Colors.white)),
                             child: IconButton(
                               splashRadius: 25,
                               splashColor: Colors.transparent,
-                              icon: Icon(isVidPressed
+                              icon: Icon(isVidOff
                                   ? Icons.videocam_off_outlined
                                   : Icons.videocam_outlined),
                               onPressed: video,

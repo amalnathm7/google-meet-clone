@@ -2,6 +2,8 @@ import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gmeet/UI/home.dart';
+import 'package:gmeet/UI/live.dart';
 
 class Join extends StatefulWidget {
   @override
@@ -15,8 +17,6 @@ class JoinState extends State<Join> {
   var clr2 = Colors.transparent;
   var clr3 = Colors.transparent;
   var icon = Icons.volume_up_outlined;
-  var isMicPressed = false;
-  var isVidPressed = false;
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
 
@@ -45,11 +45,11 @@ class JoinState extends State<Join> {
 
   void mic() {
     setState(() {
-      isMicPressed = !isMicPressed;
+      HomeState.isMuted = !HomeState.isMuted;
       Fluttertoast.cancel();
     });
     Fluttertoast.showToast(
-      msg: isMicPressed ? "Microphone off" : "Microphone on",
+      msg: HomeState.isMuted ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.CENTER,
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
@@ -58,7 +58,7 @@ class JoinState extends State<Join> {
 
   void video() {
     setState(() {
-      isVidPressed = !isVidPressed;
+      HomeState.isVidOff = !HomeState.isVidOff;
     });
   }
 
@@ -100,7 +100,9 @@ class JoinState extends State<Join> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 7,),
+              SizedBox(
+                height: 7,
+              ),
               ListTile(
                 dense: true,
                 onTap: speaker,
@@ -180,7 +182,10 @@ class JoinState extends State<Join> {
         });
   }
 
-  void askToJoin() {}
+  void askToJoin() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => Live()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +212,7 @@ class JoinState extends State<Join> {
         children: [
           Stack(
             children: [
-              isVidPressed
+              HomeState.isVidOff
                   ? _user != null
                       ? Container(
                           width: MediaQuery.of(context).size.width,
@@ -245,18 +250,18 @@ class JoinState extends State<Join> {
                           width: 55,
                           duration: Duration(milliseconds: 200),
                           decoration: BoxDecoration(
-                              color: isMicPressed
+                              color: HomeState.isMuted
                                   ? Colors.red[800]
                                   : Colors.transparent,
                               shape: BoxShape.circle,
                               border: Border.all(
-                                  color: isMicPressed
+                                  color: HomeState.isMuted
                                       ? Colors.transparent
                                       : Colors.white)),
                           child: IconButton(
                             splashRadius: 25,
                             splashColor: Colors.transparent,
-                            icon: Icon(isMicPressed
+                            icon: Icon(HomeState.isMuted
                                 ? Icons.mic_off_outlined
                                 : Icons.mic_none_outlined),
                             onPressed: mic,
@@ -271,18 +276,18 @@ class JoinState extends State<Join> {
                           width: 55,
                           duration: Duration(milliseconds: 200),
                           decoration: BoxDecoration(
-                              color: isVidPressed
+                              color: HomeState.isVidOff
                                   ? Colors.red[800]
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(30),
                               border: Border.all(
-                                  color: isVidPressed
+                                  color: HomeState.isVidOff
                                       ? Colors.transparent
                                       : Colors.white)),
                           child: IconButton(
                             splashRadius: 25,
                             splashColor: Colors.transparent,
-                            icon: Icon(isVidPressed
+                            icon: Icon(HomeState.isVidOff
                                 ? Icons.videocam_off_outlined
                                 : Icons.videocam_outlined),
                             onPressed: video,

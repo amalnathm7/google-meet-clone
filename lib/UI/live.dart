@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -26,14 +25,16 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var currentIndex = 0;
   Timer timer = Timer(Duration(seconds: 0), null);
   TabController _tabController;
+  static final _users = <int>[];
+  final _infoStrings = <String>[];
 
   void mic() {
     setState(() {
-      HomeState.isMicPressed = !HomeState.isMicPressed;
+      HomeState.isMuted = !HomeState.isMuted;
       Fluttertoast.cancel();
     });
     Fluttertoast.showToast(
-      msg: HomeState.isMicPressed ? "Microphone off" : "Microphone on",
+      msg: HomeState.isMuted ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.TOP,
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
@@ -42,7 +43,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   void video() {
     setState(() {
-      HomeState.isVidPressed = !HomeState.isVidPressed;
+      HomeState.isVidOff = !HomeState.isVidOff;
     });
   }
 
@@ -448,18 +449,18 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               width: 55,
                               duration: Duration(milliseconds: 300),
                               decoration: BoxDecoration(
-                                  color: HomeState.isMicPressed
+                                  color: HomeState.isMuted
                                       ? Colors.red[800]
                                       : Colors.transparent,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                      color: HomeState.isMicPressed
+                                      color: HomeState.isMuted
                                           ? Colors.transparent
                                           : Colors.white)),
                               child: IconButton(
                                 splashRadius: 25,
                                 splashColor: Colors.transparent,
-                                icon: Icon(HomeState.isMicPressed
+                                icon: Icon(HomeState.isMuted
                                     ? Icons.mic_off_outlined
                                     : Icons.mic_none_outlined),
                                 onPressed: mic,
@@ -476,7 +477,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(30),
                                   border: Border.all(
-                                      color: HomeState.isVidPressed
+                                      color: HomeState.isVidOff
                                           ? Colors.transparent
                                           : Colors.white)),
                               child: IconButton(
@@ -495,18 +496,18 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               width: 55,
                               duration: Duration(milliseconds: 300),
                               decoration: BoxDecoration(
-                                  color: HomeState.isVidPressed
+                                  color: HomeState.isVidOff
                                       ? Colors.red[800]
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(30),
                                   border: Border.all(
-                                      color: HomeState.isVidPressed
+                                      color: HomeState.isVidOff
                                           ? Colors.transparent
                                           : Colors.white)),
                               child: IconButton(
                                 splashRadius: 25,
                                 splashColor: Colors.transparent,
-                                icon: Icon(HomeState.isVidPressed
+                                icon: Icon(HomeState.isVidOff
                                     ? Icons.videocam_off_outlined
                                     : Icons.videocam_outlined),
                                 onPressed: video,
