@@ -539,31 +539,35 @@ class HomeState extends State<Home> {
             initialSnap: 200,
             snappings: [200, double.infinity],
             positioning: SnapPositioning.pixelOffset),
-        body: isVidOff
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _user != null
-                      ? Center(
-                          child: ClipRRect(
-                            child: Image.network(
-                              _user.photoURL,
-                              height: 80,
-                            ),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                        )
-                      : SizedBox(),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * .15,
-                  ),
-                ],
+        body: sheet
+            ? Container(
+                color: Colors.white,
               )
-            : _controller != null
-                ? _controller.value.isInitialized
-                    ? CameraPreview(_controller)
-                    : SizedBox()
-                : SizedBox(),
+            : isVidOff
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _user != null
+                          ? Center(
+                              child: ClipRRect(
+                                child: Image.network(
+                                  _user.photoURL,
+                                  height: 80,
+                                ),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                            )
+                          : SizedBox(),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * .15,
+                      ),
+                    ],
+                  )
+                : _controller != null
+                    ? _controller.value.isInitialized
+                        ? CameraPreview(_controller)
+                        : SizedBox()
+                    : SizedBox(),
         builder: (context, state) {
           return SheetListenerBuilder(buildWhen: (oldState, newState) {
             if (snack)
@@ -592,7 +596,7 @@ class HomeState extends State<Home> {
                   )
                 : AnimatedOpacity(
                     opacity: opacity,
-                    duration: Duration(milliseconds: 300),
+                    duration: Duration(milliseconds: 200),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
