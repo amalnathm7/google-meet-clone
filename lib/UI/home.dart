@@ -28,6 +28,7 @@ class HomeState extends State<Home> {
   var sheet = false;
   var snack = true;
   var logOut = false;
+  var opacity = 1.0;
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
 
@@ -167,7 +168,9 @@ class HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 7,),
+              SizedBox(
+                height: 7,
+              ),
               ListTile(
                 dense: true,
                 onTap: speaker,
@@ -526,8 +529,7 @@ class HomeState extends State<Home> {
       ),
       body: SlidingSheet(
         backdropColor: Colors.white,
-        scrollSpec: ScrollSpec(overscroll: false),
-        duration: Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 500),
         color: Colors.transparent,
         shadowColor: Colors.transparent,
         elevation: 3,
@@ -573,9 +575,11 @@ class HomeState extends State<Home> {
               );
             snack = false;
             setState(() {
-              if (newState.isExpanded) {
+              if (state.extent > MediaQuery.of(context).size.height / 1.5) {
                 sheet = true;
+                opacity = 0;
               } else {
+                opacity = 1;
                 sheet = false;
               }
             });
@@ -586,101 +590,137 @@ class HomeState extends State<Home> {
                     height: MediaQuery.of(context).size.height,
                     color: Colors.white,
                   )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AnimatedContainer(
-                            height: 55,
-                            width: 55,
-                            duration: Duration(milliseconds: 200),
-                            decoration: BoxDecoration(
-                                color: isMuted
-                                    ? Colors.red[800]
-                                    : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: isMuted
-                                        ? Colors.transparent
-                                        : Colors.white)),
-                            child: IconButton(
-                              splashRadius: 25,
-                              splashColor: Colors.transparent,
-                              icon: Icon(isMuted
-                                  ? Icons.mic_off_outlined
-                                  : Icons.mic_none_outlined),
-                              onPressed: mic,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 40,
-                          ),
-                          AnimatedContainer(
-                            height: 55,
-                            width: 55,
-                            duration: Duration(milliseconds: 200),
-                            decoration: BoxDecoration(
-                                color: isVidOff
-                                    ? Colors.red[800]
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                    color: isVidOff
-                                        ? Colors.transparent
-                                        : Colors.white)),
-                            child: IconButton(
-                              splashRadius: 25,
-                              splashColor: Colors.transparent,
-                              icon: Icon(isVidOff
-                                  ? Icons.videocam_off_outlined
-                                  : Icons.videocam_outlined),
-                              onPressed: video,
-                              color: Colors.white,
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Container(
-                        color: Colors.white,
-                        child: Column(
+                : AnimatedOpacity(
+                    opacity: opacity,
+                    duration: Duration(milliseconds: 300),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              height: 10,
-                              width: 25,
+                            AnimatedContainer(
+                              height: 55,
+                              width: 55,
+                              duration: Duration(milliseconds: 200),
                               decoration: BoxDecoration(
-                                  border: Border(
-                                      bottom: BorderSide(
-                                          width: 2, color: Colors.black12))),
+                                  color: isMuted
+                                      ? Colors.red[800]
+                                      : Colors.transparent,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: isMuted
+                                          ? Colors.transparent
+                                          : Colors.white)),
+                              child: IconButton(
+                                splashRadius: 25,
+                                splashColor: Colors.transparent,
+                                icon: Icon(isMuted
+                                    ? Icons.mic_off_outlined
+                                    : Icons.mic_none_outlined),
+                                onPressed: mic,
+                                color: Colors.white,
+                              ),
                             ),
                             SizedBox(
-                              height: 10,
+                              width: 40,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 5, bottom: 20, left: 10, right: 5),
-                                    child: ElevatedButton.icon(
+                            AnimatedContainer(
+                              height: 55,
+                              width: 55,
+                              duration: Duration(milliseconds: 200),
+                              decoration: BoxDecoration(
+                                  color: isVidOff
+                                      ? Colors.red[800]
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                      color: isVidOff
+                                          ? Colors.transparent
+                                          : Colors.white)),
+                              child: IconButton(
+                                splashRadius: 25,
+                                splashColor: Colors.transparent,
+                                icon: Icon(isVidOff
+                                    ? Icons.videocam_off_outlined
+                                    : Icons.videocam_outlined),
+                                onPressed: video,
+                                color: Colors.white,
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          color: Colors.white,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                height: 10,
+                                width: 25,
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            width: 2, color: Colors.black12))),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 5,
+                                          bottom: 20,
+                                          left: 10,
+                                          right: 5),
+                                      child: ElevatedButton.icon(
+                                          icon: Icon(
+                                            Icons.add,
+                                            color: Colors.green[900],
+                                          ),
+                                          label: Text(
+                                            "New meeting",
+                                            style: TextStyle(
+                                                color: Colors.green[900],
+                                                fontFamily: 'Product Sans'),
+                                          ),
+                                          onPressed: newMeeting,
+                                          style: ElevatedButton.styleFrom(
+                                            side: BorderSide(
+                                                color: Colors.grey[300],
+                                                width: 1),
+                                            elevation: 0,
+                                            primary: Colors.white,
+                                            onPrimary: Colors.green[900],
+                                            shadowColor: Colors.transparent,
+                                          )),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 5,
+                                          bottom: 20,
+                                          left: 5,
+                                          right: 10),
+                                      child: ElevatedButton.icon(
                                         icon: Icon(
-                                          Icons.add,
+                                          Icons.keyboard,
                                           color: Colors.green[900],
                                         ),
                                         label: Text(
-                                          "New meeting",
+                                          "Meeting code",
                                           style: TextStyle(
                                               color: Colors.green[900],
                                               fontFamily: 'Product Sans'),
                                         ),
-                                        onPressed: newMeeting,
+                                        onPressed: meetingCode,
                                         style: ElevatedButton.styleFrom(
                                           side: BorderSide(
                                               color: Colors.grey[300],
@@ -689,53 +729,28 @@ class HomeState extends State<Home> {
                                           primary: Colors.white,
                                           onPrimary: Colors.green[900],
                                           shadowColor: Colors.transparent,
-                                        )),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 5, bottom: 20, left: 5, right: 10),
-                                    child: ElevatedButton.icon(
-                                      icon: Icon(
-                                        Icons.keyboard,
-                                        color: Colors.green[900],
-                                      ),
-                                      label: Text(
-                                        "Meeting code",
-                                        style: TextStyle(
-                                            color: Colors.green[900],
-                                            fontFamily: 'Product Sans'),
-                                      ),
-                                      onPressed: meetingCode,
-                                      style: ElevatedButton.styleFrom(
-                                        side: BorderSide(
-                                            color: Colors.grey[300], width: 1),
-                                        elevation: 0,
-                                        primary: Colors.white,
-                                        onPrimary: Colors.green[900],
-                                        shadowColor: Colors.transparent,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                "Swipe up to see your meetings",
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 12),
+                                ],
                               ),
-                            ),
-                            Container(
-                              height: 500,
-                            )
-                          ],
-                        ),
-                      )
-                    ],
+                              Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Text(
+                                  "Swipe up to see your meetings",
+                                  style: TextStyle(
+                                      color: Colors.grey[700], fontSize: 12),
+                                ),
+                              ),
+                              Container(
+                                height: 500,
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   );
           });
         },
