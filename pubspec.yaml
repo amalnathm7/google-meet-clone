@@ -39,7 +39,7 @@ dependencies:
   sliding_sheet: ^0.5.0
   camera: ^0.8.1
   flutter_sound: ^8.1.1
-  flutter_webrtc: ^0.6.3
+  jitsi_meet: ^4.0.0
 
 dev_dependencies:
   flutter_test:
