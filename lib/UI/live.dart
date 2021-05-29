@@ -338,7 +338,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
           );
         });
   }
-
   @override
   void initState() {
     super.initState();
@@ -372,31 +371,33 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                     color: Colors.black,
                     height: MediaQuery.of(context).size.height * .45,
                     width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 50,
-                        ),
-                        ClipRRect(
-                          child: Image.network(
-                            _user.photoURL,
-                            height: 80,
-                          ),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          _user.displayName,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: userNameClr,
-                          ),
-                        )
-                      ],
-                    ),
+                    child: HomeState.isVidOff
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height: 50,
+                              ),
+                              ClipRRect(
+                                child: Image.network(
+                                  _user.photoURL,
+                                  height: 80,
+                                ),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                _user.displayName,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: userNameClr,
+                                ),
+                              )
+                            ],
+                          )
+                        : SizedBox()
                   ),
                   Positioned(
                     top: 40,
