@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:agora_rtc_engine/rtc_channel.dart';
+import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/rtc_local_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -25,6 +28,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var currentIndex = 0;
   Timer timer = Timer(Duration(seconds: 0), null);
   TabController _tabController;
+  RtcEngine engine;
+  final appId = "6d4aa2fdccfd43438c4c811d12f16141";
+  final token =
+      "0066d4aa2fdccfd43438c4c811d12f16141IACA7K0J6vnDHNCwfcfn0K2zXfrA38eiKZ/ly20eP2qWxgXxcxEAAAAAEADEZWnp1Vi2YAEAAQDVWLZg";
 
   void mic() {
     setState(() {
@@ -338,6 +345,23 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
           );
         });
   }
+
+  initAgora() async {
+    RtcEngineConfig config = RtcEngineConfig(appId);
+    engine = await RtcEngine.createWithConfig(config);
+
+    engine.setEventHandler(
+        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
+      print("joinChannelSuccess");
+    }, userJoined: (uid, elapsed) {
+      print("userJoined $uid");
+    }, userOffline: (int uid, UserOfflineReason reason) {
+      print('userOffline $uid');
+    }));
+    await engine.enableVideo();
+    await engine.joinChannel(token, "dev", null, 0);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -348,6 +372,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         currentIndex = _tabController.animation.value.round();
       });
     });
+    initAgora();
   }
 
   @override
@@ -368,37 +393,36 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
               child: Stack(
                 children: [
                   Container(
-                    color: Colors.black,
-                    height: MediaQuery.of(context).size.height * .45,
-                    width: MediaQuery.of(context).size.width,
-                    child: HomeState.isVidOff
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: 50,
-                              ),
-                              ClipRRect(
-                                child: Image.network(
-                                  _user.photoURL,
-                                  height: 80,
+                      color: Colors.black,
+                      height: MediaQuery.of(context).size.height * .45,
+                      width: MediaQuery.of(context).size.width,
+                      child: HomeState.isVidOff
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 50,
                                 ),
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                _user.displayName,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: userNameClr,
+                                ClipRRect(
+                                  child: Image.network(
+                                    _user.photoURL,
+                                    height: 80,
+                                  ),
+                                  borderRadius: BorderRadius.circular(50),
                                 ),
-                              )
-                            ],
-                          )
-                        : SizedBox()
-                  ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  _user.displayName,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: userNameClr,
+                                  ),
+                                )
+                              ],
+                            )
+                          : SurfaceView()),
                   Positioned(
                     top: 40,
                     right: 0,
