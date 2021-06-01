@@ -24,6 +24,12 @@ class MeetingCodeState extends State<MeetingCode> {
   void present() {}
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

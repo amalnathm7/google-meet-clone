@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Gmeet',
         theme: ThemeData(
-          accentColor: Colors.green[700],
+          accentColor: Colors.grey,
           dividerColor: Colors.transparent,
           primaryColor: Colors.green[800],
           shadowColor: Colors.transparent,
