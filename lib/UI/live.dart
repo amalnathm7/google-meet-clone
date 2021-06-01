@@ -355,9 +355,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void sendMsg() {
-    _messages.add(_textEditingController.text);
-    _messageUsers.add("You");
-    _messageTime.add(DateFormat('hh:mm a').format(DateTime.now()));
+    _messages.insert(0, _textEditingController.text);
+    _messageUsers.insert(0, "You");
+    _messageTime.insert(0 ,DateFormat('hh:mm a').format(DateTime.now()));
     _textEditingController.clear();
     setState(() {});
   }
@@ -388,6 +388,12 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     _tabController.animation.addListener(() {
       setState(() {
         currentIndex = _tabController.animation.value.round();
+        if (currentIndex != 1) {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        }
       });
     });
     initAgora();
@@ -571,174 +577,165 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
-              if (!currentFocus.hasPrimaryFocus) {
-                currentFocus.unfocus();
-              }
-            },
-            child: Container(
-              height: viewInsets.bottom == 0
-                  ? MediaQuery.of(context).size.height * .55
-                  : (MediaQuery.of(context).size.height - viewInsets.bottom) *
-                      .55,
-              child: Material(
-                child: DefaultTabController(
-                  length: 3,
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.black12))),
-                        child: Material(
-                          color: Colors.white,
-                          child: TabBar(
-                            controller: _tabController,
-                            indicatorColor: Colors.green[900],
-                            indicatorSize: TabBarIndicatorSize.label,
-                            tabs: [
-                              Tab(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      currentIndex == 0
-                                          ? Icons.people_alt
-                                          : Icons.people_alt_outlined,
+          Container(
+            height: viewInsets.bottom == 0
+                ? MediaQuery.of(context).size.height * .55
+                : (MediaQuery.of(context).size.height - viewInsets.bottom) *
+                    .55,
+            child: Material(
+              child: DefaultTabController(
+                length: 3,
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(color: Colors.black12))),
+                      child: Material(
+                        color: Colors.white,
+                        child: TabBar(
+                          controller: _tabController,
+                          indicatorColor: Colors.green[900],
+                          indicatorSize: TabBarIndicatorSize.label,
+                          tabs: [
+                            Tab(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    currentIndex == 0
+                                        ? Icons.people_alt
+                                        : Icons.people_alt_outlined,
+                                    color: currentIndex == 0
+                                        ? Colors.green[900]
+                                        : Colors.grey,
+                                  ),
+                                  Text(
+                                    ' (' + _users.length.toString() + ')',
+                                    style: TextStyle(
                                       color: currentIndex == 0
                                           ? Colors.green[900]
                                           : Colors.grey,
                                     ),
-                                    Text(
-                                      ' (' + _users.length.toString() + ')',
-                                      style: TextStyle(
-                                        color: currentIndex == 0
-                                            ? Colors.green[900]
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Tab(
-                                child: Icon(
-                                  currentIndex == 1
-                                      ? Icons.messenger_outlined
-                                      : Icons.message_outlined,
-                                  color: currentIndex == 1
-                                      ? Colors.green[900]
-                                      : Colors.grey,
-                                ),
+                            ),
+                            Tab(
+                              child: Icon(
+                                currentIndex == 1
+                                    ? Icons.messenger_outlined
+                                    : Icons.message_outlined,
+                                color: currentIndex == 1
+                                    ? Colors.green[900]
+                                    : Colors.grey,
                               ),
-                              Tab(
-                                icon: Icon(
-                                  currentIndex == 2
-                                      ? Icons.info
-                                      : Icons.info_outline,
-                                  color: currentIndex == 2
-                                      ? Colors.green[900]
-                                      : Colors.grey,
-                                ),
+                            ),
+                            Tab(
+                              icon: Icon(
+                                currentIndex == 2
+                                    ? Icons.info
+                                    : Icons.info_outline,
+                                color: currentIndex == 2
+                                    ? Colors.green[900]
+                                    : Colors.grey,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            ListView.builder(
-                                padding: EdgeInsets.zero,
-                                itemCount: _users.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: 70,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          color: Colors.grey[200],
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              3,
-                                          child: Stack(
-                                            children: [
-                                              Center(
-                                                child: ClipRRect(
-                                                  child: Image.network(
-                                                    _user.photoURL,
-                                                    height: 50,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: _users.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 70,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        color: Colors.grey[200],
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        child: Stack(
+                                          children: [
+                                            Center(
+                                              child: ClipRRect(
+                                                child: Image.network(
+                                                  _user.photoURL,
+                                                  height: 50,
                                                 ),
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
                                               ),
-                                              Positioned(
-                                                right:
-                                                    HomeState.isMuted ? 5 : 3,
-                                                bottom:
-                                                    HomeState.isMuted ? 5 : 0,
-                                                child: Container(
-                                                    child: Padding(
-                                                      padding: HomeState.isMuted
-                                                          ? EdgeInsets.all(3.0)
-                                                          : EdgeInsets.zero,
-                                                      child: Icon(
-                                                        HomeState.isMuted
-                                                            ? Icons.mic_off
-                                                            : Icons
-                                                                .more_horiz_rounded,
-                                                        color: HomeState.isMuted
-                                                            ? Colors.white
-                                                            : Colors.green[700],
-                                                        size: HomeState.isMuted
-                                                            ? 18
-                                                            : 28,
-                                                      ),
-                                                    ),
-                                                    decoration: BoxDecoration(
+                                            ),
+                                            Positioned(
+                                              right: HomeState.isMuted ? 5 : 3,
+                                              bottom: HomeState.isMuted ? 5 : 0,
+                                              child: Container(
+                                                  child: Padding(
+                                                    padding: HomeState.isMuted
+                                                        ? EdgeInsets.all(3.0)
+                                                        : EdgeInsets.zero,
+                                                    child: Icon(
+                                                      HomeState.isMuted
+                                                          ? Icons.mic_off
+                                                          : Icons
+                                                              .more_horiz_rounded,
                                                       color: HomeState.isMuted
-                                                          ? Colors.red[800]
-                                                          : Colors.grey[200],
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
-                                                    )),
-                                              ),
-                                            ],
-                                          ),
+                                                          ? Colors.white
+                                                          : Colors.green[700],
+                                                      size: HomeState.isMuted
+                                                          ? 18
+                                                          : 28,
+                                                    ),
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: HomeState.isMuted
+                                                        ? Colors.red[800]
+                                                        : Colors.grey[200],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50),
+                                                  )),
+                                            ),
+                                          ],
                                         ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 14),
-                                          child: Text(_users[index]),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                }),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  height: viewInsets.bottom == 0
-                                      ? (MediaQuery.of(context).size.height -
-                                              200) *
-                                          .55
-                                      : (MediaQuery.of(context).size.height -
-                                              200 -
-                                              viewInsets.bottom) *
-                                          .55,
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 14),
+                                        child: Text(_users[index]),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              }),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    FocusScopeNode currentFocus =
+                                        FocusScope.of(context);
+                                    if (!currentFocus.hasPrimaryFocus) {
+                                      currentFocus.unfocus();
+                                    }
+                                  },
                                   child: ListView.builder(
                                       shrinkWrap: true,
+                                      reverse: true,
                                       padding: EdgeInsets.only(left: 10),
                                       itemCount: _messages.length,
                                       itemBuilder: (context, index) {
@@ -751,7 +748,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                 height: 20,
                                               ),
                                               Row(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
                                                 children: [
                                                   Text(
                                                     _messageUsers[index],
@@ -784,132 +782,132 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         );
                                       }),
                                 ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                          top: BorderSide(
-                                              color: Colors.grey[300]))),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: TextField(
-                                      controller: _textEditingController,
-                                      onChanged: (text) {
-                                        setState(() {});
-                                      },
-                                      onSubmitted: (text) {
-                                        setState(() {});
-                                      },
-                                      cursorColor: Colors.green[800],
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          contentPadding: EdgeInsets.all(10),
-                                          suffixIcon: IconButton(
-                                            icon: Icon(Icons.send),
-                                            iconSize: 20,
-                                            padding: EdgeInsets.only(bottom: 8),
-                                            color: Colors.green[800],
-                                            onPressed: _textEditingController
-                                                    .text.isEmpty
-                                                ? null
-                                                : sendMsg,
-                                          ),
-                                          hintText:
-                                              "Send a message to everyone here",
-                                          hintStyle: TextStyle(fontSize: 12)),
-                                    ),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                        top: BorderSide(
+                                            color: Colors.grey[300]))),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: TextField(
+                                    controller: _textEditingController,
+                                    onChanged: (text) {
+                                      setState(() {});
+                                    },
+                                    onSubmitted: (text) {
+                                      setState(() {});
+                                    },
+                                    cursorColor: Colors.green[800],
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.all(10),
+                                        suffixIcon: IconButton(
+                                          icon: Icon(Icons.send),
+                                          iconSize: 20,
+                                          padding: EdgeInsets.only(bottom: 8),
+                                          color: Colors.green[800],
+                                          onPressed: _textEditingController
+                                                  .text.isEmpty
+                                              ? null
+                                              : sendMsg,
+                                        ),
+                                        hintText:
+                                            "Send a message to everyone here",
+                                        hintStyle: TextStyle(fontSize: 12)),
                                   ),
                                 ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 15, bottom: 15, left: 10),
-                                  child: Text(
-                                    "mee-ting-cod",
-                                    style: TextStyle(
-                                      fontFamily: 'Product Sans',
-                                      fontSize: 22,
-                                    ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 15, bottom: 15, left: 10),
+                                child: Text(
+                                  "mee-ting-cod",
+                                  style: TextStyle(
+                                    fontFamily: 'Product Sans',
+                                    fontSize: 22,
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 10, bottom: 5),
-                                  child: Text(
-                                    "Joining info",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: -0.5,
-                                      fontSize: 15,
-                                    ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 10, bottom: 5),
+                                child: Text(
+                                  "Joining info",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.5,
+                                    fontSize: 15,
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    "meet.google.com/mee-ting-cod",
-                                    style: TextStyle(
-                                      letterSpacing: -0.3,
-                                      fontSize: 15,
-                                    ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: Text(
+                                  "meet.google.com/mee-ting-cod",
+                                  style: TextStyle(
+                                    letterSpacing: -0.3,
+                                    fontSize: 15,
                                   ),
                                 ),
-                                TextButton.icon(
-                                  onPressed: share,
-                                  icon: Icon(
-                                    Icons.share_outlined,
-                                    color: Colors.green[900],
-                                  ),
-                                  style: ButtonStyle(
-                                      overlayColor: MaterialStateProperty.all(
-                                          Colors.green[100])),
-                                  label: Text(
-                                    "Share",
-                                    style: TextStyle(color: Colors.green[900]),
+                              ),
+                              TextButton.icon(
+                                onPressed: share,
+                                icon: Icon(
+                                  Icons.share_outlined,
+                                  color: Colors.green[900],
+                                ),
+                                style: ButtonStyle(
+                                    overlayColor: MaterialStateProperty.all(
+                                        Colors.green[100])),
+                                label: Text(
+                                  "Share",
+                                  style: TextStyle(color: Colors.green[900]),
+                                ),
+                              ),
+                              Divider(
+                                color: Colors.grey,
+                                thickness: 0.25,
+                                indent: 10,
+                                height: 0,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: 10, top: 16, bottom: 22),
+                                child: Text(
+                                  "Attachments (0)",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.5,
+                                    fontSize: 15,
                                   ),
                                 ),
-                                Divider(
-                                  color: Colors.grey,
-                                  thickness: 0.25,
-                                  indent: 10,
-                                  height: 0,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: Text(
+                                  "Google Calendar attachments will be shown here",
+                                  style: TextStyle(
+                                      fontSize: 13, color: Colors.grey[700]),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 10, top: 16, bottom: 22),
-                                  child: Text(
-                                    "Attachments (0)",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: -0.5,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    "Google Calendar attachments will be shown here",
-                                    style: TextStyle(
-                                        fontSize: 13, color: Colors.grey[700]),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
+                              )
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
