@@ -357,7 +357,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void sendMsg() {
     _messages.insert(0, _textEditingController.text);
     _messageUsers.insert(0, "You");
-    _messageTime.insert(0 ,DateFormat('hh:mm a').format(DateTime.now()));
+    _messageTime.insert(0, DateFormat('hh:mm a').format(DateTime.now()));
     _textEditingController.clear();
     setState(() {});
   }
@@ -788,36 +788,37 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                     border: Border(
                                         top: BorderSide(
                                             color: Colors.grey[300]))),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 10),
-                                  child: TextField(
-                                    controller: _textEditingController,
-                                    onChanged: (text) {
-                                      setState(() {});
-                                    },
-                                    onSubmitted: (text) {
-                                      setState(() {});
-                                    },
-                                    cursorColor: Colors.green[800],
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                    decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.all(10),
-                                        suffixIcon: IconButton(
-                                          icon: Icon(Icons.send),
-                                          iconSize: 20,
-                                          padding: EdgeInsets.only(bottom: 8),
-                                          color: Colors.green[800],
-                                          onPressed: _textEditingController
-                                                  .text.isEmpty
-                                              ? null
-                                              : sendMsg,
-                                        ),
-                                        hintText:
-                                            "Send a message to everyone here",
-                                        hintStyle: TextStyle(fontSize: 12)),
+                                child: TextField(
+                                  controller: _textEditingController,
+                                  onChanged: (text) {
+                                    setState(() {});
+                                  },
+                                  onSubmitted: (text) {
+                                    setState(() {});
+                                  },
+                                  cursorColor: Colors.green[800],
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  style: TextStyle(
+                                    fontSize: 12
                                   ),
+                                  textAlignVertical: TextAlignVertical.center,
+                                  decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.all(15),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(Icons.send),
+                                        iconSize: 20,
+                                        color: Colors.green[800],
+                                        splashRadius: 20,
+                                        onPressed:
+                                            _textEditingController.text.isEmpty
+                                                ? null
+                                                : sendMsg,
+                                      ),
+                                      hintText:
+                                          "Send a message to everyone here",
+                                      hintStyle: TextStyle(fontSize: 12)),
                                 ),
                               ),
                             ],
@@ -827,7 +828,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                             children: [
                               Padding(
                                 padding: const EdgeInsets.only(
-                                    top: 15, bottom: 15, left: 10),
+                                    top: 15, bottom: 15, left: 15),
                                 child: Text(
                                   "mee-ting-cod",
                                   style: TextStyle(
@@ -838,7 +839,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.only(left: 10, bottom: 5),
+                                    const EdgeInsets.only(left: 15, bottom: 5),
                                 child: Text(
                                   "Joining info",
                                   style: TextStyle(
@@ -849,7 +850,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.only(left: 15),
                                 child: Text(
                                   "meet.google.com/mee-ting-cod",
                                   style: TextStyle(
@@ -875,12 +876,12 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               Divider(
                                 color: Colors.grey,
                                 thickness: 0.25,
-                                indent: 10,
+                                indent: 15,
                                 height: 0,
                               ),
                               Padding(
                                 padding: EdgeInsets.only(
-                                    left: 10, top: 16, bottom: 22),
+                                    left: 15, top: 16, bottom: 22),
                                 child: Text(
                                   "Attachments (0)",
                                   style: TextStyle(
@@ -891,7 +892,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.only(left: 15),
                                 child: Text(
                                   "Google Calendar attachments will be shown here",
                                   style: TextStyle(
