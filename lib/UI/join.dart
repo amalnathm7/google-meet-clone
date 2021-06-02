@@ -13,10 +13,6 @@ class Join extends StatefulWidget {
 }
 
 class JoinState extends State<Join> {
-  var clr1 = Colors.green[800];
-  var clr2 = Colors.transparent;
-  var clr3 = Colors.transparent;
-  var icon = Icons.volume_up_outlined;
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
 
@@ -64,30 +60,30 @@ class JoinState extends State<Join> {
 
   void speaker() {
     setState(() {
-      clr1 = Colors.green[800];
-      clr2 = Colors.transparent;
-      clr3 = Colors.transparent;
-      icon = Icons.volume_up_outlined;
+      HomeState.clr1 = Colors.green[800];
+      HomeState.clr2 = Colors.transparent;
+      HomeState.clr3 = Colors.transparent;
+      HomeState.soundIcon = Icons.volume_up_outlined;
     });
     Navigator.pop(context);
   }
 
   void phone() {
     setState(() {
-      clr2 = Colors.green[800];
-      clr1 = Colors.transparent;
-      clr3 = Colors.transparent;
-      icon = Icons.phone_in_talk;
+      HomeState.clr2 = Colors.green[800];
+      HomeState.clr1 = Colors.transparent;
+      HomeState.clr3 = Colors.transparent;
+      HomeState.soundIcon = HomeState.isHeadphoneConnected ? Icons.headset_outlined :  Icons.phone_in_talk;
     });
     Navigator.pop(context);
   }
 
   void audioOff() {
     setState(() {
-      clr3 = Colors.green[800];
-      clr2 = Colors.transparent;
-      clr1 = Colors.transparent;
-      icon = Icons.volume_off_outlined;
+      HomeState.clr3 = Colors.green[800];
+      HomeState.clr2 = Colors.transparent;
+      HomeState.clr1 = Colors.transparent;
+      HomeState.soundIcon = Icons.volume_off_outlined;
     });
     Navigator.pop(context);
   }
@@ -119,18 +115,18 @@ class JoinState extends State<Join> {
                 ),
                 trailing: Icon(
                   Icons.check,
-                  color: clr1,
+                  color: HomeState.clr1,
                 ),
               ),
               ListTile(
                 dense: true,
                 onTap: phone,
                 leading: Icon(
-                  Icons.phone_in_talk,
+                  HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk,
                   color: Colors.black54,
                 ),
                 title: Text(
-                  "Phone",
+                  HomeState.isHeadphoneConnected ? "Wired headphones" : "Phone",
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 16,
@@ -138,7 +134,7 @@ class JoinState extends State<Join> {
                 ),
                 trailing: Icon(
                   Icons.check,
-                  color: clr2,
+                  color: HomeState.clr2,
                 ),
               ),
               ListTile(
@@ -157,7 +153,7 @@ class JoinState extends State<Join> {
                 ),
                 trailing: Icon(
                   Icons.check,
-                  color: clr3,
+                  color: HomeState.clr3,
                 ),
               ),
               ListTile(
@@ -202,7 +198,7 @@ class JoinState extends State<Join> {
             splashRadius: 25,
             splashColor: Colors.transparent,
             icon: Icon(
-              icon,
+              HomeState.soundIcon,
               color: Colors.white,
             ),
           )

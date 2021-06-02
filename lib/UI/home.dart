@@ -7,6 +7,7 @@ import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/Services/google_auth.dart';
 import 'package:gmeet/UI/live.dart';
 import 'package:gmeet/UI/meeting_code.dart';
+import 'package:headset_event/headset_event.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,10 +19,11 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  var clr1 = Colors.green[800];
-  var clr2 = Colors.transparent;
-  var clr3 = Colors.transparent;
-  var icon = Icons.volume_up_outlined;
+  static var clr1 = Colors.green[800];
+  static var clr2 = Colors.transparent;
+  static var clr3 = Colors.transparent;
+  static var soundIcon = Icons.volume_up_outlined;
+  static var isHeadphoneConnected = false;
   static var isMuted = false;
   static var isVidOff = false;
   var isAccPressed = false;
@@ -36,6 +38,17 @@ class HomeState extends State<Home> {
   void initState() {
     super.initState();
     camera();
+    HeadsetEvent headsetPlugin = new HeadsetEvent();
+    headsetPlugin.setListener((_val) {
+      if (_val == HeadsetState.CONNECT)
+        setState(() {
+          isHeadphoneConnected = true;
+        });
+      else
+        setState(() {
+          isHeadphoneConnected = false;
+        });
+    });
   }
 
   void camera() async {
@@ -128,7 +141,7 @@ class HomeState extends State<Home> {
       clr1 = Colors.green[800];
       clr2 = Colors.transparent;
       clr3 = Colors.transparent;
-      icon = Icons.volume_up_outlined;
+      soundIcon = Icons.volume_up_outlined;
     });
     Navigator.pop(context);
   }
@@ -138,7 +151,7 @@ class HomeState extends State<Home> {
       clr2 = Colors.green[800];
       clr1 = Colors.transparent;
       clr3 = Colors.transparent;
-      icon = Icons.phone_in_talk;
+      soundIcon = isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk;
     });
     Navigator.pop(context);
   }
@@ -148,7 +161,7 @@ class HomeState extends State<Home> {
       clr3 = Colors.green[800];
       clr2 = Colors.transparent;
       clr1 = Colors.transparent;
-      icon = Icons.volume_off_outlined;
+      soundIcon = Icons.volume_off_outlined;
     });
     Navigator.pop(context);
   }
@@ -194,11 +207,11 @@ class HomeState extends State<Home> {
                 dense: true,
                 onTap: phone,
                 leading: Icon(
-                  Icons.phone_in_talk,
+                  isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk,
                   color: Colors.black54,
                 ),
                 title: Text(
-                  "Phone",
+                  isHeadphoneConnected ? "Wired headphones" : "Phone",
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 16,
@@ -295,7 +308,7 @@ class HomeState extends State<Home> {
                   splashRadius: 25,
                   splashColor: Colors.transparent,
                   icon: Icon(
-                    icon,
+                    soundIcon,
                     color: Colors.white,
                   ),
                 )
@@ -360,7 +373,8 @@ class HomeState extends State<Home> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 3,
-                            valueColor: AlwaysStoppedAnimation(Colors.green[800]),
+                            valueColor:
+                                AlwaysStoppedAnimation(Colors.green[800]),
                           )),
                     )
                   : Padding(

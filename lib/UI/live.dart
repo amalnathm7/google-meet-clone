@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:agora_rtc_engine/rtc_engine.dart';
-import 'package:agora_rtc_engine/rtc_local_view.dart';
+import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
+import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -17,12 +18,8 @@ class Live extends StatefulWidget {
 
 class LiveState extends State<Live> with TickerProviderStateMixin {
   var _user = FirebaseAuth.instance.currentUser;
-  var volIcon = Icons.volume_up_outlined;
   var opacity = 0.0;
   var bottom = -60.0;
-  var clr1 = Colors.green[800];
-  var clr2 = Colors.transparent;
-  var clr3 = Colors.transparent;
   var capPressed = false;
   var userNameClr = Colors.white;
   var currentIndex = 0;
@@ -42,11 +39,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   List<String> _messageTime = [];
 
   void mic() {
-    _engine.muteLocalAudioStream(HomeState.isMuted);
     setState(() {
       HomeState.isMuted = !HomeState.isMuted;
       Fluttertoast.cancel();
     });
+    _engine.muteLocalAudioStream(HomeState.isMuted);
     Fluttertoast.showToast(
       msg: HomeState.isMuted ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.TOP,
@@ -59,6 +56,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {
       HomeState.isVidOff = !HomeState.isVidOff;
     });
+    _engine.enableLocalVideo(!HomeState.isVidOff);
   }
 
   void end() {
@@ -94,31 +92,34 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void doubleTap() {}
 
   void speaker() {
+    _engine.muteAllRemoteAudioStreams(false);
     setState(() {
-      clr1 = Colors.green[800];
-      clr2 = Colors.transparent;
-      clr3 = Colors.transparent;
-      volIcon = Icons.volume_up_outlined;
+      HomeState.clr1 = Colors.green[800];
+      HomeState.clr2 = Colors.transparent;
+      HomeState.clr3 = Colors.transparent;
+      HomeState.soundIcon = HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.volume_up_outlined;
     });
     Navigator.pop(context);
   }
 
   void phone() {
+    _engine.muteAllRemoteAudioStreams(true);
     setState(() {
-      clr2 = Colors.green[800];
-      clr1 = Colors.transparent;
-      clr3 = Colors.transparent;
-      volIcon = Icons.phone_in_talk;
+      HomeState.clr2 = Colors.green[800];
+      HomeState.clr1 = Colors.transparent;
+      HomeState.clr3 = Colors.transparent;
+      HomeState.soundIcon = Icons.phone_in_talk;
     });
     Navigator.pop(context);
   }
 
   void audioOff() {
+    _engine.muteAllRemoteAudioStreams(true);
     setState(() {
-      clr3 = Colors.green[800];
-      clr2 = Colors.transparent;
-      clr1 = Colors.transparent;
-      volIcon = Icons.volume_off_outlined;
+      HomeState.clr3 = Colors.green[800];
+      HomeState.clr2 = Colors.transparent;
+      HomeState.clr1 = Colors.transparent;
+      HomeState.soundIcon = Icons.volume_off_outlined;
     });
     Navigator.pop(context);
   }
@@ -143,22 +144,22 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
                 trailing: Icon(
                   Icons.check,
-                  color: clr1,
+                  color: HomeState.clr1,
                 ),
               ),
               ListTile(
                 onTap: phone,
                 leading: Icon(
-                  Icons.phone_in_talk,
+                  HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk,
                   color: Colors.black54,
                 ),
                 title: Text(
-                  "Phone",
+                  HomeState.isHeadphoneConnected ? "Wired headphones" : "Phone",
                   style: TextStyle(color: Colors.black),
                 ),
                 trailing: Icon(
                   Icons.check,
-                  color: clr2,
+                  color: HomeState.clr2,
                 ),
               ),
               ListTile(
@@ -173,7 +174,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
                 trailing: Icon(
                   Icons.check,
-                  color: clr3,
+                  color: HomeState.clr3,
                 ),
               ),
               ListTile(
@@ -398,7 +399,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       );
       setState(() {});
     }));
+
     await _engine.enableVideo();
+    await _engine.enableAudio();
+
     await _engine.joinChannel(token, "meet", null, 0);
   }
 
@@ -425,6 +429,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void dispose() {
     _tabController.dispose();
     _textEditingController.dispose();
+    _engine.destroy();
     super.dispose();
   }
 
@@ -476,7 +481,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               )
                             ],
                           )
-                        : SurfaceView()),
+                        : _users.length == 1
+                            ? RtcLocalView.SurfaceView()
+                            : RtcRemoteView.SurfaceView(
+                                uid: int.parse(_users[1]),
+                              )),
                 Positioned(
                   top: 40,
                   right: 0,
@@ -488,7 +497,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: Icon(volIcon),
+                            icon: Icon(HomeState.soundIcon),
                             onPressed: opacity == 0 ? null : vol,
                             color: Colors.white,
                             highlightColor: Colors.white10,
