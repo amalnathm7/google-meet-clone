@@ -43,10 +43,18 @@ class HomeState extends State<Home> {
       if (_val == HeadsetState.CONNECT)
         setState(() {
           isHeadphoneConnected = true;
+          soundIcon = Icons.headset_outlined;
+          clr2 = Colors.green[800];
+          clr1 = Colors.transparent;
+          clr3 = Colors.transparent;
         });
       else
         setState(() {
           isHeadphoneConnected = false;
+          soundIcon = Icons.volume_up_outlined;
+          clr1 = Colors.green[800];
+          clr2 = Colors.transparent;
+          clr3 = Colors.transparent;
         });
     });
   }
