@@ -360,6 +360,7 @@ class HomeState extends State<Home> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation(Colors.green[800]),
                           )),
                     )
                   : Padding(

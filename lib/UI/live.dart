@@ -30,10 +30,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   TabController _tabController;
   TextEditingController _textEditingController = TextEditingController();
 
-  RtcEngine engine;
+  RtcEngine _engine;
   final appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IADEHoWTSiHlsUkUWXKfuUqzzAuBmzyOAuKQygvsFdgypc7T9ukAAAAAEAAAQmFyEX+3YAEAAQC4Mbdg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg";
   List<String> _users = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
@@ -42,6 +42,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   List<String> _messageTime = [];
 
   void mic() {
+    _engine.muteLocalAudioStream(HomeState.isMuted);
     setState(() {
       HomeState.isMuted = !HomeState.isMuted;
       Fluttertoast.cancel();
@@ -61,6 +62,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void end() {
+    _engine.leaveChannel();
     Navigator.pop(context);
   }
 
@@ -192,7 +194,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         });
   }
 
-  void cap() {
+  void captions() {
     setState(() {
       capPressed = !capPressed;
     });
@@ -207,6 +209,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   void switchCamera() {
     Navigator.pop(context);
+    _engine.switchCamera();
   }
 
   void present() {
@@ -257,7 +260,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
               ListTile(
                 onTap: () {
                   Navigator.pop(context);
-                  cap();
+                  captions();
                 },
                 horizontalTitleGap: 3,
                 leading: Icon(
@@ -366,18 +369,37 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   initAgora() async {
     RtcEngineConfig config = RtcEngineConfig(appId);
-    engine = await RtcEngine.createWithConfig(config);
+    _engine = await RtcEngine.createWithConfig(config);
 
-    engine.setEventHandler(
+    _engine.setEventHandler(
         RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
-      print("joinChannelSuccess");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("You joined $channel"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
     }, userJoined: (uid, elapsed) {
-      print("userJoined $uid");
+      _users.add(uid.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$uid joined this meeting"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+      setState(() {});
     }, userOffline: (int uid, UserOfflineReason reason) {
-      print('userOffline $uid');
+      _users.remove(uid.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$uid left this meeting"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+      setState(() {});
     }));
-    await engine.enableVideo();
-    await engine.joinChannel(token, "meet", null, 0);
+    await _engine.enableVideo();
+    await _engine.joinChannel(token, "meet", null, 0);
   }
 
   @override
@@ -476,7 +498,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                             icon: Icon(capPressed
                                 ? Icons.closed_caption
                                 : Icons.closed_caption_off),
-                            onPressed: opacity == 0 ? null : cap,
+                            onPressed: opacity == 0 ? null : captions,
                             color: Colors.white,
                           ),
                           IconButton(
@@ -799,9 +821,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   cursorColor: Colors.green[800],
                                   textCapitalization:
                                       TextCapitalization.sentences,
-                                  style: TextStyle(
-                                    fontSize: 12
-                                  ),
+                                  style: TextStyle(fontSize: 12),
                                   textAlignVertical: TextAlignVertical.center,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,

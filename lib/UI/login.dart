@@ -7,7 +7,9 @@ class Login extends StatelessWidget{
     GoogleAuth().signInWithGoogle(context);
 
     return Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+      body: Center(child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(Colors.green[800]),
+      )),
     );
   }
 }
