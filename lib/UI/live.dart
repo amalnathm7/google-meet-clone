@@ -103,7 +103,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void phone() {
-    _engine.muteAllRemoteAudioStreams(true);
+    _engine.muteAllRemoteAudioStreams(false);
     setState(() {
       HomeState.clr2 = Colors.green[800];
       HomeState.clr1 = Colors.transparent;
@@ -404,6 +404,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     await _engine.enableAudio();
 
     await _engine.joinChannel(token, "meet", null, 0);
+
+    _engine.muteLocalAudioStream(HomeState.isMuted);
+    _engine.enableLocalVideo(!HomeState.isVidOff);
   }
 
   @override
