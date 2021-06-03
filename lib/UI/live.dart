@@ -97,7 +97,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.clr1 = Colors.green[800];
       HomeState.clr2 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
-      HomeState.soundIcon = HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.volume_up_outlined;
+      HomeState.soundIcon = Icons.volume_up_outlined;
     });
     Navigator.pop(context);
   }
@@ -108,7 +108,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.clr2 = Colors.green[800];
       HomeState.clr1 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
-      HomeState.soundIcon = Icons.phone_in_talk;
+      HomeState.soundIcon = HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.volume_up_outlined;
     });
     Navigator.pop(context);
   }
@@ -134,6 +134,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
             children: [
               ListTile(
                 onTap: speaker,
+                dense: true,
                 leading: Icon(
                   Icons.volume_up_outlined,
                   color: Colors.black54,
@@ -149,6 +150,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
               ),
               ListTile(
                 onTap: phone,
+                dense: true,
                 leading: Icon(
                   HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk,
                   color: Colors.black54,
@@ -164,6 +166,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
               ),
               ListTile(
                 onTap: audioOff,
+                dense: true,
                 leading: Icon(
                   Icons.volume_off_outlined,
                   color: Colors.black54,
@@ -181,6 +184,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 onTap: () {
                   Navigator.pop(context);
                 },
+                dense: true,
                 leading: Icon(
                   Icons.close_sharp,
                   color: Colors.black54,
