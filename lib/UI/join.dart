@@ -73,7 +73,9 @@ class JoinState extends State<Join> {
       HomeState.clr2 = Colors.green[800];
       HomeState.clr1 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
-      HomeState.soundIcon = HomeState.isHeadphoneConnected ? Icons.headset_outlined :  Icons.phone_in_talk;
+      HomeState.soundIcon = HomeState.isHeadphoneConnected
+          ? Icons.headset_outlined
+          : Icons.phone_in_talk;
     });
     Navigator.pop(context);
   }
@@ -122,7 +124,9 @@ class JoinState extends State<Join> {
                 dense: true,
                 onTap: phone,
                 leading: Icon(
-                  HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk,
+                  HomeState.isHeadphoneConnected
+                      ? Icons.headset_outlined
+                      : Icons.phone_in_talk,
                   color: Colors.black54,
                 ),
                 title: Text(
@@ -209,99 +213,101 @@ class JoinState extends State<Join> {
       ),
       body: Column(
         children: [
-          Stack(
-            children: [
-              HomeState.isVidOff
-                  ? _user != null
-                      ? Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height - 160,
-                          child: Center(
-                            child: ClipRRect(
-                              child: Image.network(
-                                _user.photoURL,
-                                height: 80,
+          Expanded(
+            child: Stack(
+              children: [
+                HomeState.isVidOff
+                    ? _user != null
+                        ? Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height - 160,
+                            child: Center(
+                              child: ClipRRect(
+                                child: Image.network(
+                                  _user.photoURL,
+                                  height: 80,
+                                ),
+                                borderRadius: BorderRadius.circular(50),
                               ),
-                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          )
+                        : SizedBox()
+                    : _controller != null
+                        ? _controller.value.isInitialized
+                            ? Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height - 160,
+                                child: CameraPreview(_controller),
+                              )
+                            : SizedBox()
+                        : SizedBox(),
+                Positioned(
+                  bottom: 0,
+                  left: (MediaQuery.of(context).size.width - 150) / 2,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          AnimatedContainer(
+                            height: 55,
+                            width: 55,
+                            duration: Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                                color: HomeState.isMuted
+                                    ? Colors.red[800]
+                                    : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: HomeState.isMuted
+                                        ? Colors.transparent
+                                        : Colors.white)),
+                            child: IconButton(
+                              splashRadius: 25,
+                              splashColor: Colors.transparent,
+                              icon: Icon(HomeState.isMuted
+                                  ? Icons.mic_off_outlined
+                                  : Icons.mic_none_outlined),
+                              onPressed: mic,
+                              color: Colors.white,
                             ),
                           ),
-                        )
-                      : SizedBox()
-                  : _controller != null
-                      ? _controller.value.isInitialized
-                          ? Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height - 160,
-                              child: CameraPreview(_controller),
-                            )
-                          : SizedBox()
-                      : SizedBox(),
-              Positioned(
-                bottom: 0,
-                left: (MediaQuery.of(context).size.width - 150) / 2,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        AnimatedContainer(
-                          height: 55,
-                          width: 55,
-                          duration: Duration(milliseconds: 200),
-                          decoration: BoxDecoration(
-                              color: HomeState.isMuted
-                                  ? Colors.red[800]
-                                  : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: HomeState.isMuted
-                                      ? Colors.transparent
-                                      : Colors.white)),
-                          child: IconButton(
-                            splashRadius: 25,
-                            splashColor: Colors.transparent,
-                            icon: Icon(HomeState.isMuted
-                                ? Icons.mic_off_outlined
-                                : Icons.mic_none_outlined),
-                            onPressed: mic,
-                            color: Colors.white,
+                          SizedBox(
+                            width: 40,
                           ),
-                        ),
-                        SizedBox(
-                          width: 40,
-                        ),
-                        AnimatedContainer(
-                          height: 55,
-                          width: 55,
-                          duration: Duration(milliseconds: 200),
-                          decoration: BoxDecoration(
-                              color: HomeState.isVidOff
-                                  ? Colors.red[800]
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                  color: HomeState.isVidOff
-                                      ? Colors.transparent
-                                      : Colors.white)),
-                          child: IconButton(
-                            splashRadius: 25,
-                            splashColor: Colors.transparent,
-                            icon: Icon(HomeState.isVidOff
-                                ? Icons.videocam_off_outlined
-                                : Icons.videocam_outlined),
-                            onPressed: video,
-                            color: Colors.white,
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                  ],
+                          AnimatedContainer(
+                            height: 55,
+                            width: 55,
+                            duration: Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                                color: HomeState.isVidOff
+                                    ? Colors.red[800]
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                    color: HomeState.isVidOff
+                                        ? Colors.transparent
+                                        : Colors.white)),
+                            child: IconButton(
+                              splashRadius: 25,
+                              splashColor: Colors.transparent,
+                              icon: Icon(HomeState.isVidOff
+                                  ? Icons.videocam_off_outlined
+                                  : Icons.videocam_outlined),
+                              onPressed: video,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Container(
             color: Colors.white,
@@ -332,8 +338,8 @@ class JoinState extends State<Join> {
                   onPressed: askToJoin,
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
-                    primary: Colors.green[900],
-                    onPrimary: Colors.green[900],
+                    primary: Colors.green[800],
+                    onPrimary: Colors.green[800],
                     shadowColor: Colors.transparent,
                   ),
                 ),

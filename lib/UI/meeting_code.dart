@@ -84,8 +84,16 @@ class MeetingCodeState extends State<MeetingCode> {
                 cursorColor: Colors.green[800],
                 decoration: InputDecoration(
                   labelText: "Meeting code",
-                  border: OutlineInputBorder(borderSide: BorderSide(
-                    color: Colors.green[800]
+                  labelStyle: TextStyle(color: Colors.green[800]),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.green[800],
+                        width: 2,
+                      )),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                    color: Colors.green[800],
+                    width: 2,
                   )),
                 ),
               ),
