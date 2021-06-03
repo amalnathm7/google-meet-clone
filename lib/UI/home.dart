@@ -190,7 +190,7 @@ class HomeState extends State<Home> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                height: 7,
+                height: 10,
               ),
               ListTile(
                 dense: true,

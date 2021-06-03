@@ -132,6 +132,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(
+                height: 10,
+              ),
               ListTile(
                 onTap: speaker,
                 dense: true,

@@ -97,7 +97,7 @@ class JoinState extends State<Join> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                height: 7,
+                height: 10,
               ),
               ListTile(
                 dense: true,
