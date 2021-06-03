@@ -159,7 +159,8 @@ class HomeState extends State<Home> {
       clr2 = Colors.green[800];
       clr1 = Colors.transparent;
       clr3 = Colors.transparent;
-      soundIcon = isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk;
+      soundIcon =
+          isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk;
     });
     Navigator.pop(context);
   }
@@ -190,7 +191,7 @@ class HomeState extends State<Home> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                height: 10,
+                height: 8,
               ),
               ListTile(
                 dense: true,
@@ -215,7 +216,9 @@ class HomeState extends State<Home> {
                 dense: true,
                 onTap: phone,
                 leading: Icon(
-                  isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk,
+                  isHeadphoneConnected
+                      ? Icons.headset_outlined
+                      : Icons.phone_in_talk,
                   color: Colors.black54,
                 ),
                 title: Text(
@@ -266,6 +269,9 @@ class HomeState extends State<Home> {
                   ),
                 ),
               ),
+              SizedBox(
+                height: 8,
+              )
             ],
           );
         });

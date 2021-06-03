@@ -108,7 +108,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.clr2 = Colors.green[800];
       HomeState.clr1 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
-      HomeState.soundIcon = HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.volume_up_outlined;
+      HomeState.soundIcon = HomeState.isHeadphoneConnected
+          ? Icons.headset_outlined
+          : Icons.volume_up_outlined;
     });
     Navigator.pop(context);
   }
@@ -133,7 +135,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                height: 10,
+                height: 8,
               ),
               ListTile(
                 onTap: speaker,
@@ -144,7 +146,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
                 title: Text(
                   "Speaker",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -155,12 +160,17 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 onTap: phone,
                 dense: true,
                 leading: Icon(
-                  HomeState.isHeadphoneConnected ? Icons.headset_outlined : Icons.phone_in_talk,
+                  HomeState.isHeadphoneConnected
+                      ? Icons.headset_outlined
+                      : Icons.phone_in_talk,
                   color: Colors.black54,
                 ),
                 title: Text(
                   HomeState.isHeadphoneConnected ? "Wired headphones" : "Phone",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -176,7 +186,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
                 title: Text(
                   "Audio off",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
                 trailing: Icon(
                   Icons.check,
@@ -194,9 +207,15 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
                 title: Text(
                   "Cancel",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
                 ),
               ),
+              SizedBox(
+                height: 8,
+              )
             ],
           );
         });

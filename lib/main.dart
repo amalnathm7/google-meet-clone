@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
     return MaterialApp(
+        themeMode: ThemeMode.light,
         debugShowCheckedModeBanner: false,
         title: 'Gmeet',
         theme: ThemeData(
