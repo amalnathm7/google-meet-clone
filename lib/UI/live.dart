@@ -30,7 +30,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   RtcEngine _engine;
   final appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IAClhhGqlogwU9Hx0NRRDHG9CCZ+S/z2Ltjc/XdU+rIWX87T9ukAAAAAEADGEkMQUoO7YAEAAQBRg7tg";
   List<String> _users = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];

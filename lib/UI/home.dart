@@ -32,12 +32,10 @@ class HomeState extends State<Home> {
   var logOut = false;
   var opacity = 1.0;
   User _user = FirebaseAuth.instance.currentUser;
-  CameraController _controller;
 
   @override
   void initState() {
     super.initState();
-    camera();
     HeadsetEvent headsetPlugin = new HeadsetEvent();
     headsetPlugin.setListener((_val) {
       if (_val == HeadsetState.CONNECT)
@@ -59,20 +57,8 @@ class HomeState extends State<Home> {
     });
   }
 
-  void camera() async {
-    final cameras = await availableCameras();
-    _controller = CameraController(cameras.last, ResolutionPreset.max);
-    _controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
-  }
-
   @override
   void dispose() {
-    _controller?.dispose();
     super.dispose();
   }
 
@@ -592,11 +578,7 @@ class HomeState extends State<Home> {
                       ),
                     ],
                   )
-                : _controller != null
-                    ? _controller.value.isInitialized
-                        ? CameraPreview(_controller)
-                        : SizedBox()
-                    : SizedBox(),
+                : Camera(),
         builder: (context, state) {
           return SheetListenerBuilder(buildWhen: (oldState, newState) {
             if (snack)
@@ -789,5 +771,48 @@ class HomeState extends State<Home> {
         },
       ),
     );
+  }
+}
+
+class Camera extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return CameraState();
+  }
+}
+
+class CameraState extends State<Camera> {
+  CameraController camController;
+
+  camera() async {
+    final cameras = await availableCameras();
+    camController = CameraController(cameras.last, ResolutionPreset.max);
+    camController.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    camController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    camera();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return camController != null
+        ? camController.value.isInitialized
+            ? CameraPreview(camController)
+            : SizedBox()
+        : SizedBox();
   }
 }
