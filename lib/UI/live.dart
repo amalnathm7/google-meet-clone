@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
@@ -26,24 +26,41 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   Timer timer = Timer(Duration(seconds: 0), null);
   TabController _tabController;
   TextEditingController _textEditingController = TextEditingController();
+  Agora _agora = Agora();
 
-  RtcEngine _engine;
-  final appId = "6d4aa2fdccfd43438c4c811d12f16141";
-  final token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAClhhGqlogwU9Hx0NRRDHG9CCZ+S/z2Ltjc/XdU+rIWX87T9ukAAAAAEADGEkMQUoO7YAEAAQBRg7tg";
-  List<String> _users = [
-    FirebaseAuth.instance.currentUser.displayName + ' (You)'
-  ];
-  List<String> _messages = [];
-  List<String> _messageUsers = [];
-  List<String> _messageTime = [];
+  @override
+  void initState() {
+    super.initState();
+    singleTap();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.animation.addListener(() {
+      setState(() {
+        currentIndex = _tabController.animation.value.round();
+        if (currentIndex != 1) {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        }
+      });
+    });
+    _agora.jonChannel(context);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _textEditingController.dispose();
+    _agora.engine.destroy();
+    super.dispose();
+  }
 
   void mic() {
     setState(() {
       HomeState.isMuted = !HomeState.isMuted;
       Fluttertoast.cancel();
     });
-    _engine.muteLocalAudioStream(HomeState.isMuted);
+    _agora.engine.muteLocalAudioStream(HomeState.isMuted);
     Fluttertoast.showToast(
       msg: HomeState.isMuted ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.TOP,
@@ -56,11 +73,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {
       HomeState.isVidOff = !HomeState.isVidOff;
     });
-    _engine.enableLocalVideo(!HomeState.isVidOff);
+    _agora.engine.enableLocalVideo(!HomeState.isVidOff);
   }
 
   void end() {
-    _engine.leaveChannel();
+    _agora.engine.leaveChannel();
     Navigator.pop(context);
   }
 
@@ -92,7 +109,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void doubleTap() {}
 
   void speaker() {
-    _engine.muteAllRemoteAudioStreams(false);
+    _agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
       HomeState.clr1 = Colors.green[800];
       HomeState.clr2 = Colors.transparent;
@@ -103,7 +120,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void phone() {
-    _engine.muteAllRemoteAudioStreams(false);
+    _agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
       HomeState.clr2 = Colors.green[800];
       HomeState.clr1 = Colors.transparent;
@@ -116,7 +133,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void audioOff() {
-    _engine.muteAllRemoteAudioStreams(true);
+    _agora.engine.muteAllRemoteAudioStreams(true);
     setState(() {
       HomeState.clr3 = Colors.green[800];
       HomeState.clr2 = Colors.transparent;
@@ -236,7 +253,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   void switchCamera() {
     Navigator.pop(context);
-    _engine.switchCamera();
+    _agora.engine.switchCamera();
   }
 
   void present() {
@@ -385,83 +402,14 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void sendMsg() {
-    _messages.insert(0, _textEditingController.text);
-    _messageUsers.insert(0, "You");
-    _messageTime.insert(0, DateFormat('hh:mm a').format(DateTime.now()));
+    _agora.messages.insert(0, _textEditingController.text);
+    _agora.messageUsers.insert(0, "You");
+    _agora.messageTime.insert(0, DateFormat('hh:mm a').format(DateTime.now()));
     _textEditingController.clear();
     setState(() {});
   }
 
   void share() {}
-
-  initAgora() async {
-    RtcEngineConfig config = RtcEngineConfig(appId);
-    _engine = await RtcEngine.createWithConfig(config);
-
-    _engine.setEventHandler(RtcEngineEventHandler(error: (errorCode) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error : $errorCode"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }, userJoined: (uid, elapsed) {
-      setState(() {
-        _users.add(uid.toString());
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("$uid joined this meeting"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }, userOffline: (int uid, UserOfflineReason reason) {
-      setState(() {
-        _users.remove(uid.toString());
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("$uid left this meeting"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }));
-
-    await _engine.enableVideo();
-    await _engine.enableAudio();
-
-    await _engine.joinChannel(token, "meet", null, 0);
-
-    _engine.muteLocalAudioStream(HomeState.isMuted);
-    _engine.enableLocalVideo(!HomeState.isVidOff);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    singleTap();
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.animation.addListener(() {
-      setState(() {
-        currentIndex = _tabController.animation.value.round();
-        if (currentIndex != 1) {
-          FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
-        }
-      });
-    });
-    initAgora();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _textEditingController.dispose();
-    _engine.destroy();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -511,10 +459,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               )
                             ],
                           )
-                        : _users.length == 1
+                        : _agora.users.length == 1
                             ? RtcLocalView.SurfaceView()
                             : RtcRemoteView.SurfaceView(
-                                uid: int.parse(_users[1]),
+                                uid: int.parse(_agora.users[1]),
                               )),
                 Positioned(
                   top: 40,
@@ -672,7 +620,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         : Colors.grey,
                                   ),
                                   Text(
-                                    ' (' + _users.length.toString() + ')',
+                                    ' (' + _agora.users.length.toString() + ')',
                                     style: TextStyle(
                                       color: currentIndex == 0
                                           ? Colors.green[900]
@@ -712,7 +660,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                         children: [
                           ListView.builder(
                               padding: EdgeInsets.zero,
-                              itemCount: _users.length,
+                              itemCount: _agora.users.length,
                               itemBuilder: (context, index) {
                                 return Container(
                                   width: MediaQuery.of(context).size.width,
@@ -775,7 +723,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       Padding(
                                         padding:
                                             const EdgeInsets.only(left: 14),
-                                        child: Text(_users[index]),
+                                        child: Text(_agora.users[index]),
                                       )
                                     ],
                                   ),
@@ -798,7 +746,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       shrinkWrap: true,
                                       reverse: true,
                                       padding: EdgeInsets.only(left: 10),
-                                      itemCount: _messages.length,
+                                      itemCount: _agora.messages.length,
                                       itemBuilder: (context, index) {
                                         return Container(
                                           child: Column(
@@ -813,7 +761,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                     CrossAxisAlignment.end,
                                                 children: [
                                                   Text(
-                                                    _messageUsers[index],
+                                                    _agora.messageUsers[index],
                                                     style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w600,
@@ -823,7 +771,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                     width: 8,
                                                   ),
                                                   Text(
-                                                    _messageTime[index],
+                                                    _agora.messageTime[index],
                                                     style: TextStyle(
                                                       fontSize: 11,
                                                       color: Colors.grey[700],
@@ -834,7 +782,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                               SizedBox(
                                                 height: 3,
                                               ),
-                                              Text(_messages[index]),
+                                              Text(_agora.messages[index]),
                                               SizedBox(
                                                 height: 10,
                                               ),

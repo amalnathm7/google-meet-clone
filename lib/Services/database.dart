@@ -18,14 +18,20 @@ class Database {
         '-' +
         code.substring(7, 10);
 
-    _db.collection("meetings").doc(code).set({
+    _db.collection("meetings").doc("meet").set({
       'host': _user.uid,
       'token':
           "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg"
     }, SetOptions(merge: false));
   }
 
-  void joinMeeting(String code) {
+  Future<bool> ifMeetingExists(String code) async {
+    var document = await _db.collection("meetings").doc(code).get();
+    if (document.exists) return true;
+    return false;
+  }
 
+  void joinMeeting(code) async {
+    var document = await _db.collection("meetings").doc(code).get();
   }
 }

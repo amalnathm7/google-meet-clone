@@ -6,13 +6,21 @@ import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/live.dart';
 
 class Join extends StatefulWidget {
+  final String code;
+
+  Join({this.code});
+
   @override
   State<StatefulWidget> createState() {
-    return JoinState();
+    return JoinState(meetCode: code);
   }
 }
 
 class JoinState extends State<Join> {
+  final String meetCode;
+
+  JoinState({this.meetCode});
+
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
 
@@ -319,7 +327,7 @@ class JoinState extends State<Join> {
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: Text(
-                    "mee-ting-cod",
+                    meetCode,
                     style: TextStyle(color: Colors.black, fontSize: 18),
                   ),
                 ),

@@ -82,7 +82,7 @@ class HomeState extends State<Home> {
   }
 
   void newMeeting() {
-    Database().createMeeting();
+    //Database().createMeeting();
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Live()),
