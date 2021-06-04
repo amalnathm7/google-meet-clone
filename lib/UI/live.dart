@@ -398,32 +398,33 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     RtcEngineConfig config = RtcEngineConfig(appId);
     _engine = await RtcEngine.createWithConfig(config);
 
-    _engine.setEventHandler(
-        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
+    _engine.setEventHandler(RtcEngineEventHandler(error: (errorCode) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("You joined $channel"),
+          content: Text("Error : $errorCode"),
           duration: Duration(milliseconds: 1000),
         ),
       );
     }, userJoined: (uid, elapsed) {
-      _users.add(uid.toString());
+      setState(() {
+        _users.add(uid.toString());
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("$uid joined this meeting"),
           duration: Duration(milliseconds: 1000),
         ),
       );
-      setState(() {});
     }, userOffline: (int uid, UserOfflineReason reason) {
-      _users.remove(uid.toString());
+      setState(() {
+        _users.remove(uid.toString());
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("$uid left this meeting"),
           duration: Duration(milliseconds: 1000),
         ),
       );
-      setState(() {});
     }));
 
     await _engine.enableVideo();
