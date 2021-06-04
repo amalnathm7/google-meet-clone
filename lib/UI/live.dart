@@ -18,12 +18,14 @@ class Live extends StatefulWidget {
 
 class LiveState extends State<Live> with TickerProviderStateMixin {
   var _user = FirebaseAuth.instance.currentUser;
-  var opacity = 0.0;
-  var bottom = -60.0;
-  var capPressed = false;
-  var userNameClr = Colors.white;
-  var currentIndex = 0;
-  Timer timer = Timer(Duration(seconds: 0), null);
+  var _opacity = 0.0;
+  var _bottom = -60.0;
+  var _capPressed = false;
+  var _userNameClr = Colors.white;
+  var _currentIndex = 0;
+  var _currentUserIndex = 0;
+  var _pin = -1;
+  Timer _timer = Timer(Duration(seconds: 0), null);
   TabController _tabController;
   TextEditingController _textEditingController = TextEditingController();
   Agora _agora = Agora();
@@ -35,8 +37,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animation.addListener(() {
       setState(() {
-        currentIndex = _tabController.animation.value.round();
-        if (currentIndex != 1) {
+        _currentIndex = _tabController.animation.value.round();
+        if (_currentIndex != 1) {
           FocusScopeNode currentFocus = FocusScope.of(context);
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
@@ -82,27 +84,27 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void singleTap() {
-    timer.cancel();
+    _timer.cancel();
     setState(() {
-      if (opacity == 0) {
-        opacity = 1;
-        bottom = 20;
-        userNameClr = Colors.transparent;
-        timer = Timer(Duration(seconds: 5), btnFade);
+      if (_opacity == 0) {
+        _opacity = 1;
+        _bottom = 20;
+        _userNameClr = Colors.transparent;
+        _timer = Timer(Duration(seconds: 5), btnFade);
       } else {
-        opacity = 0;
-        bottom = -60;
-        userNameClr = Colors.white;
+        _opacity = 0;
+        _bottom = -60;
+        _userNameClr = Colors.white;
       }
     });
   }
 
   void btnFade() {
-    if (opacity != 0)
+    if (_opacity != 0)
       setState(() {
-        opacity = 0;
-        bottom = -60;
-        userNameClr = Colors.white;
+        _opacity = 0;
+        _bottom = -60;
+        _userNameClr = Colors.white;
       });
   }
 
@@ -111,7 +113,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void speaker() {
     _agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
-      HomeState.clr1 = Colors.green[800];
+      HomeState.clr1 = Colors.teal[800];
       HomeState.clr2 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
       HomeState.soundIcon = Icons.volume_up_outlined;
@@ -122,7 +124,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void phone() {
     _agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
-      HomeState.clr2 = Colors.green[800];
+      HomeState.clr2 = Colors.teal[800];
       HomeState.clr1 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
       HomeState.soundIcon = HomeState.isHeadphoneConnected
@@ -135,7 +137,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void audioOff() {
     _agora.engine.muteAllRemoteAudioStreams(true);
     setState(() {
-      HomeState.clr3 = Colors.green[800];
+      HomeState.clr3 = Colors.teal[800];
       HomeState.clr2 = Colors.transparent;
       HomeState.clr1 = Colors.transparent;
       HomeState.soundIcon = Icons.volume_off_outlined;
@@ -240,9 +242,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   void captions() {
     setState(() {
-      capPressed = !capPressed;
+      _capPressed = !_capPressed;
     });
-    if (capPressed)
+    if (_capPressed)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Captions are being turned on"),
@@ -308,7 +310,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 },
                 horizontalTitleGap: 3,
                 leading: Icon(
-                  capPressed ? Icons.closed_caption : Icons.closed_caption_off,
+                  _capPressed ? Icons.closed_caption : Icons.closed_caption_off,
                   color: Colors.black54,
                 ),
                 title: Text(
@@ -454,43 +456,44 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 _user.displayName,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: userNameClr,
+                                  color: _userNameClr,
                                 ),
                               )
                             ],
                           )
-                        : _agora.users.length == 1
+                        : _currentUserIndex == 0
                             ? RtcLocalView.SurfaceView()
                             : RtcRemoteView.SurfaceView(
-                                uid: int.parse(_agora.users[1]),
+                                uid: int.parse(_agora.users[
+                                    _pin != 1 ? _pin : _currentUserIndex]),
                               )),
                 Positioned(
                   top: 40,
                   right: 0,
                   child: AnimatedOpacity(
                     curve: Curves.easeInOut,
-                    opacity: opacity,
+                    opacity: _opacity,
                     duration: Duration(milliseconds: 300),
                     child: Container(
                       child: Row(
                         children: [
                           IconButton(
                             icon: Icon(HomeState.soundIcon),
-                            onPressed: opacity == 0 ? null : vol,
+                            onPressed: _opacity == 0 ? null : vol,
                             color: Colors.white,
                             highlightColor: Colors.white10,
                             splashRadius: 25,
                           ),
                           IconButton(
-                            icon: Icon(capPressed
+                            icon: Icon(_capPressed
                                 ? Icons.closed_caption
                                 : Icons.closed_caption_off),
-                            onPressed: opacity == 0 ? null : captions,
+                            onPressed: _opacity == 0 ? null : captions,
                             color: Colors.white,
                           ),
                           IconButton(
                             icon: Icon(Icons.more_horiz),
-                            onPressed: opacity == 0 ? null : moreOptions,
+                            onPressed: _opacity == 0 ? null : moreOptions,
                             color: Colors.white,
                           )
                         ],
@@ -499,7 +502,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                   ),
                 ),
                 AnimatedPositioned(
-                  bottom: bottom,
+                  bottom: _bottom,
                   left: (MediaQuery.of(context).size.width - 215) / 2,
                   curve: Curves.easeInOut,
                   duration: Duration(milliseconds: 300),
@@ -604,7 +607,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                         color: Colors.white,
                         child: TabBar(
                           controller: _tabController,
-                          indicatorColor: Colors.green[900],
+                          indicatorColor: Colors.teal[800],
                           indicatorSize: TabBarIndicatorSize.label,
                           tabs: [
                             Tab(
@@ -612,18 +615,18 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    currentIndex == 0
+                                    _currentIndex == 0
                                         ? Icons.people_alt
                                         : Icons.people_alt_outlined,
-                                    color: currentIndex == 0
-                                        ? Colors.green[900]
+                                    color: _currentIndex == 0
+                                        ? Colors.teal[800]
                                         : Colors.grey,
                                   ),
                                   Text(
                                     ' (' + _agora.users.length.toString() + ')',
                                     style: TextStyle(
-                                      color: currentIndex == 0
-                                          ? Colors.green[900]
+                                      color: _currentIndex == 0
+                                          ? Colors.teal[800]
                                           : Colors.grey,
                                     ),
                                   ),
@@ -632,21 +635,21 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                             ),
                             Tab(
                               child: Icon(
-                                currentIndex == 1
+                                _currentIndex == 1
                                     ? Icons.messenger_outlined
                                     : Icons.message_outlined,
-                                color: currentIndex == 1
-                                    ? Colors.green[900]
+                                color: _currentIndex == 1
+                                    ? Colors.teal[800]
                                     : Colors.grey,
                               ),
                             ),
                             Tab(
                               icon: Icon(
-                                currentIndex == 2
+                                _currentIndex == 2
                                     ? Icons.info
                                     : Icons.info_outline,
-                                color: currentIndex == 2
-                                    ? Colors.green[900]
+                                color: _currentIndex == 2
+                                    ? Colors.teal[800]
                                     : Colors.grey,
                               ),
                             ),
@@ -670,23 +673,67 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      Container(
-                                        color: Colors.grey[200],
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                3,
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _currentUserIndex = index;
+                                            if (_pin == index)
+                                              _pin = -1;
+                                            else
+                                              _pin = index;
+                                          });
+                                        },
                                         child: Stack(
                                           children: [
-                                            Center(
-                                              child: ClipRRect(
-                                                child: Image.network(
-                                                  _user.photoURL,
-                                                  height: 50,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
+                                            Container(
+                                              color: Colors.grey[200],
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3,
+                                              child: Stack(
+                                                children: [
+                                                  Center(
+                                                    child: ClipRRect(
+                                                      child: Image.network(
+                                                        _user.photoURL,
+                                                        height: 50,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              50),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
+                                            Opacity(
+                                                opacity:
+                                                    _currentUserIndex == index
+                                                        ? 0.7
+                                                        : 0,
+                                                child: Container(
+                                                  color: Colors.black,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                )),
+                                            Positioned(
+                                                top: 20,
+                                                left: (MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            3 -
+                                                        30) /
+                                                    2,
+                                                child: Icon(
+                                                  _pin == index
+                                                      ? Icons.push_pin
+                                                      : null,
+                                                  color: Colors.white,
+                                                  size: 30,
+                                                )),
                                             Positioned(
                                               right: HomeState.isMuted ? 5 : 3,
                                               bottom: HomeState.isMuted ? 5 : 0,
@@ -702,7 +749,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                               .more_horiz_rounded,
                                                       color: HomeState.isMuted
                                                           ? Colors.white
-                                                          : Colors.green[700],
+                                                          : _currentUserIndex ==
+                                                                  index
+                                                              ? Colors
+                                                                  .tealAccent
+                                                              : Colors.green,
                                                       size: HomeState.isMuted
                                                           ? 18
                                                           : 28,
@@ -711,7 +762,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                   decoration: BoxDecoration(
                                                     color: HomeState.isMuted
                                                         ? Colors.red[800]
-                                                        : Colors.grey[200],
+                                                        : Colors.transparent,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             50),
@@ -805,18 +856,18 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   onSubmitted: (text) {
                                     setState(() {});
                                   },
-                                  cursorColor: Colors.green[800],
+                                  cursorColor: Colors.teal[800],
                                   textCapitalization:
                                       TextCapitalization.sentences,
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 13),
                                   textAlignVertical: TextAlignVertical.center,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
                                       contentPadding: EdgeInsets.all(15),
                                       suffixIcon: IconButton(
                                         icon: Icon(Icons.send),
-                                        iconSize: 20,
-                                        color: Colors.green[800],
+                                        iconSize: 25,
+                                        color: Colors.teal[800],
                                         splashRadius: 20,
                                         onPressed:
                                             _textEditingController.text.isEmpty
@@ -825,7 +876,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       ),
                                       hintText:
                                           "Send a message to everyone here",
-                                      hintStyle: TextStyle(fontSize: 12)),
+                                      hintStyle: TextStyle(fontSize: 13)),
                                 ),
                               ),
                             ],
@@ -837,7 +888,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 padding: const EdgeInsets.only(
                                     top: 15, bottom: 15, left: 15),
                                 child: Text(
-                                  "mee-ting-cod",
+                                  _agora.channel,
                                   style: TextStyle(
                                     fontFamily: 'Product Sans',
                                     fontSize: 22,
@@ -859,7 +910,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               Padding(
                                 padding: const EdgeInsets.only(left: 15),
                                 child: Text(
-                                  "meet.google.com/mee-ting-cod",
+                                  "meet.google.com/" + _agora.channel,
                                   style: TextStyle(
                                     letterSpacing: -0.3,
                                     fontSize: 15,
@@ -870,14 +921,14 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 onPressed: share,
                                 icon: Icon(
                                   Icons.share_outlined,
-                                  color: Colors.green[900],
+                                  color: Colors.teal[700],
                                 ),
                                 style: ButtonStyle(
                                     overlayColor: MaterialStateProperty.all(
-                                        Colors.green[100])),
+                                        Colors.teal[50])),
                                 label: Text(
                                   "Share",
-                                  style: TextStyle(color: Colors.green[900]),
+                                  style: TextStyle(color: Colors.teal[700]),
                                 ),
                               ),
                               Divider(

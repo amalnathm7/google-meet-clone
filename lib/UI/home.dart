@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/Services/google_auth.dart';
 import 'package:gmeet/UI/live.dart';
 import 'package:gmeet/UI/meeting_code.dart';
@@ -19,18 +18,18 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  static var clr1 = Colors.green[800];
+  static var clr1 = Colors.teal[800];
   static var clr2 = Colors.transparent;
   static var clr3 = Colors.transparent;
   static var soundIcon = Icons.volume_up_outlined;
   static var isHeadphoneConnected = false;
   static var isMuted = false;
   static var isVidOff = false;
-  var isAccPressed = false;
-  var sheet = false;
-  var snack = true;
-  var logOut = false;
-  var opacity = 1.0;
+  var _isAccPressed = false;
+  var _sheet = false;
+  var _snack = true;
+  var _logOut = false;
+  var _opacity = 1.0;
   User _user = FirebaseAuth.instance.currentUser;
 
   @override
@@ -42,7 +41,7 @@ class HomeState extends State<Home> {
         setState(() {
           isHeadphoneConnected = true;
           soundIcon = Icons.headset_outlined;
-          clr2 = Colors.green[800];
+          clr2 = Colors.teal[800];
           clr1 = Colors.transparent;
           clr3 = Colors.transparent;
         });
@@ -50,7 +49,7 @@ class HomeState extends State<Home> {
         setState(() {
           isHeadphoneConnected = false;
           soundIcon = Icons.volume_up_outlined;
-          clr1 = Colors.green[800];
+          clr1 = Colors.teal[800];
           clr2 = Colors.transparent;
           clr3 = Colors.transparent;
         });
@@ -132,7 +131,7 @@ class HomeState extends State<Home> {
 
   void speaker() {
     setState(() {
-      clr1 = Colors.green[800];
+      clr1 = Colors.teal[800];
       clr2 = Colors.transparent;
       clr3 = Colors.transparent;
       soundIcon = Icons.volume_up_outlined;
@@ -142,7 +141,7 @@ class HomeState extends State<Home> {
 
   void phone() {
     setState(() {
-      clr2 = Colors.green[800];
+      clr2 = Colors.teal[800];
       clr1 = Colors.transparent;
       clr3 = Colors.transparent;
       soundIcon =
@@ -153,7 +152,7 @@ class HomeState extends State<Home> {
 
   void audioOff() {
     setState(() {
-      clr3 = Colors.green[800];
+      clr3 = Colors.teal[800];
       clr2 = Colors.transparent;
       clr1 = Colors.transparent;
       soundIcon = Icons.volume_off_outlined;
@@ -163,7 +162,7 @@ class HomeState extends State<Home> {
 
   void logout() {
     setState(() {
-      logOut = true;
+      _logOut = true;
     });
     GoogleAuth().signOut(context);
   }
@@ -270,7 +269,7 @@ class HomeState extends State<Home> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
-      appBar: sheet
+      appBar: _sheet
           ? AppBar(
               backgroundColor: Colors.white,
               //toolbarHeight: 75,
@@ -324,7 +323,7 @@ class HomeState extends State<Home> {
               tilePadding: EdgeInsets.zero,
               onExpansionChanged: (val) {
                 setState(() {
-                  isAccPressed = val;
+                  _isAccPressed = val;
                 });
               },
               leading: Padding(
@@ -357,7 +356,7 @@ class HomeState extends State<Home> {
                   ),
                   WidgetSpan(
                       child: Icon(
-                    isAccPressed
+                    _isAccPressed
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
                     color: Colors.black54,
@@ -365,7 +364,7 @@ class HomeState extends State<Home> {
                   ))
                 ]),
               ),
-              trailing: logOut
+              trailing: _logOut
                   ? Padding(
                       padding: const EdgeInsets.only(right: 28),
                       child: Container(
@@ -554,7 +553,7 @@ class HomeState extends State<Home> {
             initialSnap: 200,
             snappings: [200, double.infinity],
             positioning: SnapPositioning.pixelOffset),
-        body: sheet
+        body: _sheet
             ? Container(
                 color: Colors.white,
               )
@@ -581,21 +580,21 @@ class HomeState extends State<Home> {
                 : Camera(),
         builder: (context, state) {
           return SheetListenerBuilder(buildWhen: (oldState, newState) {
-            if (snack)
+            if (_snack)
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text("Signed in as " + _user?.email.toString()),
                   duration: Duration(milliseconds: 1000),
                 ),
               );
-            snack = false;
+            _snack = false;
             setState(() {
               if (state.extent > MediaQuery.of(context).size.height / 1.5) {
-                sheet = true;
-                opacity = 0;
+                _sheet = true;
+                _opacity = 0;
               } else {
-                opacity = 1;
-                sheet = false;
+                _opacity = 1;
+                _sheet = false;
               }
             });
             return true;
@@ -606,7 +605,7 @@ class HomeState extends State<Home> {
                     color: Colors.white,
                   )
                 : AnimatedOpacity(
-                    opacity: opacity,
+                    opacity: _opacity,
                     duration: Duration(milliseconds: 200),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -697,12 +696,12 @@ class HomeState extends State<Home> {
                                       child: ElevatedButton.icon(
                                           icon: Icon(
                                             Icons.add,
-                                            color: Colors.green[900],
+                                            color: Colors.teal[800],
                                           ),
                                           label: Text(
                                             "New meeting",
                                             style: TextStyle(
-                                                color: Colors.green[900],
+                                                color: Colors.teal[800],
                                                 fontFamily: 'Product Sans'),
                                           ),
                                           onPressed: newMeeting,
@@ -712,7 +711,7 @@ class HomeState extends State<Home> {
                                                 width: 1),
                                             elevation: 0,
                                             primary: Colors.white,
-                                            onPrimary: Colors.green[900],
+                                            onPrimary: Colors.teal[800],
                                             shadowColor: Colors.transparent,
                                           )),
                                     ),
@@ -727,12 +726,12 @@ class HomeState extends State<Home> {
                                       child: ElevatedButton.icon(
                                         icon: Icon(
                                           Icons.keyboard,
-                                          color: Colors.green[900],
+                                          color: Colors.teal[800],
                                         ),
                                         label: Text(
                                           "Meeting code",
                                           style: TextStyle(
-                                              color: Colors.green[900],
+                                              color: Colors.teal[800],
                                               fontFamily: 'Product Sans'),
                                         ),
                                         onPressed: meetingCode,
@@ -742,7 +741,7 @@ class HomeState extends State<Home> {
                                               width: 1),
                                           elevation: 0,
                                           primary: Colors.white,
-                                          onPrimary: Colors.green[900],
+                                          onPrimary: Colors.teal[800],
                                           shadowColor: Colors.transparent,
                                         ),
                                       ),

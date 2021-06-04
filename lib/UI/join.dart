@@ -68,7 +68,7 @@ class JoinState extends State<Join> {
 
   void speaker() {
     setState(() {
-      HomeState.clr1 = Colors.green[800];
+      HomeState.clr1 = Colors.teal[800];
       HomeState.clr2 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
       HomeState.soundIcon = Icons.volume_up_outlined;
@@ -78,7 +78,7 @@ class JoinState extends State<Join> {
 
   void phone() {
     setState(() {
-      HomeState.clr2 = Colors.green[800];
+      HomeState.clr2 = Colors.teal[800];
       HomeState.clr1 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
       HomeState.soundIcon = HomeState.isHeadphoneConnected
@@ -90,7 +90,7 @@ class JoinState extends State<Join> {
 
   void audioOff() {
     setState(() {
-      HomeState.clr3 = Colors.green[800];
+      HomeState.clr3 = Colors.teal[800];
       HomeState.clr2 = Colors.transparent;
       HomeState.clr1 = Colors.transparent;
       HomeState.soundIcon = Icons.volume_off_outlined;
@@ -346,8 +346,8 @@ class JoinState extends State<Join> {
                   onPressed: askToJoin,
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
-                    primary: Colors.green[800],
-                    onPrimary: Colors.green[800],
+                    primary: Colors.teal[800],
+                    onPrimary: Colors.teal[800],
                     shadowColor: Colors.transparent,
                   ),
                 ),

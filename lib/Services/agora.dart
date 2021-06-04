@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:gmeet/UI/home.dart';
 
 class Agora {
-  final appId = "6d4aa2fdccfd43438c4c811d12f16141";
-  final token =
+  final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
+  final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IAClhhGqlogwU9Hx0NRRDHG9CCZ+S/z2Ltjc/XdU+rIWX87T9ukAAAAAEADGEkMQUoO7YAEAAQBRg7tg";
   RtcEngine engine;
+  String channel = "";
   List<String> users = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
@@ -16,10 +17,20 @@ class Agora {
   List<String> messageTime = [];
 
   joinChannel(BuildContext context) async {
-    RtcEngineConfig config = RtcEngineConfig(appId);
+    RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
-    engine.setEventHandler(RtcEngineEventHandler(error: (errorCode) {
+    engine.setEventHandler(RtcEngineEventHandler(
+        joinChannelSuccess: (channel, uid, elapsed) {
+          this.channel = channel;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("You joined $channel"),
+              duration: Duration(milliseconds: 1000),
+            ),
+          );
+        },
+        error: (errorCode) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error : $errorCode"),
@@ -50,6 +61,6 @@ class Agora {
     engine.muteLocalAudioStream(HomeState.isMuted);
     engine.enableLocalVideo(!HomeState.isVidOff);
 
-    await engine.joinChannel(token, "meet", null, 0);
+    await engine.joinChannel(_token, "meet", null, 0);
   }
 }

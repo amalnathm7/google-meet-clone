@@ -76,7 +76,7 @@ class WelcomeState extends State<Welcome> {
                   child: Text(
                     "Terms of Service",
                     style: TextStyle(
-                        color: Colors.green[800], fontFamily: 'Product Sans'),
+                        color: Colors.teal[800], fontFamily: 'Product Sans'),
                   ),
                 ),
                 Text(" and "),
@@ -89,7 +89,7 @@ class WelcomeState extends State<Welcome> {
                   child: Text(
                     "Privacy Policy",
                     style: TextStyle(
-                        color: Colors.green[800], fontFamily: 'Product Sans'),
+                        color: Colors.teal[800], fontFamily: 'Product Sans'),
                   ),
                 ),
               ],
@@ -115,13 +115,13 @@ class WelcomeState extends State<Welcome> {
                 },
                 style: ButtonStyle(
                     overlayColor:
-                        MaterialStateProperty.all(Colors.lightGreen[900]),
+                        MaterialStateProperty.all(Colors.teal[800]),
                     elevation: MaterialStateProperty.all(0),
                     minimumSize: MaterialStateProperty.all(Size.zero),
                     padding: MaterialStateProperty.all(EdgeInsets.only(
                         left: 21, right: 21, top: 8, bottom: 8)),
                     backgroundColor:
-                        MaterialStateProperty.all(Colors.green[900])),
+                        MaterialStateProperty.all(Colors.teal[800])),
                 child: Text(
                   "Continue",
                   style: TextStyle(

@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           accentColor: Colors.grey,
           dividerColor: Colors.transparent,
-          primaryColor: Colors.green[800],
+          primaryColor: Colors.teal[800],
           shadowColor: Colors.transparent,
         ),
         home: FirebaseAuth.instance.currentUser == null ? Welcome() : Home());

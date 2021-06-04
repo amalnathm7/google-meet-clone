@@ -110,7 +110,7 @@ class MeetingCodeState extends State<MeetingCode> {
                             _ifCodeEntered = false;
                         });
                       },
-                      cursorColor: Colors.green[800],
+                      cursorColor: Colors.teal[800],
                       decoration: InputDecoration(
                         suffixIcon: _validate
                             ? null
@@ -122,15 +122,15 @@ class MeetingCodeState extends State<MeetingCode> {
                         errorText: _validate ? null : "No such meeting",
                         labelStyle: TextStyle(
                             color:
-                                _validate ? Colors.green[800] : Colors.red[800]),
+                                _validate ? Colors.teal[800] : Colors.red[800]),
                         enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                          color: Colors.green[800],
+                          color: Colors.teal[800],
                           width: 2,
                         )),
                         focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                          color: Colors.green[800],
+                          color: Colors.teal[800],
                           width: 2,
                         )),
                         focusedErrorBorder: OutlineInputBorder(
@@ -151,7 +151,7 @@ class MeetingCodeState extends State<MeetingCode> {
                     MaterialButton(
                       animationDuration: Duration(milliseconds: 0),
                       elevation: 0,
-                      textColor: Colors.green[900],
+                      textColor: Colors.teal[800],
                       child: Text(
                         "Present",
                         style: TextStyle(
@@ -170,7 +170,7 @@ class MeetingCodeState extends State<MeetingCode> {
                     ),
                     MaterialButton(
                       animationDuration: Duration(milliseconds: 0),
-                      color: Colors.green[900],
+                      color: Colors.teal[800],
                       textColor: Colors.white,
                       elevation: 0,
                       child: Text(
