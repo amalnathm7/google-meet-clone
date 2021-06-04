@@ -701,8 +701,10 @@ class HomeState extends State<Home> {
                                           label: Text(
                                             "New meeting",
                                             style: TextStyle(
-                                                color: Colors.teal[800],
-                                                fontFamily: 'Product Sans'),
+                                              color: Colors.teal[800],
+                                              fontFamily: 'Product Sans',
+                                              fontSize: 15,
+                                            ),
                                           ),
                                           onPressed: newMeeting,
                                           style: ElevatedButton.styleFrom(
@@ -731,8 +733,10 @@ class HomeState extends State<Home> {
                                         label: Text(
                                           "Meeting code",
                                           style: TextStyle(
-                                              color: Colors.teal[800],
-                                              fontFamily: 'Product Sans'),
+                                            color: Colors.teal[800],
+                                            fontFamily: 'Product Sans',
+                                            fontSize: 15,
+                                          ),
                                         ),
                                         onPressed: meetingCode,
                                         style: ElevatedButton.styleFrom(
