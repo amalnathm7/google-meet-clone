@@ -15,7 +15,7 @@ class Agora {
   List<String> messageUsers = [];
   List<String> messageTime = [];
 
-  jonChannel(BuildContext context) async {
+  joinChannel(BuildContext context) async {
     RtcEngineConfig config = RtcEngineConfig(appId);
     engine = await RtcEngine.createWithConfig(config);
 

@@ -44,7 +44,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         }
       });
     });
-    _agora.jonChannel(context);
+    _agora.joinChannel(context);
   }
 
   @override
