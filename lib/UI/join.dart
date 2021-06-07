@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/live.dart';
 
@@ -12,14 +13,14 @@ class Join extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return JoinState(meetCode: code);
+    return JoinState(code: code);
   }
 }
 
 class JoinState extends State<Join> {
-  final String meetCode;
+  final String code;
 
-  JoinState({this.meetCode});
+  JoinState({this.code});
 
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
@@ -194,6 +195,7 @@ class JoinState extends State<Join> {
   }
 
   void askToJoin() {
+    Database().joinMeeting(code);
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => Live()));
   }
@@ -327,7 +329,7 @@ class JoinState extends State<Join> {
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: Text(
-                    meetCode,
+                    code,
                     style: TextStyle(color: Colors.black, fontSize: 18),
                   ),
                 ),

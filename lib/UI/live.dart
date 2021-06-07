@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
+import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
@@ -25,6 +27,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _currentIndex = 0;
   var _currentUserIndex = 0;
   var _pin = -1;
+  Database _database = Database();
   Timer _timer = Timer(Duration(seconds: 0), null);
   TabController _tabController;
   TextEditingController _textEditingController = TextEditingController();
@@ -404,6 +407,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void sendMsg() {
+    _database.sendMessage(_textEditingController.text, _agora.channel);
     _agora.messages.insert(0, _textEditingController.text);
     _agora.messageUsers.insert(0, "You");
     _agora.messageTime.insert(0, DateFormat('hh:mm a').format(DateTime.now()));
@@ -773,8 +777,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                               child: Ink(
                                                 height: 70,
                                                 width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
+                                                        .size
+                                                        .width /
                                                     3,
                                               ),
                                             ),
@@ -790,111 +794,134 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   ),
                                 );
                               }),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    FocusScopeNode currentFocus =
-                                        FocusScope.of(context);
-                                    if (!currentFocus.hasPrimaryFocus) {
-                                      currentFocus.unfocus();
-                                    }
-                                  },
-                                  child: ListView.builder(
-                                      shrinkWrap: true,
-                                      reverse: true,
-                                      padding: EdgeInsets.only(left: 10),
-                                      itemCount: _agora.messages.length,
-                                      itemBuilder: (context, index) {
-                                        return Container(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                height: 20,
-                                              ),
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    _agora.messageUsers[index],
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                          StreamBuilder(
+                              stream: FirebaseFirestore.instance
+                                  .collection("meetings")
+                                  .doc('meet')
+                                  .collection("messages")
+                                  .doc(DateTime.now().toString())
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot != null &&
+                                    snapshot.hasData &&
+                                    !snapshot.hasError) {
+                                  //snapshot.data
+                                }
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          FocusScopeNode currentFocus =
+                                              FocusScope.of(context);
+                                          if (!currentFocus.hasPrimaryFocus) {
+                                            currentFocus.unfocus();
+                                          }
+                                        },
+                                        child: ListView.builder(
+                                            shrinkWrap: true,
+                                            reverse: true,
+                                            padding: EdgeInsets.only(left: 10),
+                                            itemCount: _agora.messages.length,
+                                            itemBuilder: (context, index) {
+                                              return Container(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      height: 20,
                                                     ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 8,
-                                                  ),
-                                                  Text(
-                                                    _agora.messageTime[index],
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.grey[700],
+                                                    Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Text(
+                                                          _agora.messageUsers[
+                                                              index],
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Text(
+                                                          _agora.messageTime[
+                                                              index],
+                                                          style: TextStyle(
+                                                            fontSize: 11,
+                                                            color: Colors
+                                                                .grey[700],
+                                                          ),
+                                                        )
+                                                      ],
                                                     ),
-                                                  )
-                                                ],
+                                                    SizedBox(
+                                                      height: 3,
+                                                    ),
+                                                    Text(
+                                                        _agora.messages[index]),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 10, bottom: 5),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            border: Border(
+                                                top: BorderSide(
+                                                    color: Colors.grey[300]))),
+                                        child: TextField(
+                                          controller: _textEditingController,
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          onSubmitted: (text) {
+                                            setState(() {});
+                                          },
+                                          cursorColor: Colors.teal[800],
+                                          textCapitalization:
+                                              TextCapitalization.sentences,
+                                          style: TextStyle(fontSize: 13),
+                                          textAlignVertical:
+                                              TextAlignVertical.center,
+                                          decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              contentPadding:
+                                                  EdgeInsets.all(15),
+                                              suffixIcon: IconButton(
+                                                icon: Icon(Icons.send),
+                                                iconSize: 20,
+                                                color: Colors.teal[800],
+                                                splashRadius: 20,
+                                                onPressed:
+                                                    _textEditingController
+                                                            .text.isEmpty
+                                                        ? null
+                                                        : sendMsg,
                                               ),
-                                              SizedBox(
-                                                height: 3,
-                                              ),
-                                              Text(_agora.messages[index]),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 10, bottom: 5),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                          top: BorderSide(
-                                              color: Colors.grey[300]))),
-                                  child: TextField(
-                                    controller: _textEditingController,
-                                    onChanged: (text) {
-                                      setState(() {});
-                                    },
-                                    onSubmitted: (text) {
-                                      setState(() {});
-                                    },
-                                    cursorColor: Colors.teal[800],
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                    style: TextStyle(fontSize: 13),
-                                    textAlignVertical: TextAlignVertical.center,
-                                    decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.all(15),
-                                        suffixIcon: IconButton(
-                                          icon: Icon(Icons.send),
-                                          iconSize: 20,
-                                          color: Colors.teal[800],
-                                          splashRadius: 20,
-                                          onPressed: _textEditingController
-                                                  .text.isEmpty
-                                              ? null
-                                              : sendMsg,
+                                              hintText:
+                                                  "Send a message to everyone here",
+                                              hintStyle:
+                                                  TextStyle(fontSize: 13)),
                                         ),
-                                        hintText:
-                                            "Send a message to everyone here",
-                                        hintStyle: TextStyle(fontSize: 13)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

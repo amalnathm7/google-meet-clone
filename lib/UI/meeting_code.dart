@@ -78,9 +78,9 @@ class MeetingCodeState extends State<MeetingCode> {
           children: [
             _loading
                 ? Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.green[800],
-                      ),
+                    child: CircularProgressIndicator(
+                      color: Colors.green[800],
+                    ),
                   )
                 : SizedBox(),
             Column(
