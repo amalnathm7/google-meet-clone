@@ -113,7 +113,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void speaker() {
     _agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
-      HomeState.clr1 = Colors.teal[800];
+      HomeState.clr1 = Colors.teal[700];
       HomeState.clr2 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
       HomeState.soundIcon = Icons.volume_up_outlined;
@@ -124,7 +124,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void phone() {
     _agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
-      HomeState.clr2 = Colors.teal[800];
+      HomeState.clr2 = Colors.teal[700];
       HomeState.clr1 = Colors.transparent;
       HomeState.clr3 = Colors.transparent;
       HomeState.soundIcon = HomeState.isHeadphoneConnected
@@ -137,7 +137,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void audioOff() {
     _agora.engine.muteAllRemoteAudioStreams(true);
     setState(() {
-      HomeState.clr3 = Colors.teal[800];
+      HomeState.clr3 = Colors.teal[700];
       HomeState.clr2 = Colors.transparent;
       HomeState.clr1 = Colors.transparent;
       HomeState.soundIcon = Icons.volume_off_outlined;
@@ -465,7 +465,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                             ? RtcLocalView.SurfaceView()
                             : RtcRemoteView.SurfaceView(
                                 uid: int.parse(_agora.users[
-                                    _pin != 1 ? _pin : _currentUserIndex]),
+                                    _pin != -1 ? _pin : _currentUserIndex]),
                               )),
                 Positioned(
                   top: 40,
@@ -608,6 +608,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                         child: TabBar(
                           controller: _tabController,
                           indicatorColor: Colors.teal[800],
+                          indicatorWeight: 3,
                           indicatorSize: TabBarIndicatorSize.label,
                           tabs: [
                             Tab(
@@ -620,14 +621,14 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         : Icons.people_alt_outlined,
                                     color: _currentIndex == 0
                                         ? Colors.teal[800]
-                                        : Colors.grey,
+                                        : Colors.grey[400],
                                   ),
                                   Text(
                                     ' (' + _agora.users.length.toString() + ')',
                                     style: TextStyle(
                                       color: _currentIndex == 0
                                           ? Colors.teal[800]
-                                          : Colors.grey,
+                                          : Colors.grey[400],
                                     ),
                                   ),
                                 ],
@@ -640,7 +641,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                     : Icons.message_outlined,
                                 color: _currentIndex == 1
                                     ? Colors.teal[800]
-                                    : Colors.grey,
+                                    : Colors.grey[400],
                               ),
                             ),
                             Tab(
@@ -650,7 +651,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                     : Icons.info_outline,
                                 color: _currentIndex == 2
                                     ? Colors.teal[800]
-                                    : Colors.grey,
+                                    : Colors.grey[400],
                               ),
                             ),
                           ],
@@ -673,103 +674,112 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _currentUserIndex = index;
-                                            if (_pin == index)
-                                              _pin = -1;
-                                            else
-                                              _pin = index;
-                                          });
-                                        },
-                                        child: Stack(
-                                          children: [
-                                            Container(
-                                              color: Colors.grey[200],
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  3,
-                                              child: Stack(
-                                                children: [
-                                                  Center(
-                                                    child: ClipRRect(
-                                                      child: Image.network(
-                                                        _user.photoURL,
-                                                        height: 50,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
+                                      Stack(
+                                        children: [
+                                          Container(
+                                            color: Colors.grey[200],
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3,
+                                            child: Stack(
+                                              children: [
+                                                Center(
+                                                  child: ClipRRect(
+                                                    child: Image.network(
+                                                      _user.photoURL,
+                                                      height: 50,
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Opacity(
-                                                opacity:
-                                                    _currentUserIndex == index
-                                                        ? 0.7
-                                                        : 0,
-                                                child: Container(
-                                                  color: Colors.black,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      3,
-                                                )),
-                                            Positioned(
-                                                top: 20,
-                                                left: (MediaQuery.of(context)
-                                                                .size
-                                                                .width /
-                                                            3 -
-                                                        30) /
-                                                    2,
-                                                child: Icon(
-                                                  _pin == index
-                                                      ? Icons.push_pin
-                                                      : null,
-                                                  color: Colors.white,
-                                                  size: 30,
-                                                )),
-                                            Positioned(
-                                              right: HomeState.isMuted ? 5 : 3,
-                                              bottom: HomeState.isMuted ? 5 : 0,
-                                              child: Container(
-                                                  child: Padding(
-                                                    padding: HomeState.isMuted
-                                                        ? EdgeInsets.all(3.0)
-                                                        : EdgeInsets.zero,
-                                                    child: Icon(
-                                                      HomeState.isMuted
-                                                          ? Icons.mic_off
-                                                          : Icons
-                                                              .more_horiz_rounded,
-                                                      color: HomeState.isMuted
-                                                          ? Colors.white
-                                                          : _currentUserIndex ==
-                                                                  index
-                                                              ? Colors
-                                                                  .tealAccent
-                                                              : Colors.green,
-                                                      size: HomeState.isMuted
-                                                          ? 18
-                                                          : 28,
-                                                    ),
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: HomeState.isMuted
-                                                        ? Colors.red[800]
-                                                        : Colors.transparent,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             50),
-                                                  )),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                          Opacity(
+                                              opacity:
+                                                  _currentUserIndex == index
+                                                      ? 0.7
+                                                      : 0,
+                                              child: Container(
+                                                color: Colors.black,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    3,
+                                              )),
+                                          Positioned(
+                                              top: 20,
+                                              left: (MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          3 -
+                                                      30) /
+                                                  2,
+                                              child: Icon(
+                                                _pin == index
+                                                    ? Icons.push_pin
+                                                    : null,
+                                                color: Colors.white,
+                                                size: 30,
+                                              )),
+                                          Positioned(
+                                            right: HomeState.isMuted ? 5 : 3,
+                                            bottom: HomeState.isMuted ? 5 : 0,
+                                            child: Container(
+                                                child: Padding(
+                                                  padding: HomeState.isMuted
+                                                      ? EdgeInsets.all(3.0)
+                                                      : EdgeInsets.zero,
+                                                  child: Icon(
+                                                    HomeState.isMuted
+                                                        ? Icons.mic_off
+                                                        : Icons
+                                                            .more_horiz_rounded,
+                                                    color: HomeState.isMuted
+                                                        ? Colors.white
+                                                        : _currentUserIndex ==
+                                                                index
+                                                            ? Colors.tealAccent
+                                                            : Colors.green,
+                                                    size: HomeState.isMuted
+                                                        ? 18
+                                                        : 28,
+                                                  ),
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: HomeState.isMuted
+                                                      ? Colors.red[800]
+                                                      : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                )),
+                                          ),
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  _currentUserIndex = index;
+                                                  if (_pin == index)
+                                                    _pin = -1;
+                                                  else
+                                                    _pin = index;
+                                                });
+                                              },
+                                              splashColor: Colors.white24,
+                                              child: Ink(
+                                                height: 70,
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                    3,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                       Padding(
                                         padding:
@@ -843,40 +853,44 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       }),
                                 ),
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                        top: BorderSide(
-                                            color: Colors.grey[300]))),
-                                child: TextField(
-                                  controller: _textEditingController,
-                                  onChanged: (text) {
-                                    setState(() {});
-                                  },
-                                  onSubmitted: (text) {
-                                    setState(() {});
-                                  },
-                                  cursorColor: Colors.teal[800],
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                  style: TextStyle(fontSize: 13),
-                                  textAlignVertical: TextAlignVertical.center,
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.all(15),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(Icons.send),
-                                        iconSize: 25,
-                                        color: Colors.teal[800],
-                                        splashRadius: 20,
-                                        onPressed:
-                                            _textEditingController.text.isEmpty
-                                                ? null
-                                                : sendMsg,
-                                      ),
-                                      hintText:
-                                          "Send a message to everyone here",
-                                      hintStyle: TextStyle(fontSize: 13)),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 10, bottom: 5),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                          top: BorderSide(
+                                              color: Colors.grey[300]))),
+                                  child: TextField(
+                                    controller: _textEditingController,
+                                    onChanged: (text) {
+                                      setState(() {});
+                                    },
+                                    onSubmitted: (text) {
+                                      setState(() {});
+                                    },
+                                    cursorColor: Colors.teal[800],
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    style: TextStyle(fontSize: 13),
+                                    textAlignVertical: TextAlignVertical.center,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.all(15),
+                                        suffixIcon: IconButton(
+                                          icon: Icon(Icons.send),
+                                          iconSize: 20,
+                                          color: Colors.teal[800],
+                                          splashRadius: 20,
+                                          onPressed: _textEditingController
+                                                  .text.isEmpty
+                                              ? null
+                                              : sendMsg,
+                                        ),
+                                        hintText:
+                                            "Send a message to everyone here",
+                                        hintStyle: TextStyle(fontSize: 13)),
+                                  ),
                                 ),
                               ),
                             ],

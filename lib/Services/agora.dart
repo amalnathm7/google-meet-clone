@@ -6,7 +6,7 @@ import 'package:gmeet/UI/home.dart';
 class Agora {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAClhhGqlogwU9Hx0NRRDHG9CCZ+S/z2Ltjc/XdU+rIWX87T9ukAAAAAEADGEkMQUoO7YAEAAQBRg7tg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IACvpXwkueKx4BEuyP4+cdD8YYrnhVrujJP67rRfyrvkwM7T9ukAAAAAEADIUmqkPZi/YAEAAQA9mL9g";
   RtcEngine engine;
   String channel = "";
   List<String> users = [
