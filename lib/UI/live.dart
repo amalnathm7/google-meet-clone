@@ -409,10 +409,37 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void sendMsg() {
     _database.sendMessage(_textEditingController.text, _agora.channel);
     _agora.messages.insert(0, _textEditingController.text);
-    _agora.messageUsers.insert(0, "You");
-    _agora.messageTime.insert(0, DateFormat('hh:mm a').format(DateTime.now()));
-    _textEditingController.clear();
-    setState(() {});
+
+    if(_agora.messageUsers[0] == "Now") {
+
+    }
+    else {
+      _agora.messageUsers.insert(0, "You");
+      _agora.messageTime.insert(0, "Now");
+      _textEditingController.clear();
+      setState(() {});
+
+    var length = _agora.messageTime.length;
+    var time = DateFormat('hh:mm a').format(DateTime.now());
+
+    Timer(Duration(minutes: 1), () {
+      setState(() {
+        _agora.messageTime
+            .setAll(_agora.messageTime.length - length, ["1 min"]);
+      });
+    });
+    Timer(Duration(minutes: 2), () {
+      setState(() {
+        _agora.messageTime
+            .setAll(_agora.messageTime.length - length, ["2 min"]);
+      });
+    });
+    Timer(Duration(minutes: 3), () {
+      setState(() {
+        _agora.messageTime.setAll(_agora.messageTime.length - length, [time]);
+      });
+    });
+    }
   }
 
   void share() {}
