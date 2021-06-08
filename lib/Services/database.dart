@@ -106,4 +106,13 @@ class Database {
       'isVidOff': HomeState.isVidOff,
     });
   }
+
+  exitMeeting() async {
+    await FirebaseFirestore.instance
+        .collection("meetings")
+        .doc(agora.channel)
+        .collection("users")
+        .doc(agora.uid)
+        .delete();
+  }
 }

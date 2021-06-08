@@ -23,7 +23,6 @@ class Live extends StatefulWidget {
 }
 
 class LiveState extends State<Live> with TickerProviderStateMixin {
-
   LiveState({this.agora});
 
   var _opacity = 0.0;
@@ -35,7 +34,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _pin = -1;
   TextEditingController _textEditingController = TextEditingController();
   User _user = FirebaseAuth.instance.currentUser;
-  FirebaseFirestore _db = FirebaseFirestore.instance;
   Timer _timer = Timer(Duration(seconds: 0), null);
   Timer _timer2;
   TabController _tabController;
@@ -65,6 +63,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void dispose() {
     _tabController.dispose();
     _textEditingController.dispose();
+    _database.exitMeeting();
     agora.engine.destroy();
     super.dispose();
   }
@@ -92,8 +91,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     _database.toggleCam(agora.channel);
   }
 
-  void end() {
-    agora.engine.leaveChannel();
+  void end() async {
+    await _database.exitMeeting();
+    await agora.engine.leaveChannel();
     Navigator.pop(context);
   }
 
@@ -452,8 +452,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         }
         Timer(Duration(minutes: 30), () {
           setState(() {
-            agora.messageTime
-                .setAll(agora.messageTime.length - length, [time]);
+            agora.messageTime.setAll(agora.messageTime.length - length, [time]);
           });
         });
       }
@@ -676,7 +675,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         : Colors.grey[400],
                                   ),
                                   Text(
-                                    ' (' + agora.userUIDs.length.toString() + ')',
+                                    ' (' +
+                                        agora.userNames.length.toString() +
+                                        ')',
                                     style: TextStyle(
                                       color: _currentIndex == 0
                                           ? Colors.teal[800]
@@ -714,157 +715,133 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                       child: TabBarView(
                         controller: _tabController,
                         children: [
-                          StreamBuilder(
-                              stream: _db
-                                  .collection("meetings")
-                                  .doc(_database.code)
-                                  .collection("users")
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                return ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    itemCount: agora.userUIDs.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height: 70,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Stack(
+                          ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: agora.userNames.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 70,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          Container(
+                                            color: Colors.grey[200],
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3,
+                                            child: Stack(
                                               children: [
-                                                Container(
-                                                  color: Colors.grey[200],
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      3,
-                                                  child: Stack(
-                                                    children: [
-                                                      Center(
-                                                        child: ClipRRect(
-                                                          child: Image.network(
-                                                            agora.userImages[index],
-                                                            height: 50,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(50),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Opacity(
-                                                    opacity:
-                                                        _currentUserIndex ==
-                                                                index
-                                                            ? 0.7
-                                                            : 0,
-                                                    child: Container(
-                                                      color: Colors.black,
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              3,
-                                                    )),
-                                                Positioned(
-                                                    top: 20,
-                                                    left:
-                                                        (MediaQuery.of(context)
-                                                                        .size
-                                                                        .width /
-                                                                    3 -
-                                                                30) /
-                                                            2,
-                                                    child: Icon(
-                                                      _pin == index
-                                                          ? Icons.push_pin
-                                                          : null,
-                                                      color: Colors.white,
-                                                      size: 30,
-                                                    )),
-                                                Positioned(
-                                                  right:
-                                                      HomeState.isMuted ? 5 : 3,
-                                                  bottom:
-                                                      HomeState.isMuted ? 5 : 0,
-                                                  child: Container(
-                                                      child: Padding(
-                                                        padding: HomeState
-                                                                .isMuted
-                                                            ? EdgeInsets.all(
-                                                                3.0)
-                                                            : EdgeInsets.zero,
-                                                        child: Icon(
-                                                          HomeState.isMuted
-                                                              ? Icons.mic_off
-                                                              : Icons
-                                                                  .more_horiz_rounded,
-                                                          color: HomeState
-                                                                  .isMuted
-                                                              ? Colors.white
-                                                              : _currentUserIndex ==
-                                                                      index
-                                                                  ? Colors
-                                                                      .tealAccent
-                                                                  : Colors
-                                                                      .green,
-                                                          size:
-                                                              HomeState.isMuted
-                                                                  ? 18
-                                                                  : 28,
-                                                        ),
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        color: HomeState.isMuted
-                                                            ? Colors.red[800]
-                                                            : Colors
-                                                                .transparent,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(50),
-                                                      )),
-                                                ),
-                                                Material(
-                                                  color: Colors.transparent,
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _currentUserIndex =
-                                                            index;
-                                                        if (_pin == index)
-                                                          _pin = -1;
-                                                        else
-                                                          _pin = index;
-                                                      });
-                                                    },
-                                                    splashColor: Colors.white24,
-                                                    child: Ink(
-                                                      height: 70,
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              3,
+                                                Center(
+                                                  child: ClipRRect(
+                                                    child: Image.network(
+                                                      agora.userImages[index],
+                                                      height: 50,
                                                     ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 14),
-                                              child: Text(agora.userNames[index]),
-                                            )
-                                          ],
-                                        ),
-                                      );
-                                    });
+                                          ),
+                                          Opacity(
+                                              opacity:
+                                                  _currentUserIndex == index
+                                                      ? 0.7
+                                                      : 0,
+                                              child: Container(
+                                                color: Colors.black,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    3,
+                                              )),
+                                          Positioned(
+                                              top: 20,
+                                              left: (MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          3 -
+                                                      30) /
+                                                  2,
+                                              child: Icon(
+                                                _pin == index
+                                                    ? Icons.push_pin
+                                                    : null,
+                                                color: Colors.white,
+                                                size: 30,
+                                              )),
+                                          Positioned(
+                                            right: HomeState.isMuted ? 5 : 3,
+                                            bottom: HomeState.isMuted ? 5 : 0,
+                                            child: Container(
+                                                child: Padding(
+                                                  padding: HomeState.isMuted
+                                                      ? EdgeInsets.all(3.0)
+                                                      : EdgeInsets.zero,
+                                                  child: Icon(
+                                                    HomeState.isMuted
+                                                        ? Icons.mic_off
+                                                        : Icons
+                                                            .more_horiz_rounded,
+                                                    color: HomeState.isMuted
+                                                        ? Colors.white
+                                                        : _currentUserIndex ==
+                                                                index
+                                                            ? Colors.tealAccent
+                                                            : Colors.green,
+                                                    size: HomeState.isMuted
+                                                        ? 18
+                                                        : 28,
+                                                  ),
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: HomeState.isMuted
+                                                      ? Colors.red[800]
+                                                      : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                )),
+                                          ),
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  _currentUserIndex = index;
+                                                  if (_pin == index)
+                                                    _pin = -1;
+                                                  else
+                                                    _pin = index;
+                                                });
+                                              },
+                                              splashColor: Colors.white24,
+                                              child: Ink(
+                                                height: 70,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    3,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 14),
+                                        child: Text(agora.userNames[index]),
+                                      )
+                                    ],
+                                  ),
+                                );
                               }),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.end,
