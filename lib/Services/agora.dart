@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'dart:math';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,20 +20,21 @@ class Agora {
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
+  final _db = FirebaseFirestore.instance;
+  final _user = FirebaseAuth.instance.currentUser;
+  String code = "meet";
+  DocumentSnapshot document;
 
-  Future<bool> joinChannel(BuildContext context) async {
-
-    bool result = false;
-
+  joinChannel(BuildContext context) async {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
     engine.setEventHandler(
         RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
       this.uid = uid.toString();
-      userUIDs.setAll(0, [uid.toString()]);
+      userUIDs.add(uid.toString());
       this.channel = channel;
-      result = true;
+      createMeeting();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -67,6 +67,7 @@ class Agora {
           duration: Duration(milliseconds: 1000),
         ),
       );
+
     }, userOffline: (int uid, UserOfflineReason reason) {
       int index = userUIDs.indexOf(uid.toString());
       userUIDs.removeAt(index);
@@ -87,7 +88,108 @@ class Agora {
     engine.enableLocalVideo(!HomeState.isVidOff);
 
     await engine.joinChannel(_token, "meet", null, 0);
+  }
 
-    return result;
+  createMeeting() async {
+    //const _chars = 'abcdefghijklmnopqrstuvwxyz';
+    //Random _rnd = Random.secure();
+    /*code = String.fromCharCodes(Iterable.generate(
+        10, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+    code = code.substring(0, 3) +
+        '-' +
+        code.substring(3, 7) +
+        '-' +
+        code.substring(7, 10);*/
+
+    await _db.collection("meetings").doc(code).set({
+      'host': _user.uid,
+      'token':
+      "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg"
+    });
+
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(uid)
+        .set({
+      'name': _user.displayName,
+      'image_url': _user.photoURL,
+      'isMuted': HomeState.isMuted,
+      'isVidOff': HomeState.isVidOff
+    });
+
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("messages")
+        .doc("messages")
+        .set({});
+  }
+
+  Future<bool> ifMeetingExists(String code) async {
+    document = await _db.collection("meetings").doc(code).get();
+    if (document.exists) return true;
+    return false;
+  }
+
+  joinMeeting(String code) async {
+    this.code = code;
+
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(uid)
+        .set({
+      'name': _user.displayName,
+      'image_url': _user.photoURL,
+      'isMuted': HomeState.isMuted,
+      'isVidOff': HomeState.isVidOff
+    }, SetOptions(merge: false));
+  }
+
+  sendMessage(String msg, String code) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("messages")
+        .doc("messages")
+        .update({
+      DateTime.now().toString().substring(0, 19) +
+          ":" +
+          DateTime.now().millisecond.toString(): {_user.displayName: msg}
+    });
+  }
+
+  toggleMic(String code) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(uid)
+        .update({
+      'isMuted': HomeState.isMuted,
+    });
+  }
+
+  toggleCam(String code) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(uid)
+        .update({
+      'isVidOff': HomeState.isVidOff,
+    });
+  }
+
+  exitMeeting() async {
+    await FirebaseFirestore.instance
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(uid)
+        .delete();
   }
 }

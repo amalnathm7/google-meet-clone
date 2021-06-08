@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
-import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/Services/google_auth.dart';
 import 'package:gmeet/UI/live.dart';
 import 'package:gmeet/UI/meeting_code.dart';
@@ -89,28 +88,17 @@ class HomeState extends State<Home> {
       _loading = true;
     });
 
-    if(await _agora.joinChannel(context)) {
-      await Database(agora: _agora).createMeeting();
+    await _agora.joinChannel(context);
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  Live(
-                    agora: _agora,
-                  )));
-    }
-    else {
-      setState(() {
-        _loading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Meeting failed. Please try again later"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Live(
+                  agora: _agora,
+                )));
+    setState(() {
+      _loading = false;
+    });
   }
 
   void meetingCode() {

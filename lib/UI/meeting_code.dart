@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gmeet/Services/database.dart';
+import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/UI/join.dart';
 
 class MeetingCode extends StatefulWidget {
@@ -20,7 +20,7 @@ class MeetingCodeState extends State<MeetingCode> {
     setState(() {
       _loading = true;
     });
-    if (await Database().ifMeetingExists(_controller.text))
+    if (await Agora().ifMeetingExists(_controller.text))
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(

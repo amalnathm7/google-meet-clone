@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
-import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
@@ -37,12 +36,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   Timer _timer2;
   TabController _tabController;
   Agora agora;
-  Database _database;
 
   @override
   void initState() {
     super.initState();
-    _database = Database(agora: agora);
     singleTap();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animation.addListener(() {
@@ -62,7 +59,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void dispose() {
     _tabController.dispose();
     _textEditingController.dispose();
-    _database.exitMeeting();
+    agora.exitMeeting();
     agora.engine.destroy();
     super.dispose();
   }
@@ -79,7 +76,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
-    _database.toggleMic(agora.channel);
+    agora.toggleMic(agora.channel);
   }
 
   void video() {
@@ -87,11 +84,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.isVidOff = !HomeState.isVidOff;
     });
     agora.engine.enableLocalVideo(!HomeState.isVidOff);
-    _database.toggleCam(agora.channel);
+    agora.toggleCam(agora.channel);
   }
 
   void end() async {
-    await _database.exitMeeting();
+    agora.exitMeeting();
     await agora.engine.leaveChannel();
     Navigator.pop(context);
   }
@@ -417,7 +414,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void sendMsg() {
-    _database.sendMessage(_textEditingController.text, agora.channel);
+    agora.sendMessage(_textEditingController.text, agora.channel);
 
     if (_timer2 != null && _timer2.isActive) {
       agora.messageUsers.setAll(0, ["You"]);
