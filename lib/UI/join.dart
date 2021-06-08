@@ -195,7 +195,7 @@ class JoinState extends State<Join> {
   }
 
   void askToJoin() async {
-    await _agora.joinChannel(context);
+    await _agora.joinExistingChannel(context, code);
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => Live(agora: _agora,)));
   }

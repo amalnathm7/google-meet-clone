@@ -88,7 +88,7 @@ class HomeState extends State<Home> {
       _loading = true;
     });
 
-    await _agora.joinChannel(context);
+    await _agora.createChannel(context);
 
     Navigator.push(
         context,

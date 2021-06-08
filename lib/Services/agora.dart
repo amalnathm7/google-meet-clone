@@ -10,7 +10,6 @@ class Agora {
   final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IABezHUOGfnNFmocEdUYrhg9Q15EspOptUE6WjEBynveNs7T9ukAAAAAEADGEkMQY+zAYAEAAQBj7MBg";
   RtcEngine engine;
-  String channel = "";
   String uid = "";
   List<String> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
@@ -25,7 +24,21 @@ class Agora {
   String code = "meet";
   DocumentSnapshot document;
 
-  joinChannel(BuildContext context) async {
+  createChannel(BuildContext context) async {
+    //const _chars = 'abcdefghijklmnopqrstuvwxyz';
+    //Random _rnd = Random.secure();
+    /*code = String.fromCharCodes(Iterable.generate(
+        10, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+    code = code.substring(0, 3) +
+        '-' +
+        code.substring(3, 7) +
+        '-' +
+        code.substring(7, 10);*/
+
+    joinCreatedChannel(context, code);
+  }
+
+  joinCreatedChannel(BuildContext context, String channel) async {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
@@ -33,8 +46,7 @@ class Agora {
         RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
       this.uid = uid.toString();
       userUIDs.add(uid.toString());
-      this.channel = channel;
-      createMeeting();
+      createMeetingInDB();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -52,7 +64,7 @@ class Agora {
     }, userJoined: (uid, elapsed) async {
       DocumentSnapshot snap = await FirebaseFirestore.instance
           .collection("meetings")
-          .doc(channel)
+          .doc(code)
           .collection("users")
           .doc(uid.toString())
           .get();
@@ -67,7 +79,6 @@ class Agora {
           duration: Duration(milliseconds: 1000),
         ),
       );
-
     }, userOffline: (int uid, UserOfflineReason reason) {
       int index = userUIDs.indexOf(uid.toString());
       userUIDs.removeAt(index);
@@ -87,24 +98,14 @@ class Agora {
     engine.muteLocalAudioStream(HomeState.isMuted);
     engine.enableLocalVideo(!HomeState.isVidOff);
 
-    await engine.joinChannel(_token, "meet", null, 0);
+    await engine.joinChannel(_token, channel, null, 0);
   }
 
-  createMeeting() async {
-    //const _chars = 'abcdefghijklmnopqrstuvwxyz';
-    //Random _rnd = Random.secure();
-    /*code = String.fromCharCodes(Iterable.generate(
-        10, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-    code = code.substring(0, 3) +
-        '-' +
-        code.substring(3, 7) +
-        '-' +
-        code.substring(7, 10);*/
-
+  createMeetingInDB() async {
     await _db.collection("meetings").doc(code).set({
       'host': _user.uid,
       'token':
-      "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg"
+          "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg"
     });
 
     await _db
@@ -133,9 +134,71 @@ class Agora {
     return false;
   }
 
-  joinMeeting(String code) async {
-    this.code = code;
+  joinExistingChannel(BuildContext context, String channel) async {
+    RtcEngineConfig config = RtcEngineConfig(_appId);
+    engine = await RtcEngine.createWithConfig(config);
 
+    engine.setEventHandler(
+        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
+          this.code = channel;
+          this.uid = uid.toString();
+          userUIDs.add(uid.toString());
+          joinMeetingInDB(channel);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("You joined $channel"),
+              duration: Duration(milliseconds: 1000),
+            ),
+          );
+        }, error: (errorCode) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Error : $errorCode"),
+              duration: Duration(milliseconds: 1000),
+            ),
+          );
+        }, userJoined: (uid, elapsed) async {
+          DocumentSnapshot snap = await FirebaseFirestore.instance
+              .collection("meetings")
+              .doc(code)
+              .collection("users")
+              .doc(uid.toString())
+              .get();
+
+          userUIDs.add(uid.toString());
+          userNames.add(snap.get('name'));
+          userImages.add(snap.get('image_url'));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("$uid joined this meeting"),
+              duration: Duration(milliseconds: 1000),
+            ),
+          );
+        }, userOffline: (int uid, UserOfflineReason reason) {
+          int index = userUIDs.indexOf(uid.toString());
+          userUIDs.removeAt(index);
+          userNames.removeAt(index);
+          userImages.removeAt(index);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("$uid left this meeting"),
+              duration: Duration(milliseconds: 1000),
+            ),
+          );
+        }));
+
+    await engine.enableVideo();
+    await engine.enableAudio();
+
+    engine.muteLocalAudioStream(HomeState.isMuted);
+    engine.enableLocalVideo(!HomeState.isVidOff);
+
+    await engine.joinChannel(_token, channel, null, 0);
+  }
+
+  joinMeetingInDB(String code) async {
     await _db
         .collection("meetings")
         .doc(code)

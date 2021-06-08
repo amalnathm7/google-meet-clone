@@ -76,7 +76,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
-    agora.toggleMic(agora.channel);
+    agora.toggleMic(agora.code);
   }
 
   void video() {
@@ -84,7 +84,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.isVidOff = !HomeState.isVidOff;
     });
     agora.engine.enableLocalVideo(!HomeState.isVidOff);
-    agora.toggleCam(agora.channel);
+    agora.toggleCam(agora.code);
   }
 
   void end() async {
@@ -414,7 +414,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void sendMsg() {
-    agora.sendMessage(_textEditingController.text, agora.channel);
+    agora.sendMessage(_textEditingController.text, agora.code);
 
     if (_timer2 != null && _timer2.isActive) {
       agora.messageUsers.setAll(0, ["You"]);
@@ -951,7 +951,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 padding: const EdgeInsets.only(
                                     top: 15, bottom: 15, left: 15),
                                 child: Text(
-                                  agora.channel,
+                                  agora.code,
                                   style: TextStyle(
                                     fontFamily: 'Product Sans',
                                     fontSize: 22,
@@ -973,7 +973,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               Padding(
                                 padding: const EdgeInsets.only(left: 15),
                                 child: Text(
-                                  "meet.google.com/" + agora.channel,
+                                  "meet.google.com/" + agora.code,
                                   style: TextStyle(
                                     letterSpacing: -0.3,
                                     fontSize: 15,
