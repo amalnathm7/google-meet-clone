@@ -89,20 +89,28 @@ class HomeState extends State<Home> {
       _loading = true;
     });
 
-    await _agora.joinChannel(context);
+    if(await _agora.joinChannel(context)) {
+      await Database(agora: _agora).createMeeting();
 
-    await Database(agora: _agora).createMeeting();
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => Live(
-                  agora: _agora,
-                )));
-
-    setState(() {
-      _loading = false;
-    });
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  Live(
+                    agora: _agora,
+                  )));
+    }
+    else {
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Meeting failed. Please try again later"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+    }
   }
 
   void meetingCode() {

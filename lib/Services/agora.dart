@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,7 +9,7 @@ import 'package:gmeet/UI/home.dart';
 class Agora {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IADAEJZIW2OD50q9GtNNAPNbW2z41oGtrrD857hj85tq6c7T9ukAAAAAEADGEkMQFOPAYAEAAQAU48Bg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IABezHUOGfnNFmocEdUYrhg9Q15EspOptUE6WjEBynveNs7T9ukAAAAAEADGEkMQY+zAYAEAAQBj7MBg";
   RtcEngine engine;
   String channel = "";
   String uid = "";
@@ -20,7 +22,10 @@ class Agora {
   List<String> messageUsers = [];
   List<String> messageTime = [];
 
-  joinChannel(BuildContext context) async {
+  Future<bool> joinChannel(BuildContext context) async {
+
+    bool result = false;
+
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
@@ -29,23 +34,15 @@ class Agora {
       this.uid = uid.toString();
       userUIDs.setAll(0, [uid.toString()]);
       this.channel = channel;
+      result = true;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("You joined $channel"),
           duration: Duration(milliseconds: 1000),
         ),
       );
-    }, rejoinChannelSuccess: (channel, uid, elapsed) {
-          this.uid = uid.toString();
-          userUIDs.setAll(0, [uid.toString()]);
-          this.channel = channel;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("You joined $channel"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        }, error: (errorCode) {
+    }, error: (errorCode) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error : $errorCode"),
@@ -90,5 +87,7 @@ class Agora {
     engine.enableLocalVideo(!HomeState.isVidOff);
 
     await engine.joinChannel(_token, "meet", null, 0);
+
+    return result;
   }
 }
