@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/Services/google_auth.dart';
 import 'package:gmeet/UI/live.dart';
@@ -35,6 +36,7 @@ class HomeState extends State<Home> {
   var _logOut = false;
   var _opacity = 1.0;
   User _user = FirebaseAuth.instance.currentUser;
+  Agora _agora = Agora();
 
   @override
   void initState() {
@@ -84,16 +86,18 @@ class HomeState extends State<Home> {
     });
   }
 
-  void newMeeting() {
+  void newMeeting() async {
     setState(() {
       _loading = true;
     });
 
     Database().createMeeting();
+    _agora.joinChannel(context);
+
     Timer(Duration(milliseconds: 2000), () {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Live()),
+        MaterialPageRoute(builder: (context) => Live(agora: _agora,)),
       );
       setState(() {
         _loading = false;

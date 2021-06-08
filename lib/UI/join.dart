@@ -2,14 +2,15 @@ import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/live.dart';
 
 class Join extends StatefulWidget {
-  final String code;
-
   Join({this.code});
+
+  final String code;
 
   @override
   State<StatefulWidget> createState() {
@@ -18,12 +19,12 @@ class Join extends StatefulWidget {
 }
 
 class JoinState extends State<Join> {
-  final String code;
-
   JoinState({this.code});
 
+  final String code;
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
+  Agora _agora = Agora();
 
   @override
   void initState() {
@@ -194,10 +195,10 @@ class JoinState extends State<Join> {
         });
   }
 
-  void askToJoin() {
-    Database().joinMeeting(code);
+  void askToJoin() async {
+    await _agora.joinChannel(context);
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => Live()));
+        context, MaterialPageRoute(builder: (context) => Live(agora: _agora,)));
   }
 
   @override

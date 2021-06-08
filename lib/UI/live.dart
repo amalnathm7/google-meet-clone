@@ -12,13 +12,21 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 
 class Live extends StatefulWidget {
+  final Agora agora;
+
+  Live({this.agora});
+
   @override
   State<StatefulWidget> createState() {
-    return LiveState();
+    return LiveState(agora: agora);
   }
 }
 
 class LiveState extends State<Live> with TickerProviderStateMixin {
+
+  LiveState({this.agora});
+
+  Agora agora;
   var _user = FirebaseAuth.instance.currentUser;
   var _opacity = 0.0;
   var _bottom = -60.0;
@@ -32,7 +40,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   Timer _timer2;
   TabController _tabController;
   TextEditingController _textEditingController = TextEditingController();
-  Agora _agora = Agora();
+  FirebaseFirestore _db = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -50,14 +58,13 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         }
       });
     });
-    _agora.joinChannel(context);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _textEditingController.dispose();
-    _agora.engine.destroy();
+    agora.engine.destroy();
     super.dispose();
   }
 
@@ -66,26 +73,26 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.isMuted = !HomeState.isMuted;
       Fluttertoast.cancel();
     });
-    _agora.engine.muteLocalAudioStream(HomeState.isMuted);
+    agora.engine.muteLocalAudioStream(HomeState.isMuted);
     Fluttertoast.showToast(
       msg: HomeState.isMuted ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.TOP,
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
-    _database.toggleMic(_agora.channel);
+    _database.toggleMic(agora.channel);
   }
 
   void video() {
     setState(() {
       HomeState.isVidOff = !HomeState.isVidOff;
     });
-    _agora.engine.enableLocalVideo(!HomeState.isVidOff);
-    _database.toggleCam(_agora.channel);
+    agora.engine.enableLocalVideo(!HomeState.isVidOff);
+    _database.toggleCam(agora.channel);
   }
 
   void end() {
-    _agora.engine.leaveChannel();
+    agora.engine.leaveChannel();
     Navigator.pop(context);
   }
 
@@ -117,7 +124,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void doubleTap() {}
 
   void speaker() {
-    _agora.engine.muteAllRemoteAudioStreams(false);
+    agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
       HomeState.clr1 = Colors.teal[700];
       HomeState.clr2 = Colors.transparent;
@@ -128,7 +135,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void phone() {
-    _agora.engine.muteAllRemoteAudioStreams(false);
+    agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
       HomeState.clr2 = Colors.teal[700];
       HomeState.clr1 = Colors.transparent;
@@ -141,7 +148,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void audioOff() {
-    _agora.engine.muteAllRemoteAudioStreams(true);
+    agora.engine.muteAllRemoteAudioStreams(true);
     setState(() {
       HomeState.clr3 = Colors.teal[700];
       HomeState.clr2 = Colors.transparent;
@@ -261,7 +268,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   void switchCamera() {
     Navigator.pop(context);
-    _agora.engine.switchCamera();
+    agora.engine.switchCamera();
   }
 
   void present() {
@@ -410,20 +417,20 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void sendMsg() {
-    _database.sendMessage(_textEditingController.text, _agora.channel);
+    _database.sendMessage(_textEditingController.text, agora.channel);
 
     if (_timer2 != null && _timer2.isActive) {
-      _agora.messageUsers.setAll(0, ["You"]);
-      _agora.messageTime.setAll(0, ["Now"]);
-      _agora.messages.setAll(
-          0, [_agora.messages[0] + "\n\n" + _textEditingController.text]);
+      agora.messageUsers.setAll(0, ["You"]);
+      agora.messageTime.setAll(0, ["Now"]);
+      agora.messages.setAll(
+          0, [agora.messages[0] + "\n\n" + _textEditingController.text]);
     } else {
-      _agora.messageUsers.insert(0, "You");
-      _agora.messageTime.insert(0, "Now");
-      _agora.messages.insert(0, _textEditingController.text);
+      agora.messageUsers.insert(0, "You");
+      agora.messageTime.insert(0, "Now");
+      agora.messages.insert(0, _textEditingController.text);
     }
 
-    var length = _agora.messageTime.length;
+    var length = agora.messageTime.length;
     var time = DateFormat('hh:mm a').format(DateTime.now());
 
     _timer2 = Timer(Duration(seconds: 45), () {});
@@ -431,21 +438,21 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     Timer(Duration(minutes: 1), () {
       if (!_timer2.isActive) {
         setState(() {
-          _agora.messageTime
-              .setAll(_agora.messageTime.length - length, ["1 min"]);
+          agora.messageTime
+              .setAll(agora.messageTime.length - length, ["1 min"]);
         });
         for (int i = 1; i <= 29; i++) {
           Timer(Duration(minutes: i), () {
             setState(() {
-              _agora.messageTime.setAll(_agora.messageTime.length - length,
+              agora.messageTime.setAll(agora.messageTime.length - length,
                   [(i + 1).toString() + " min"]);
             });
           });
         }
         Timer(Duration(minutes: 30), () {
           setState(() {
-            _agora.messageTime
-                .setAll(_agora.messageTime.length - length, [time]);
+            agora.messageTime
+                .setAll(agora.messageTime.length - length, [time]);
           });
         });
       }
@@ -462,248 +469,215 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     final viewInsets = EdgeInsets.fromWindowPadding(
         WidgetsBinding.instance.window.viewInsets,
         WidgetsBinding.instance.window.devicePixelRatio);
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection("meetings")
-            .doc(_agora.channel)
-            .snapshots(),
-        builder: (context, snapshot) {
-          return Scaffold(
-            extendBodyBehindAppBar: true,
-            body: Column(
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Column(
+        children: [
+          GestureDetector(
+            onTap: singleTap,
+            onDoubleTap: doubleTap,
+            child: Stack(
               children: [
-                GestureDetector(
-                  onTap: singleTap,
-                  onDoubleTap: doubleTap,
-                  child: Stack(
+                Container(
+                    color: Colors.black,
+                    height: viewInsets.bottom == 0
+                        ? MediaQuery.of(context).size.height * .45
+                        : (MediaQuery.of(context).size.height -
+                                viewInsets.bottom) *
+                            .45,
+                    width: MediaQuery.of(context).size.width,
+                    child: HomeState.isVidOff
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height: 50,
+                              ),
+                              ClipRRect(
+                                child: Image.network(
+                                  _user.photoURL,
+                                  height: 80,
+                                ),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                _user.displayName,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: _userNameClr,
+                                ),
+                              )
+                            ],
+                          )
+                        : _currentUserIndex == 0
+                            ? RtcLocalView.SurfaceView()
+                            : RtcRemoteView.SurfaceView(
+                                uid: int.parse(agora.users[
+                                    _pin != -1 ? _pin : _currentUserIndex]),
+                              )),
+                Positioned(
+                  top: 40,
+                  right: 0,
+                  child: AnimatedOpacity(
+                    curve: Curves.easeInOut,
+                    opacity: _opacity,
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(HomeState.soundIcon),
+                            onPressed: _opacity == 0 ? null : vol,
+                            color: Colors.white,
+                            highlightColor: Colors.white10,
+                            splashRadius: 25,
+                          ),
+                          IconButton(
+                            icon: Icon(_capPressed
+                                ? Icons.closed_caption
+                                : Icons.closed_caption_off),
+                            onPressed: _opacity == 0 ? null : captions,
+                            color: Colors.white,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.more_horiz),
+                            onPressed: _opacity == 0 ? null : moreOptions,
+                            color: Colors.white,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                AnimatedPositioned(
+                  bottom: _bottom,
+                  left: (MediaQuery.of(context).size.width - 215) / 2,
+                  curve: Curves.easeInOut,
+                  duration: Duration(milliseconds: 300),
+                  child: Column(
                     children: [
-                      Container(
-                          color: Colors.black,
-                          height: viewInsets.bottom == 0
-                              ? MediaQuery.of(context).size.height * .45
-                              : (MediaQuery.of(context).size.height -
-                                      viewInsets.bottom) *
-                                  .45,
-                          width: MediaQuery.of(context).size.width,
-                          child: HomeState.isVidOff
-                              ? Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      height: 50,
-                                    ),
-                                    ClipRRect(
-                                      child: Image.network(
-                                        _user.photoURL,
-                                        height: 80,
-                                      ),
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text(
-                                      _user.displayName,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: _userNameClr,
-                                      ),
-                                    )
-                                  ],
-                                )
-                              : _currentUserIndex == 0
-                                  ? RtcLocalView.SurfaceView()
-                                  : RtcRemoteView.SurfaceView(
-                                      uid: int.parse(_agora.users[_pin != -1
-                                          ? _pin
-                                          : _currentUserIndex]),
-                                    )),
-                      Positioned(
-                        top: 40,
-                        right: 0,
-                        child: AnimatedOpacity(
-                          curve: Curves.easeInOut,
-                          opacity: _opacity,
-                          duration: Duration(milliseconds: 300),
-                          child: Container(
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(HomeState.soundIcon),
-                                  onPressed: _opacity == 0 ? null : vol,
-                                  color: Colors.white,
-                                  highlightColor: Colors.white10,
-                                  splashRadius: 25,
-                                ),
-                                IconButton(
-                                  icon: Icon(_capPressed
-                                      ? Icons.closed_caption
-                                      : Icons.closed_caption_off),
-                                  onPressed: _opacity == 0 ? null : captions,
-                                  color: Colors.white,
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.more_horiz),
-                                  onPressed: _opacity == 0 ? null : moreOptions,
-                                  color: Colors.white,
-                                )
-                              ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedContainer(
+                            height: 55,
+                            width: 55,
+                            duration: Duration(milliseconds: 300),
+                            decoration: BoxDecoration(
+                                color: HomeState.isMuted
+                                    ? Colors.red[800]
+                                    : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: HomeState.isMuted
+                                        ? Colors.transparent
+                                        : Colors.white)),
+                            child: IconButton(
+                              splashRadius: 25,
+                              splashColor: Colors.transparent,
+                              icon: Icon(HomeState.isMuted
+                                  ? Icons.mic_off_outlined
+                                  : Icons.mic_none_outlined),
+                              onPressed: mic,
+                              color: Colors.white,
                             ),
                           ),
-                        ),
-                      ),
-                      AnimatedPositioned(
-                        bottom: _bottom,
-                        left: (MediaQuery.of(context).size.width - 215) / 2,
-                        curve: Curves.easeInOut,
-                        duration: Duration(milliseconds: 300),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                AnimatedContainer(
-                                  height: 55,
-                                  width: 55,
-                                  duration: Duration(milliseconds: 300),
-                                  decoration: BoxDecoration(
-                                      color: HomeState.isMuted
-                                          ? Colors.red[800]
-                                          : Colors.transparent,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                          color: HomeState.isMuted
-                                              ? Colors.transparent
-                                              : Colors.white)),
-                                  child: IconButton(
-                                    splashRadius: 25,
-                                    splashColor: Colors.transparent,
-                                    icon: Icon(HomeState.isMuted
-                                        ? Icons.mic_off_outlined
-                                        : Icons.mic_none_outlined),
-                                    onPressed: mic,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 25,
-                                ),
-                                Container(
-                                  height: 55,
-                                  width: 55,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(30),
-                                      border: Border.all(
-                                          color: HomeState.isVidOff
-                                              ? Colors.transparent
-                                              : Colors.white)),
-                                  child: IconButton(
-                                    splashRadius: 25,
-                                    splashColor: Colors.transparent,
-                                    icon: Icon(Icons.call_end),
-                                    onPressed: end,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 25,
-                                ),
-                                AnimatedContainer(
-                                  height: 55,
-                                  width: 55,
-                                  duration: Duration(milliseconds: 300),
-                                  decoration: BoxDecoration(
-                                      color: HomeState.isVidOff
-                                          ? Colors.red[800]
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(30),
-                                      border: Border.all(
-                                          color: HomeState.isVidOff
-                                              ? Colors.transparent
-                                              : Colors.white)),
-                                  child: IconButton(
-                                    splashRadius: 25,
-                                    splashColor: Colors.transparent,
-                                    icon: Icon(HomeState.isVidOff
-                                        ? Icons.videocam_off_outlined
-                                        : Icons.videocam_outlined),
-                                    onPressed: video,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              ],
+                          SizedBox(
+                            width: 25,
+                          ),
+                          Container(
+                            height: 55,
+                            width: 55,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                    color: HomeState.isVidOff
+                                        ? Colors.transparent
+                                        : Colors.white)),
+                            child: IconButton(
+                              splashRadius: 25,
+                              splashColor: Colors.transparent,
+                              icon: Icon(Icons.call_end),
+                              onPressed: end,
+                              color: Colors.red,
                             ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            width: 25,
+                          ),
+                          AnimatedContainer(
+                            height: 55,
+                            width: 55,
+                            duration: Duration(milliseconds: 300),
+                            decoration: BoxDecoration(
+                                color: HomeState.isVidOff
+                                    ? Colors.red[800]
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                    color: HomeState.isVidOff
+                                        ? Colors.transparent
+                                        : Colors.white)),
+                            child: IconButton(
+                              splashRadius: 25,
+                              splashColor: Colors.transparent,
+                              icon: Icon(HomeState.isVidOff
+                                  ? Icons.videocam_off_outlined
+                                  : Icons.videocam_outlined),
+                              onPressed: video,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  height: viewInsets.bottom == 0
-                      ? MediaQuery.of(context).size.height * .55
-                      : (MediaQuery.of(context).size.height -
-                              viewInsets.bottom) *
-                          .55,
-                  child: Material(
-                    child: DefaultTabController(
-                      length: 3,
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                                border: Border(
-                                    bottom: BorderSide(color: Colors.black12))),
-                            child: Material(
-                              color: Colors.white,
-                              child: TabBar(
-                                controller: _tabController,
-                                indicatorColor: Colors.teal[800],
-                                indicatorWeight: 3,
-                                indicatorSize: TabBarIndicatorSize.label,
-                                tabs: [
-                                  Tab(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          _currentIndex == 0
-                                              ? Icons.people_alt
-                                              : Icons.people_alt_outlined,
-                                          color: _currentIndex == 0
-                                              ? Colors.teal[800]
-                                              : Colors.grey[400],
-                                        ),
-                                        Text(
-                                          ' (' +
-                                              _agora.users.length.toString() +
-                                              ')',
-                                          style: TextStyle(
-                                            color: _currentIndex == 0
-                                                ? Colors.teal[800]
-                                                : Colors.grey[400],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+              ],
+            ),
+          ),
+          Container(
+            height: viewInsets.bottom == 0
+                ? MediaQuery.of(context).size.height * .55
+                : (MediaQuery.of(context).size.height - viewInsets.bottom) *
+                    .55,
+            child: Material(
+              child: DefaultTabController(
+                length: 3,
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(color: Colors.black12))),
+                      child: Material(
+                        color: Colors.white,
+                        child: TabBar(
+                          controller: _tabController,
+                          indicatorColor: Colors.teal[800],
+                          indicatorWeight: 3,
+                          indicatorSize: TabBarIndicatorSize.label,
+                          tabs: [
+                            Tab(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _currentIndex == 0
+                                        ? Icons.people_alt
+                                        : Icons.people_alt_outlined,
+                                    color: _currentIndex == 0
+                                        ? Colors.teal[800]
+                                        : Colors.grey[400],
                                   ),
-                                  Tab(
-                                    child: Icon(
-                                      _currentIndex == 1
-                                          ? Icons.messenger_outlined
-                                          : Icons.message_outlined,
-                                      color: _currentIndex == 1
-                                          ? Colors.teal[800]
-                                          : Colors.grey[400],
-                                    ),
-                                  ),
-                                  Tab(
-                                    icon: Icon(
-                                      _currentIndex == 2
-                                          ? Icons.info
-                                          : Icons.info_outline,
-                                      color: _currentIndex == 2
+                                  Text(
+                                    ' (' + agora.users.length.toString() + ')',
+                                    style: TextStyle(
+                                      color: _currentIndex == 0
                                           ? Colors.teal[800]
                                           : Colors.grey[400],
                                     ),
@@ -711,14 +685,44 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 ],
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              controller: _tabController,
-                              children: [
-                                ListView.builder(
+                            Tab(
+                              child: Icon(
+                                _currentIndex == 1
+                                    ? Icons.messenger_outlined
+                                    : Icons.message_outlined,
+                                color: _currentIndex == 1
+                                    ? Colors.teal[800]
+                                    : Colors.grey[400],
+                              ),
+                            ),
+                            Tab(
+                              icon: Icon(
+                                _currentIndex == 2
+                                    ? Icons.info
+                                    : Icons.info_outline,
+                                color: _currentIndex == 2
+                                    ? Colors.teal[800]
+                                    : Colors.grey[400],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          StreamBuilder(
+                              stream: _db
+                                  .collection("meetings")
+                                  .doc(_database.code)
+                                  .collection("users")
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                return ListView.builder(
                                     padding: EdgeInsets.zero,
-                                    itemCount: _agora.users.length,
+                                    itemCount: agora.users.length,
                                     itemBuilder: (context, index) {
                                       return Container(
                                         width:
@@ -854,219 +858,208 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 14),
-                                              child: Text(_agora.users[index]),
+                                              child: Text(agora.users[index]),
                                             )
                                           ],
                                         ),
                                       );
-                                    }),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          FocusScopeNode currentFocus =
-                                              FocusScope.of(context);
-                                          if (!currentFocus.hasPrimaryFocus) {
-                                            currentFocus.unfocus();
-                                          }
-                                        },
-                                        child: ListView.builder(
-                                            shrinkWrap: true,
-                                            reverse: true,
-                                            padding: EdgeInsets.only(left: 10),
-                                            itemCount: _agora.messages.length,
-                                            itemBuilder: (context, index) {
-                                              return Container(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    SizedBox(
-                                                      height: 20,
-                                                    ),
-                                                    Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        Text(
-                                                          _agora.messageUsers[
-                                                              index],
-                                                          style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 8,
-                                                        ),
-                                                        Text(
-                                                          _agora.messageTime[
-                                                              index],
-                                                          style: TextStyle(
-                                                            fontSize: 11,
-                                                            color: Colors
-                                                                .grey[700],
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    SizedBox(
-                                                      height: 3,
-                                                    ),
-                                                    Text(
-                                                        _agora.messages[index]),
-                                                    SizedBox(
-                                                      height: 10,
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            }),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 10, bottom: 5),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            border: Border(
-                                                top: BorderSide(
-                                                    color: Colors.grey[300]))),
-                                        child: TextField(
-                                          controller: _textEditingController,
-                                          onChanged: (text) {
-                                            setState(() {});
-                                          },
-                                          onSubmitted: (text) {
-                                            setState(() {});
-                                          },
-                                          cursorColor: Colors.teal[800],
-                                          textCapitalization:
-                                              TextCapitalization.sentences,
-                                          style: TextStyle(fontSize: 13),
-                                          textAlignVertical:
-                                              TextAlignVertical.center,
-                                          decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.all(15),
-                                              suffixIcon: IconButton(
-                                                icon: Icon(Icons.send),
-                                                iconSize: 20,
-                                                color: Colors.teal[800],
-                                                splashRadius: 20,
-                                                onPressed:
-                                                    _textEditingController
-                                                            .text.isEmpty
-                                                        ? null
-                                                        : sendMsg,
+                                    });
+                              }),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    FocusScopeNode currentFocus =
+                                        FocusScope.of(context);
+                                    if (!currentFocus.hasPrimaryFocus) {
+                                      currentFocus.unfocus();
+                                    }
+                                  },
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      reverse: true,
+                                      padding: EdgeInsets.only(left: 10),
+                                      itemCount: agora.messages.length,
+                                      itemBuilder: (context, index) {
+                                        return Container(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: 20,
                                               ),
-                                              hintText:
-                                                  "Send a message to everyone here",
-                                              hintStyle:
-                                                  TextStyle(fontSize: 13)),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    agora.messageUsers[index],
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 8,
+                                                  ),
+                                                  Text(
+                                                    agora.messageTime[index],
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.grey[700],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 3,
+                                              ),
+                                              Text(agora.messages[index]),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 15, bottom: 15, left: 15),
-                                      child: Text(
-                                        _agora.channel,
-                                        style: TextStyle(
-                                          fontFamily: 'Product Sans',
-                                          fontSize: 22,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 10, bottom: 5),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                          top: BorderSide(
+                                              color: Colors.grey[300]))),
+                                  child: TextField(
+                                    controller: _textEditingController,
+                                    onChanged: (text) {
+                                      setState(() {});
+                                    },
+                                    onSubmitted: (text) {
+                                      setState(() {});
+                                    },
+                                    cursorColor: Colors.teal[800],
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    style: TextStyle(fontSize: 13),
+                                    textAlignVertical: TextAlignVertical.center,
+                                    decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.all(15),
+                                        suffixIcon: IconButton(
+                                          icon: Icon(Icons.send),
+                                          iconSize: 20,
+                                          color: Colors.teal[800],
+                                          splashRadius: 20,
+                                          onPressed: _textEditingController
+                                                  .text.isEmpty
+                                              ? null
+                                              : sendMsg,
                                         ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 15, bottom: 5),
-                                      child: Text(
-                                        "Joining info",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: -0.5,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 15),
-                                      child: Text(
-                                        "meet.google.com/" + _agora.channel,
-                                        style: TextStyle(
-                                          letterSpacing: -0.3,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton.icon(
-                                      onPressed: share,
-                                      icon: Icon(
-                                        Icons.share_outlined,
-                                        color: Colors.teal[700],
-                                      ),
-                                      style: ButtonStyle(
-                                          overlayColor:
-                                              MaterialStateProperty.all(
-                                                  Colors.teal[50])),
-                                      label: Text(
-                                        "Share",
-                                        style:
-                                            TextStyle(color: Colors.teal[700]),
-                                      ),
-                                    ),
-                                    Divider(
-                                      color: Colors.grey,
-                                      thickness: 0.25,
-                                      indent: 15,
-                                      height: 0,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 15, top: 16, bottom: 22),
-                                      child: Text(
-                                        "Attachments (0)",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: -0.5,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 15),
-                                      child: Text(
-                                        "Google Calendar attachments will be shown here",
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                        hintText:
+                                            "Send a message to everyone here",
+                                        hintStyle: TextStyle(fontSize: 13)),
+                                  ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 15, bottom: 15, left: 15),
+                                child: Text(
+                                  agora.channel,
+                                  style: TextStyle(
+                                    fontFamily: 'Product Sans',
+                                    fontSize: 22,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15, bottom: 5),
+                                child: Text(
+                                  "Joining info",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.5,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 15),
+                                child: Text(
+                                  "meet.google.com/" + agora.channel,
+                                  style: TextStyle(
+                                    letterSpacing: -0.3,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: share,
+                                icon: Icon(
+                                  Icons.share_outlined,
+                                  color: Colors.teal[700],
+                                ),
+                                style: ButtonStyle(
+                                    overlayColor: MaterialStateProperty.all(
+                                        Colors.teal[50])),
+                                label: Text(
+                                  "Share",
+                                  style: TextStyle(color: Colors.teal[700]),
+                                ),
+                              ),
+                              Divider(
+                                color: Colors.grey,
+                                thickness: 0.25,
+                                indent: 15,
+                                height: 0,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: 15, top: 16, bottom: 22),
+                                child: Text(
+                                  "Attachments (0)",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.5,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 15),
+                                child: Text(
+                                  "Google Calendar attachments will be shown here",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          );
-        });
+          ),
+        ],
+      ),
+    );
   }
 }

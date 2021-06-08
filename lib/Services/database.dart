@@ -6,13 +6,13 @@ import 'package:gmeet/UI/home.dart';
 class Database {
   final _db = FirebaseFirestore.instance;
   final _user = FirebaseAuth.instance.currentUser;
+  String code = "meet";
   DocumentSnapshot document;
 
   void createMeeting() {
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
     //Random _rnd = Random.secure();
-    String code = "meet";
-    /*String.fromCharCodes(Iterable.generate(
+    /*code = String.fromCharCodes(Iterable.generate(
         10, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
     code = code.substring(0, 3) +
         '-' +
@@ -52,12 +52,14 @@ class Database {
     return false;
   }
 
-  void joinMeeting(String code) async {
+  void joinMeeting(String code, String uid) async {
+    this.code = code;
+
     _db
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(uid)
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
