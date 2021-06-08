@@ -1,15 +1,19 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/UI/home.dart';
 
 class Database {
+  Database({this.agora});
+
   final _db = FirebaseFirestore.instance;
   final _user = FirebaseAuth.instance.currentUser;
   String code = "meet";
   DocumentSnapshot document;
+  Agora agora;
 
-  void createMeeting() {
+  createMeeting() async {
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
     //Random _rnd = Random.secure();
     /*code = String.fromCharCodes(Iterable.generate(
@@ -20,17 +24,17 @@ class Database {
         '-' +
         code.substring(7, 10);*/
 
-    _db.collection("meetings").doc(code).set({
-      'host': _user.uid,
+    await _db.collection("meetings").doc(code).set({
+      'host': agora.uid,
       'token':
           "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg"
     });
 
-    _db
+    await _db
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(agora.uid)
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
@@ -38,7 +42,7 @@ class Database {
       'isVidOff': HomeState.isVidOff
     });
 
-    _db
+    await _db
         .collection("meetings")
         .doc(code)
         .collection("messages")
@@ -52,14 +56,14 @@ class Database {
     return false;
   }
 
-  void joinMeeting(String code, String uid) async {
+  joinMeeting(String code) async {
     this.code = code;
 
-    _db
+    await _db
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(uid)
+        .doc(agora.uid)
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
@@ -68,8 +72,8 @@ class Database {
     }, SetOptions(merge: false));
   }
 
-  void sendMessage(String msg, String code) async {
-    _db
+  sendMessage(String msg, String code) async {
+    await _db
         .collection("meetings")
         .doc(code)
         .collection("messages")
@@ -81,23 +85,23 @@ class Database {
     });
   }
 
-  void toggleMic(String code) async {
-    _db
+  toggleMic(String code) async {
+    await _db
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(agora.uid)
         .update({
       'isMuted': HomeState.isMuted,
     });
   }
 
-  void toggleCam(String code) async {
-    _db
+  toggleCam(String code) async {
+    await _db
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(agora.uid)
         .update({
       'isVidOff': HomeState.isVidOff,
     });

@@ -26,8 +26,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   LiveState({this.agora});
 
-  Agora agora;
-  var _user = FirebaseAuth.instance.currentUser;
   var _opacity = 0.0;
   var _bottom = -60.0;
   var _capPressed = false;
@@ -35,16 +33,19 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _currentIndex = 0;
   var _currentUserIndex = 0;
   var _pin = -1;
-  Database _database = Database();
+  TextEditingController _textEditingController = TextEditingController();
+  User _user = FirebaseAuth.instance.currentUser;
+  FirebaseFirestore _db = FirebaseFirestore.instance;
   Timer _timer = Timer(Duration(seconds: 0), null);
   Timer _timer2;
   TabController _tabController;
-  TextEditingController _textEditingController = TextEditingController();
-  FirebaseFirestore _db = FirebaseFirestore.instance;
+  Agora agora;
+  Database _database;
 
   @override
   void initState() {
     super.initState();
+    _database = Database(agora: agora);
     singleTap();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animation.addListener(() {

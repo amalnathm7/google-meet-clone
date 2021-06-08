@@ -91,8 +91,9 @@ class HomeState extends State<Home> {
       _loading = true;
     });
 
-    Database().createMeeting();
-    _agora.joinChannel(context);
+    await _agora.joinChannel(context);
+
+    await Database(agora: _agora).createMeeting();
 
     Timer(Duration(milliseconds: 2000), () {
       Navigator.push(

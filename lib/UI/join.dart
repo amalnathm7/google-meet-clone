@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
-import 'package:gmeet/Services/database.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/live.dart';
 
