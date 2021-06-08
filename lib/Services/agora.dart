@@ -139,11 +139,11 @@ class Agora {
     engine = await RtcEngine.createWithConfig(config);
 
     engine.setEventHandler(
-        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
+        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) async {
           this.code = channel;
           this.uid = uid.toString();
           userUIDs.add(uid.toString());
-          joinMeetingInDB(channel);
+          await joinMeetingInDB(channel);
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
