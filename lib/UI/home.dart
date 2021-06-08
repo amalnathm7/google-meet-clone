@@ -95,14 +95,15 @@ class HomeState extends State<Home> {
 
     await Database(agora: _agora).createMeeting();
 
-    Timer(Duration(milliseconds: 2000), () {
-      Navigator.push(
+    Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Live(agora: _agora,)),
-      );
-      setState(() {
-        _loading = false;
-      });
+        MaterialPageRoute(
+            builder: (context) => Live(
+                  agora: _agora,
+                )));
+
+    setState(() {
+      _loading = false;
     });
   }
 

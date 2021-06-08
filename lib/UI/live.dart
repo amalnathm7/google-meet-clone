@@ -516,7 +516,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                         : _currentUserIndex == 0
                             ? RtcLocalView.SurfaceView()
                             : RtcRemoteView.SurfaceView(
-                                uid: int.parse(agora.users[
+                                uid: int.parse(agora.userUIDs[
                                     _pin != -1 ? _pin : _currentUserIndex]),
                               )),
                 Positioned(
@@ -676,7 +676,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         : Colors.grey[400],
                                   ),
                                   Text(
-                                    ' (' + agora.users.length.toString() + ')',
+                                    ' (' + agora.userUIDs.length.toString() + ')',
                                     style: TextStyle(
                                       color: _currentIndex == 0
                                           ? Colors.teal[800]
@@ -723,7 +723,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               builder: (context, snapshot) {
                                 return ListView.builder(
                                     padding: EdgeInsets.zero,
-                                    itemCount: agora.users.length,
+                                    itemCount: agora.userUIDs.length,
                                     itemBuilder: (context, index) {
                                       return Container(
                                         width:
@@ -747,7 +747,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                       Center(
                                                         child: ClipRRect(
                                                           child: Image.network(
-                                                            _user.photoURL,
+                                                            agora.userImages[index],
                                                             height: 50,
                                                           ),
                                                           borderRadius:
@@ -859,7 +859,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 14),
-                                              child: Text(agora.users[index]),
+                                              child: Text(agora.userNames[index]),
                                             )
                                           ],
                                         ),
