@@ -792,7 +792,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                         : _currentUserIndex ==
                                                                 index
                                                             ? Colors.tealAccent
-                                                            : Colors.green,
+                                                            : Colors.teal,
                                                     size: HomeState.isMuted
                                                         ? 18
                                                         : 28,
