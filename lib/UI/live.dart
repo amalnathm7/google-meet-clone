@@ -1049,8 +1049,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       child: Text(
                                         "Google Calendar attachments will be shown here",
                                         style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.grey[700]),
+                                          fontSize: 13,
+                                          color: Colors.grey[700],
+                                        ),
                                       ),
                                     ),
                                   ],
