@@ -29,6 +29,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _pin = -1;
   Database _database = Database();
   Timer _timer = Timer(Duration(seconds: 0), null);
+  Timer _timer2;
   TabController _tabController;
   TextEditingController _textEditingController = TextEditingController();
   Agora _agora = Agora();
@@ -408,38 +409,46 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   void sendMsg() {
     _database.sendMessage(_textEditingController.text, _agora.channel);
-    _agora.messages.insert(0, _textEditingController.text);
 
-    if(_agora.messageUsers[0] == "Now") {
-
-    }
-    else {
+    if (_timer2 != null && _timer2.isActive) {
+      _agora.messageUsers.setAll(0, ["You"]);
+      _agora.messageTime.setAll(0, ["Now"]);
+      _agora.messages.setAll(
+          0, [_agora.messages[0] + "\n\n" + _textEditingController.text]);
+    } else {
       _agora.messageUsers.insert(0, "You");
       _agora.messageTime.insert(0, "Now");
-      _textEditingController.clear();
-      setState(() {});
+      _agora.messages.insert(0, _textEditingController.text);
+    }
+    _textEditingController.clear();
+    setState(() {});
 
     var length = _agora.messageTime.length;
     var time = DateFormat('hh:mm a').format(DateTime.now());
 
-    Timer(Duration(minutes: 1), () {
-      setState(() {
-        _agora.messageTime
-            .setAll(_agora.messageTime.length - length, ["1 min"]);
+    _timer2 = Timer(Duration(seconds: 45), () {});
+
+      Timer(Duration(minutes: 1), () {
+        if (!_timer2.isActive){
+          for (int i = 1; i <= 59; i++) {
+            Timer(Duration(minutes: i), () {
+              setState(() {
+                _agora.messageTime.setAll(
+                    _agora.messageTime.length - length, [(i+1).toString() + " min"]);
+              });
+            });
+          }
+          Timer(Duration(minutes: 60), () {
+            setState(() {
+              _agora.messageTime.setAll(_agora.messageTime.length - length, [time]);
+            });
+          });
+          setState(() {
+            _agora.messageTime.setAll(
+                _agora.messageTime.length - length, ["1 min"]);
+          });
+        }
       });
-    });
-    Timer(Duration(minutes: 2), () {
-      setState(() {
-        _agora.messageTime
-            .setAll(_agora.messageTime.length - length, ["2 min"]);
-      });
-    });
-    Timer(Duration(minutes: 3), () {
-      setState(() {
-        _agora.messageTime.setAll(_agora.messageTime.length - length, [time]);
-      });
-    });
-    }
   }
 
   void share() {}
