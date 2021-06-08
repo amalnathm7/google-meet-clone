@@ -9,7 +9,7 @@ class Agora {
       "0066d4aa2fdccfd43438c4c811d12f16141IACvpXwkueKx4BEuyP4+cdD8YYrnhVrujJP67rRfyrvkwM7T9ukAAAAAEADIUmqkPZi/YAEAAQA9mL9g";
   RtcEngine engine;
   String channel = "";
-  String uid;
+  String uid = "";
   List<String> users = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
