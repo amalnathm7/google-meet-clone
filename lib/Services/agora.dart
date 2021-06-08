@@ -7,7 +7,7 @@ import 'package:gmeet/UI/home.dart';
 class Agora {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IACvpXwkueKx4BEuyP4+cdD8YYrnhVrujJP67rRfyrvkwM7T9ukAAAAAEADIUmqkPZi/YAEAAQA9mL9g";
+      "0066d4aa2fdccfd43438c4c811d12f16141IADAEJZIW2OD50q9GtNNAPNbW2z41oGtrrD857hj85tq6c7T9ukAAAAAEADGEkMQFOPAYAEAAQAU48Bg";
   RtcEngine engine;
   String channel = "";
   String uid = "";
@@ -24,8 +24,18 @@ class Agora {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
-    engine.setEventHandler(RtcEngineEventHandler(
-        joinChannelSuccess: (channel, uid, elapsed) {
+    engine.setEventHandler(
+        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) {
+      this.uid = uid.toString();
+      userUIDs.setAll(0, [uid.toString()]);
+      this.channel = channel;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("You joined $channel"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+    }, rejoinChannelSuccess: (channel, uid, elapsed) {
           this.uid = uid.toString();
           userUIDs.setAll(0, [uid.toString()]);
           this.channel = channel;
@@ -35,50 +45,43 @@ class Agora {
               duration: Duration(milliseconds: 1000),
             ),
           );
-        },
-        localUserRegistered: (uid, user) {
-          this.uid = uid.toString();
-          userUIDs.setAll(0, [uid.toString()]);
-        },
-        error: (errorCode) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Error : $errorCode"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        },
-        userJoined: (uid, elapsed) async {
-          DocumentSnapshot snap = await FirebaseFirestore.instance
-              .collection("meetings")
-              .doc(channel)
-              .collection("users")
-              .doc(uid.toString())
-              .get();
+        }, error: (errorCode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error : $errorCode"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+    }, userJoined: (uid, elapsed) async {
+      DocumentSnapshot snap = await FirebaseFirestore.instance
+          .collection("meetings")
+          .doc(channel)
+          .collection("users")
+          .doc(uid.toString())
+          .get();
 
-          userUIDs.add(uid.toString());
-          userNames.add(snap.get('name'));
-          userImages.add(snap.get('image_url'));
+      userUIDs.add(uid.toString());
+      userNames.add(snap.get('name'));
+      userImages.add(snap.get('image_url'));
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("$uid joined this meeting"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        },
-        userOffline: (int uid, UserOfflineReason reason) {
-          int index = userUIDs.indexOf(uid.toString());
-          userUIDs.removeAt(index);
-          userNames.removeAt(index);
-          userImages.removeAt(index);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("$uid left this meeting"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        }));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$uid joined this meeting"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+    }, userOffline: (int uid, UserOfflineReason reason) {
+      int index = userUIDs.indexOf(uid.toString());
+      userUIDs.removeAt(index);
+      userNames.removeAt(index);
+      userImages.removeAt(index);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("$uid left this meeting"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+    }));
 
     await engine.enableVideo();
     await engine.enableAudio();
