@@ -73,6 +73,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
+    _database.toggleMic(_agora.channel);
   }
 
   void video() {
@@ -80,6 +81,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.isVidOff = !HomeState.isVidOff;
     });
     _agora.engine.enableLocalVideo(!HomeState.isVidOff);
+    _database.toggleCam(_agora.channel);
   }
 
   void end() {
@@ -420,35 +422,37 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       _agora.messageTime.insert(0, "Now");
       _agora.messages.insert(0, _textEditingController.text);
     }
-    _textEditingController.clear();
-    setState(() {});
 
     var length = _agora.messageTime.length;
     var time = DateFormat('hh:mm a').format(DateTime.now());
 
     _timer2 = Timer(Duration(seconds: 45), () {});
 
-      Timer(Duration(minutes: 1), () {
-        if (!_timer2.isActive){
-          for (int i = 1; i <= 59; i++) {
-            Timer(Duration(minutes: i), () {
-              setState(() {
-                _agora.messageTime.setAll(
-                    _agora.messageTime.length - length, [(i+1).toString() + " min"]);
-              });
-            });
-          }
-          Timer(Duration(minutes: 60), () {
+    Timer(Duration(minutes: 1), () {
+      if (!_timer2.isActive) {
+        setState(() {
+          _agora.messageTime
+              .setAll(_agora.messageTime.length - length, ["1 min"]);
+        });
+        for (int i = 1; i <= 29; i++) {
+          Timer(Duration(minutes: i), () {
             setState(() {
-              _agora.messageTime.setAll(_agora.messageTime.length - length, [time]);
+              _agora.messageTime.setAll(_agora.messageTime.length - length,
+                  [(i + 1).toString() + " min"]);
             });
-          });
-          setState(() {
-            _agora.messageTime.setAll(
-                _agora.messageTime.length - length, ["1 min"]);
           });
         }
-      });
+        Timer(Duration(minutes: 30), () {
+          setState(() {
+            _agora.messageTime
+                .setAll(_agora.messageTime.length - length, [time]);
+          });
+        });
+      }
+    });
+
+    _textEditingController.clear();
+    setState(() {});
   }
 
   void share() {}
@@ -458,215 +462,248 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     final viewInsets = EdgeInsets.fromWindowPadding(
         WidgetsBinding.instance.window.viewInsets,
         WidgetsBinding.instance.window.devicePixelRatio);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: Column(
-        children: [
-          GestureDetector(
-            onTap: singleTap,
-            onDoubleTap: doubleTap,
-            child: Stack(
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection("meetings")
+            .doc(_agora.channel)
+            .snapshots(),
+        builder: (context, snapshot) {
+          return Scaffold(
+            extendBodyBehindAppBar: true,
+            body: Column(
               children: [
-                Container(
-                    color: Colors.black,
-                    height: viewInsets.bottom == 0
-                        ? MediaQuery.of(context).size.height * .45
-                        : (MediaQuery.of(context).size.height -
-                                viewInsets.bottom) *
-                            .45,
-                    width: MediaQuery.of(context).size.width,
-                    child: HomeState.isVidOff
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: 50,
-                              ),
-                              ClipRRect(
-                                child: Image.network(
-                                  _user.photoURL,
-                                  height: 80,
-                                ),
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                _user.displayName,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: _userNameClr,
-                                ),
-                              )
-                            ],
-                          )
-                        : _currentUserIndex == 0
-                            ? RtcLocalView.SurfaceView()
-                            : RtcRemoteView.SurfaceView(
-                                uid: int.parse(_agora.users[
-                                    _pin != -1 ? _pin : _currentUserIndex]),
-                              )),
-                Positioned(
-                  top: 40,
-                  right: 0,
-                  child: AnimatedOpacity(
-                    curve: Curves.easeInOut,
-                    opacity: _opacity,
-                    duration: Duration(milliseconds: 300),
-                    child: Container(
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(HomeState.soundIcon),
-                            onPressed: _opacity == 0 ? null : vol,
-                            color: Colors.white,
-                            highlightColor: Colors.white10,
-                            splashRadius: 25,
-                          ),
-                          IconButton(
-                            icon: Icon(_capPressed
-                                ? Icons.closed_caption
-                                : Icons.closed_caption_off),
-                            onPressed: _opacity == 0 ? null : captions,
-                            color: Colors.white,
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.more_horiz),
-                            onPressed: _opacity == 0 ? null : moreOptions,
-                            color: Colors.white,
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                AnimatedPositioned(
-                  bottom: _bottom,
-                  left: (MediaQuery.of(context).size.width - 215) / 2,
-                  curve: Curves.easeInOut,
-                  duration: Duration(milliseconds: 300),
-                  child: Column(
+                GestureDetector(
+                  onTap: singleTap,
+                  onDoubleTap: doubleTap,
+                  child: Stack(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AnimatedContainer(
-                            height: 55,
-                            width: 55,
-                            duration: Duration(milliseconds: 300),
-                            decoration: BoxDecoration(
-                                color: HomeState.isMuted
-                                    ? Colors.red[800]
-                                    : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: HomeState.isMuted
-                                        ? Colors.transparent
-                                        : Colors.white)),
-                            child: IconButton(
-                              splashRadius: 25,
-                              splashColor: Colors.transparent,
-                              icon: Icon(HomeState.isMuted
-                                  ? Icons.mic_off_outlined
-                                  : Icons.mic_none_outlined),
-                              onPressed: mic,
-                              color: Colors.white,
+                      Container(
+                          color: Colors.black,
+                          height: viewInsets.bottom == 0
+                              ? MediaQuery.of(context).size.height * .45
+                              : (MediaQuery.of(context).size.height -
+                                      viewInsets.bottom) *
+                                  .45,
+                          width: MediaQuery.of(context).size.width,
+                          child: HomeState.isVidOff
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height: 50,
+                                    ),
+                                    ClipRRect(
+                                      child: Image.network(
+                                        _user.photoURL,
+                                        height: 80,
+                                      ),
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Text(
+                                      _user.displayName,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: _userNameClr,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              : _currentUserIndex == 0
+                                  ? RtcLocalView.SurfaceView()
+                                  : RtcRemoteView.SurfaceView(
+                                      uid: int.parse(_agora.users[_pin != -1
+                                          ? _pin
+                                          : _currentUserIndex]),
+                                    )),
+                      Positioned(
+                        top: 40,
+                        right: 0,
+                        child: AnimatedOpacity(
+                          curve: Curves.easeInOut,
+                          opacity: _opacity,
+                          duration: Duration(milliseconds: 300),
+                          child: Container(
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(HomeState.soundIcon),
+                                  onPressed: _opacity == 0 ? null : vol,
+                                  color: Colors.white,
+                                  highlightColor: Colors.white10,
+                                  splashRadius: 25,
+                                ),
+                                IconButton(
+                                  icon: Icon(_capPressed
+                                      ? Icons.closed_caption
+                                      : Icons.closed_caption_off),
+                                  onPressed: _opacity == 0 ? null : captions,
+                                  color: Colors.white,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.more_horiz),
+                                  onPressed: _opacity == 0 ? null : moreOptions,
+                                  color: Colors.white,
+                                )
+                              ],
                             ),
                           ),
-                          SizedBox(
-                            width: 25,
-                          ),
-                          Container(
-                            height: 55,
-                            width: 55,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                    color: HomeState.isVidOff
-                                        ? Colors.transparent
-                                        : Colors.white)),
-                            child: IconButton(
-                              splashRadius: 25,
-                              splashColor: Colors.transparent,
-                              icon: Icon(Icons.call_end),
-                              onPressed: end,
-                              color: Colors.red,
+                        ),
+                      ),
+                      AnimatedPositioned(
+                        bottom: _bottom,
+                        left: (MediaQuery.of(context).size.width - 215) / 2,
+                        curve: Curves.easeInOut,
+                        duration: Duration(milliseconds: 300),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AnimatedContainer(
+                                  height: 55,
+                                  width: 55,
+                                  duration: Duration(milliseconds: 300),
+                                  decoration: BoxDecoration(
+                                      color: HomeState.isMuted
+                                          ? Colors.red[800]
+                                          : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: HomeState.isMuted
+                                              ? Colors.transparent
+                                              : Colors.white)),
+                                  child: IconButton(
+                                    splashRadius: 25,
+                                    splashColor: Colors.transparent,
+                                    icon: Icon(HomeState.isMuted
+                                        ? Icons.mic_off_outlined
+                                        : Icons.mic_none_outlined),
+                                    onPressed: mic,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 25,
+                                ),
+                                Container(
+                                  height: 55,
+                                  width: 55,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(
+                                          color: HomeState.isVidOff
+                                              ? Colors.transparent
+                                              : Colors.white)),
+                                  child: IconButton(
+                                    splashRadius: 25,
+                                    splashColor: Colors.transparent,
+                                    icon: Icon(Icons.call_end),
+                                    onPressed: end,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 25,
+                                ),
+                                AnimatedContainer(
+                                  height: 55,
+                                  width: 55,
+                                  duration: Duration(milliseconds: 300),
+                                  decoration: BoxDecoration(
+                                      color: HomeState.isVidOff
+                                          ? Colors.red[800]
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(
+                                          color: HomeState.isVidOff
+                                              ? Colors.transparent
+                                              : Colors.white)),
+                                  child: IconButton(
+                                    splashRadius: 25,
+                                    splashColor: Colors.transparent,
+                                    icon: Icon(HomeState.isVidOff
+                                        ? Icons.videocam_off_outlined
+                                        : Icons.videocam_outlined),
+                                    onPressed: video,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              ],
                             ),
-                          ),
-                          SizedBox(
-                            width: 25,
-                          ),
-                          AnimatedContainer(
-                            height: 55,
-                            width: 55,
-                            duration: Duration(milliseconds: 300),
-                            decoration: BoxDecoration(
-                                color: HomeState.isVidOff
-                                    ? Colors.red[800]
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                    color: HomeState.isVidOff
-                                        ? Colors.transparent
-                                        : Colors.white)),
-                            child: IconButton(
-                              splashRadius: 25,
-                              splashColor: Colors.transparent,
-                              icon: Icon(HomeState.isVidOff
-                                  ? Icons.videocam_off_outlined
-                                  : Icons.videocam_outlined),
-                              onPressed: video,
-                              color: Colors.white,
-                            ),
-                          )
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          Container(
-            height: viewInsets.bottom == 0
-                ? MediaQuery.of(context).size.height * .55
-                : (MediaQuery.of(context).size.height - viewInsets.bottom) *
-                    .55,
-            child: Material(
-              child: DefaultTabController(
-                length: 3,
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border(
-                              bottom: BorderSide(color: Colors.black12))),
-                      child: Material(
-                        color: Colors.white,
-                        child: TabBar(
-                          controller: _tabController,
-                          indicatorColor: Colors.teal[800],
-                          indicatorWeight: 3,
-                          indicatorSize: TabBarIndicatorSize.label,
-                          tabs: [
-                            Tab(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    _currentIndex == 0
-                                        ? Icons.people_alt
-                                        : Icons.people_alt_outlined,
-                                    color: _currentIndex == 0
-                                        ? Colors.teal[800]
-                                        : Colors.grey[400],
+                Container(
+                  height: viewInsets.bottom == 0
+                      ? MediaQuery.of(context).size.height * .55
+                      : (MediaQuery.of(context).size.height -
+                              viewInsets.bottom) *
+                          .55,
+                  child: Material(
+                    child: DefaultTabController(
+                      length: 3,
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            decoration: BoxDecoration(
+                                border: Border(
+                                    bottom: BorderSide(color: Colors.black12))),
+                            child: Material(
+                              color: Colors.white,
+                              child: TabBar(
+                                controller: _tabController,
+                                indicatorColor: Colors.teal[800],
+                                indicatorWeight: 3,
+                                indicatorSize: TabBarIndicatorSize.label,
+                                tabs: [
+                                  Tab(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          _currentIndex == 0
+                                              ? Icons.people_alt
+                                              : Icons.people_alt_outlined,
+                                          color: _currentIndex == 0
+                                              ? Colors.teal[800]
+                                              : Colors.grey[400],
+                                        ),
+                                        Text(
+                                          ' (' +
+                                              _agora.users.length.toString() +
+                                              ')',
+                                          style: TextStyle(
+                                            color: _currentIndex == 0
+                                                ? Colors.teal[800]
+                                                : Colors.grey[400],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Text(
-                                    ' (' + _agora.users.length.toString() + ')',
-                                    style: TextStyle(
-                                      color: _currentIndex == 0
+                                  Tab(
+                                    child: Icon(
+                                      _currentIndex == 1
+                                          ? Icons.messenger_outlined
+                                          : Icons.message_outlined,
+                                      color: _currentIndex == 1
+                                          ? Colors.teal[800]
+                                          : Colors.grey[400],
+                                    ),
+                                  ),
+                                  Tab(
+                                    icon: Icon(
+                                      _currentIndex == 2
+                                          ? Icons.info
+                                          : Icons.info_outline,
+                                      color: _currentIndex == 2
                                           ? Colors.teal[800]
                                           : Colors.grey[400],
                                     ),
@@ -674,176 +711,156 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 ],
                               ),
                             ),
-                            Tab(
-                              child: Icon(
-                                _currentIndex == 1
-                                    ? Icons.messenger_outlined
-                                    : Icons.message_outlined,
-                                color: _currentIndex == 1
-                                    ? Colors.teal[800]
-                                    : Colors.grey[400],
-                              ),
-                            ),
-                            Tab(
-                              icon: Icon(
-                                _currentIndex == 2
-                                    ? Icons.info
-                                    : Icons.info_outline,
-                                color: _currentIndex == 2
-                                    ? Colors.teal[800]
-                                    : Colors.grey[400],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          ListView.builder(
-                              padding: EdgeInsets.zero,
-                              itemCount: _agora.users.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: 70,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Stack(
-                                        children: [
-                                          Container(
-                                            color: Colors.grey[200],
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                3,
-                                            child: Stack(
+                          ),
+                          Expanded(
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    itemCount: _agora.users.length,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        height: 70,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Stack(
                                               children: [
-                                                Center(
-                                                  child: ClipRRect(
-                                                    child: Image.network(
-                                                      _user.photoURL,
-                                                      height: 50,
+                                                Container(
+                                                  color: Colors.grey[200],
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  child: Stack(
+                                                    children: [
+                                                      Center(
+                                                        child: ClipRRect(
+                                                          child: Image.network(
+                                                            _user.photoURL,
+                                                            height: 50,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(50),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Opacity(
+                                                    opacity:
+                                                        _currentUserIndex ==
+                                                                index
+                                                            ? 0.7
+                                                            : 0,
+                                                    child: Container(
+                                                      color: Colors.black,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width /
+                                                              3,
+                                                    )),
+                                                Positioned(
+                                                    top: 20,
+                                                    left:
+                                                        (MediaQuery.of(context)
+                                                                        .size
+                                                                        .width /
+                                                                    3 -
+                                                                30) /
+                                                            2,
+                                                    child: Icon(
+                                                      _pin == index
+                                                          ? Icons.push_pin
+                                                          : null,
+                                                      color: Colors.white,
+                                                      size: 30,
+                                                    )),
+                                                Positioned(
+                                                  right:
+                                                      HomeState.isMuted ? 5 : 3,
+                                                  bottom:
+                                                      HomeState.isMuted ? 5 : 0,
+                                                  child: Container(
+                                                      child: Padding(
+                                                        padding: HomeState
+                                                                .isMuted
+                                                            ? EdgeInsets.all(
+                                                                3.0)
+                                                            : EdgeInsets.zero,
+                                                        child: Icon(
+                                                          HomeState.isMuted
+                                                              ? Icons.mic_off
+                                                              : Icons
+                                                                  .more_horiz_rounded,
+                                                          color: HomeState
+                                                                  .isMuted
+                                                              ? Colors.white
+                                                              : _currentUserIndex ==
+                                                                      index
+                                                                  ? Colors
+                                                                      .tealAccent
+                                                                  : Colors
+                                                                      .green,
+                                                          size:
+                                                              HomeState.isMuted
+                                                                  ? 18
+                                                                  : 28,
+                                                        ),
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: HomeState.isMuted
+                                                            ? Colors.red[800]
+                                                            : Colors
+                                                                .transparent,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50),
+                                                      )),
+                                                ),
+                                                Material(
+                                                  color: Colors.transparent,
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        _currentUserIndex =
+                                                            index;
+                                                        if (_pin == index)
+                                                          _pin = -1;
+                                                        else
+                                                          _pin = index;
+                                                      });
+                                                    },
+                                                    splashColor: Colors.white24,
+                                                    child: Ink(
+                                                      height: 70,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width /
+                                                              3,
                                                     ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                          Opacity(
-                                              opacity:
-                                                  _currentUserIndex == index
-                                                      ? 0.7
-                                                      : 0,
-                                              child: Container(
-                                                color: Colors.black,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    3,
-                                              )),
-                                          Positioned(
-                                              top: 20,
-                                              left: (MediaQuery.of(context)
-                                                              .size
-                                                              .width /
-                                                          3 -
-                                                      30) /
-                                                  2,
-                                              child: Icon(
-                                                _pin == index
-                                                    ? Icons.push_pin
-                                                    : null,
-                                                color: Colors.white,
-                                                size: 30,
-                                              )),
-                                          Positioned(
-                                            right: HomeState.isMuted ? 5 : 3,
-                                            bottom: HomeState.isMuted ? 5 : 0,
-                                            child: Container(
-                                                child: Padding(
-                                                  padding: HomeState.isMuted
-                                                      ? EdgeInsets.all(3.0)
-                                                      : EdgeInsets.zero,
-                                                  child: Icon(
-                                                    HomeState.isMuted
-                                                        ? Icons.mic_off
-                                                        : Icons
-                                                            .more_horiz_rounded,
-                                                    color: HomeState.isMuted
-                                                        ? Colors.white
-                                                        : _currentUserIndex ==
-                                                                index
-                                                            ? Colors.tealAccent
-                                                            : Colors.green,
-                                                    size: HomeState.isMuted
-                                                        ? 18
-                                                        : 28,
-                                                  ),
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: HomeState.isMuted
-                                                      ? Colors.red[800]
-                                                      : Colors.transparent,
-                                                  borderRadius:
-                                                      BorderRadius.circular(50),
-                                                )),
-                                          ),
-                                          Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              onTap: () {
-                                                setState(() {
-                                                  _currentUserIndex = index;
-                                                  if (_pin == index)
-                                                    _pin = -1;
-                                                  else
-                                                    _pin = index;
-                                                });
-                                              },
-                                              splashColor: Colors.white24,
-                                              child: Ink(
-                                                height: 70,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    3,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 14),
-                                        child: Text(_agora.users[index]),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }),
-                          StreamBuilder(
-                              stream: FirebaseFirestore.instance
-                                  .collection("meetings")
-                                  .doc('meet')
-                                  .collection("messages")
-                                  .doc(DateTime.now().toString())
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                if (snapshot != null &&
-                                    snapshot.hasData &&
-                                    !snapshot.hasError) {
-                                  //snapshot.data
-                                }
-                                return Column(
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 14),
+                                              child: Text(_agora.users[index]),
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                Column(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -956,96 +973,99 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ],
-                                );
-                              }),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 15, bottom: 15, left: 15),
-                                child: Text(
-                                  _agora.channel,
-                                  style: TextStyle(
-                                    fontFamily: 'Product Sans',
-                                    fontSize: 22,
-                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 15, bottom: 5),
-                                child: Text(
-                                  "Joining info",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.5,
-                                    fontSize: 15,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 15, bottom: 15, left: 15),
+                                      child: Text(
+                                        _agora.channel,
+                                        style: TextStyle(
+                                          fontFamily: 'Product Sans',
+                                          fontSize: 22,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 15, bottom: 5),
+                                      child: Text(
+                                        "Joining info",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: -0.5,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 15),
+                                      child: Text(
+                                        "meet.google.com/" + _agora.channel,
+                                        style: TextStyle(
+                                          letterSpacing: -0.3,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton.icon(
+                                      onPressed: share,
+                                      icon: Icon(
+                                        Icons.share_outlined,
+                                        color: Colors.teal[700],
+                                      ),
+                                      style: ButtonStyle(
+                                          overlayColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.teal[50])),
+                                      label: Text(
+                                        "Share",
+                                        style:
+                                            TextStyle(color: Colors.teal[700]),
+                                      ),
+                                    ),
+                                    Divider(
+                                      color: Colors.grey,
+                                      thickness: 0.25,
+                                      indent: 15,
+                                      height: 0,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 15, top: 16, bottom: 22),
+                                      child: Text(
+                                        "Attachments (0)",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: -0.5,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 15),
+                                      child: Text(
+                                        "Google Calendar attachments will be shown here",
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey[700]),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 15),
-                                child: Text(
-                                  "meet.google.com/" + _agora.channel,
-                                  style: TextStyle(
-                                    letterSpacing: -0.3,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                              TextButton.icon(
-                                onPressed: share,
-                                icon: Icon(
-                                  Icons.share_outlined,
-                                  color: Colors.teal[700],
-                                ),
-                                style: ButtonStyle(
-                                    overlayColor: MaterialStateProperty.all(
-                                        Colors.teal[50])),
-                                label: Text(
-                                  "Share",
-                                  style: TextStyle(color: Colors.teal[700]),
-                                ),
-                              ),
-                              Divider(
-                                color: Colors.grey,
-                                thickness: 0.25,
-                                indent: 15,
-                                height: 0,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    left: 15, top: 16, bottom: 22),
-                                child: Text(
-                                  "Attachments (0)",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.5,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 15),
-                                child: Text(
-                                  "Google Calendar attachments will be shown here",
-                                  style: TextStyle(
-                                      fontSize: 13, color: Colors.grey[700]),
-                                ),
-                              )
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 }

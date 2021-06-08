@@ -78,4 +78,26 @@ class Database {
           DateTime.now().millisecond.toString(): {_user.displayName: msg}
     });
   }
+
+  void toggleMic(String code) async {
+    _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(_user.uid)
+        .update({
+      'isMuted': HomeState.isMuted,
+    });
+  }
+
+  void toggleCam(String code) async {
+    _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(_user.uid)
+        .update({
+      'isVidOff': HomeState.isVidOff,
+    });
+  }
 }
