@@ -27,7 +27,7 @@ class Agora {
   String code = "meet";
   DocumentSnapshot document;
 
-  createChannel(BuildContext context) async {
+  createChannel(BuildContext context, HomeState homeState) async {
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
     //Random _rnd = Random.secure();
     /*code = String.fromCharCodes(Iterable.generate(
@@ -38,10 +38,10 @@ class Agora {
         '-' +
         code.substring(7, 10);*/
 
-    await joinCreatedChannel(context, code);
+    await joinCreatedChannel(context, code, homeState);
   }
 
-  joinCreatedChannel(BuildContext context, String channel) async {
+  joinCreatedChannel(BuildContext context, String channel, HomeState homeState) async {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
@@ -57,13 +57,13 @@ class Agora {
                 builder: (context) => Live(
                       agora: this,
                     )));
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("You joined $channel"),
             duration: Duration(milliseconds: 1000),
           ),
         );
+        homeState.stopLoading();
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(

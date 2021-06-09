@@ -87,12 +87,12 @@ class HomeState extends State<Home> {
       _loading = true;
     });
 
-    await _agora.createChannel(context);
+    await _agora.createChannel(context, this);
+  }
 
-    Future.delayed(Duration(seconds: 5), () {
-      setState(() {
-        _loading = false;
-      });
+  void stopLoading() {
+    setState(() {
+      _loading = false;
     });
   }
 
