@@ -286,13 +286,6 @@ class Agora {
           state == AudioRemoteState.Stopped &&
               reason == AudioRemoteStateReason.RemoteMuted
         ]);
-        print(state);
-        FirebaseFirestore.instance
-            .collection("meetings")
-            .doc(code)
-            .collection("users")
-            .doc(uid.toString())
-            .set({'audio': state}, SetOptions(merge: false));
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
@@ -300,12 +293,6 @@ class Agora {
           state == VideoRemoteState.Stopped &&
               reason == VideoRemoteStateReason.RemoteMuted
         ]);
-        FirebaseFirestore.instance
-            .collection("meetings")
-            .doc(code)
-            .collection("users")
-            .doc(uid.toString())
-            .set({'video': state}, SetOptions(merge: false));
       },
     ));
 
