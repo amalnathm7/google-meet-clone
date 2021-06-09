@@ -729,8 +729,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       .doc(agora.userUIDs[index]).snapshots(),
                                   builder: (context, snapshot) {
                                     if(snapshot.data != null && snapshot.hasData && !snapshot.hasError) {
-                                      setState(() {
-                                        agora.userNames.setAll(
+                                      agora.userNames.setAll(
                                             index, [snapshot.data['name']]);
                                         agora.userImages.setAll(
                                             index, [snapshot.data['image_url']]);
@@ -738,7 +737,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                             index, [snapshot.data['isMuted']]);
                                         agora.ifUserVideoOff.setAll(
                                             index, [snapshot.data['isVidOff']]);
-                                      });
                                     }
                                     return Container(
                                       width: MediaQuery.of(context).size.width,
