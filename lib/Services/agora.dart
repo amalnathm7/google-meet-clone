@@ -92,6 +92,8 @@ class Agora {
         int index = userUIDs.indexOf(uid.toString());
         if (index == -1) {
           userUIDs.add(uid.toString());
+          usersMuted.add(false);
+          usersVidOff.add(false);
 
           FirebaseFirestore.instance
               .collection("meetings")
@@ -103,13 +105,9 @@ class Agora {
             if (userNames.length == userUIDs.length) {
               userNames.setAll(index, [event.get('name')]);
               userImages.setAll(index, [event.get('image_url')]);
-              usersMuted.setAll(index, [event.get('isMuted')]);
-              usersVidOff.setAll(index, [event.get('isVidOff')]);
             } else {
               userNames.add(event.get('name'));
               userImages.add(event.get('image_url'));
-              usersMuted.add(event.get('isMuted'));
-              usersVidOff.add(event.get('isVidOff'));
             }
           });
         }
@@ -173,8 +171,6 @@ class Agora {
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
-      'isMuted': HomeState.isMuted,
-      'isVidOff': HomeState.isVidOff
     });
 
     await _db
@@ -242,6 +238,8 @@ class Agora {
         int index = userUIDs.indexOf(uid.toString());
         if (index == -1) {
           userUIDs.add(uid.toString());
+          usersMuted.add(false);
+          usersVidOff.add(false);
 
           FirebaseFirestore.instance
               .collection("meetings")
@@ -253,13 +251,9 @@ class Agora {
             if (userNames.length == userUIDs.length) {
               userNames.setAll(index, [event.get('name')]);
               userImages.setAll(index, [event.get('image_url')]);
-              usersMuted.setAll(index, [event.get('isMuted')]);
-              usersVidOff.setAll(index, [event.get('isVidOff')]);
             } else {
               userNames.add(event.get('name'));
               userImages.add(event.get('image_url'));
-              usersMuted.add(event.get('isMuted'));
-              usersVidOff.add(event.get('isVidOff'));
             }
           });
         }
@@ -317,8 +311,6 @@ class Agora {
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
-      'isMuted': HomeState.isMuted,
-      'isVidOff': HomeState.isVidOff
     }, SetOptions(merge: false));
   }
 
