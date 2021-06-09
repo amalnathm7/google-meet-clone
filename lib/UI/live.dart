@@ -1,5 +1,6 @@
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -67,6 +68,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void mic() {
     setState(() {
       HomeState.isMuted = !HomeState.isMuted;
+      agora.ifUserMuted.setAll(0, [HomeState.isMuted]);
       Fluttertoast.cancel();
     });
     agora.engine.muteLocalAudioStream(HomeState.isMuted);
@@ -82,6 +84,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void video() {
     setState(() {
       HomeState.isVidOff = !HomeState.isVidOff;
+      agora.ifUserVideoOff.setAll(0, [HomeState.isVidOff]);
     });
     agora.engine.enableLocalVideo(!HomeState.isVidOff);
     agora.toggleCam(agora.code);
@@ -482,7 +485,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 viewInsets.bottom) *
                             .45,
                     width: MediaQuery.of(context).size.width,
-                    child: HomeState.isVidOff
+                    child: agora.ifUserVideoOff[_pin != -1 ? _pin : _currentUserIndex]
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -491,7 +494,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               ),
                               ClipRRect(
                                 child: Image.network(
-                                  _user.photoURL,
+                                  agora.userImages[_pin != -1 ? _pin : _currentUserIndex],
                                   height: 80,
                                 ),
                                 borderRadius: BorderRadius.circular(50),
@@ -500,7 +503,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 height: 20,
                               ),
                               Text(
-                                _user.displayName,
+                                agora.userNames[_pin != -1 ? _pin : _currentUserIndex],
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: _userNameClr,
@@ -783,7 +786,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                       ? EdgeInsets.all(3.0)
                                                       : EdgeInsets.zero,
                                                   child: Icon(
-                                                    HomeState.isMuted
+                                                    agora.ifUserMuted[index]
                                                         ? Icons.mic_off
                                                         : Icons
                                                             .more_horiz_rounded,
@@ -904,7 +907,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.only(top: 10, bottom: 5),
+                                    const EdgeInsets.only(top: 10, bottom: 8),
                                 child: Container(
                                   decoration: BoxDecoration(
                                       border: Border(

@@ -90,12 +90,6 @@ class HomeState extends State<Home> {
 
     await _agora.createChannel(context);
 
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => Live(
-                  agora: _agora,
-                )));
     setState(() {
       _loading = false;
     });

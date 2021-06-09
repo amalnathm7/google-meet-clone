@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gmeet/UI/home.dart';
+import 'package:gmeet/UI/live.dart';
 
 class Agora {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
@@ -16,6 +17,8 @@ class Agora {
   List<String> userNames = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
+  List<bool> ifUserMuted = [HomeState.isMuted];
+  List<bool> ifUserVideoOff = [HomeState.isVidOff];
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
@@ -42,55 +45,76 @@ class Agora {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
-    engine.setEventHandler(
-        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) async {
-      this.uid = uid.toString();
-      userUIDs.add(uid.toString());
-      await createMeetingInDB();
+    engine.setEventHandler(RtcEngineEventHandler(
+      joinChannelSuccess: (channel, uid, elapsed) async {
+        this.uid = uid.toString();
+        userUIDs.add(uid.toString());
+        await createMeetingInDB();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("You joined $channel"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }, error: (errorCode) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error : $errorCode"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }, userJoined: (uid, elapsed) async {
-      DocumentSnapshot snap = await FirebaseFirestore.instance
-          .collection("meetings")
-          .doc(code)
-          .collection("users")
-          .doc(uid.toString())
-          .get();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Live(
+                      agora: this,
+                    )));
 
-      userUIDs.add(uid.toString());
-      userNames.add(snap.get('name'));
-      userImages.add(snap.get('image_url'));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("You joined $channel"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      error: (errorCode) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error : $errorCode"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      userJoined: (uid, elapsed) async {
+        DocumentSnapshot snap = await FirebaseFirestore.instance
+            .collection("meetings")
+            .doc(code)
+            .collection("users")
+            .doc(uid.toString())
+            .get();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("$uid joined this meeting"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }, userOffline: (int uid, UserOfflineReason reason) {
-      int index = userUIDs.indexOf(uid.toString());
-      userUIDs.removeAt(index);
-      userNames.removeAt(index);
-      userImages.removeAt(index);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("$uid left this meeting"),
-          duration: Duration(milliseconds: 1000),
-        ),
-      );
-    }));
+        userUIDs.add(uid.toString());
+        userNames.add(snap.get('name'));
+        userImages.add(snap.get('image_url'));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$uid joined this meeting"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      userOffline: (int uid, UserOfflineReason reason) {
+        int index = userUIDs.indexOf(uid.toString());
+        userUIDs.removeAt(index);
+        userNames.removeAt(index);
+        userImages.removeAt(index);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$uid left this meeting"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      remoteAudioStateChanged: (uid, state, reason, elapsed) {
+        int index = userUIDs.indexOf(uid.toString());
+        ifUserMuted
+            .setAll(index, [reason == AudioRemoteStateReason.LocalMuted]);
+      },
+      remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        int index = userUIDs.indexOf(uid.toString());
+        ifUserVideoOff
+            .setAll(index, [reason == VideoRemoteStateReason.LocalMuted]);
+      },
+    ));
 
     await engine.enableVideo();
     await engine.enableAudio();
@@ -138,56 +162,77 @@ class Agora {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
-    engine.setEventHandler(
-        RtcEngineEventHandler(joinChannelSuccess: (channel, uid, elapsed) async {
-          this.code = channel;
-          this.uid = uid.toString();
-          userUIDs.add(uid.toString());
-          await joinMeetingInDB(channel);
+    engine.setEventHandler(RtcEngineEventHandler(
+      joinChannelSuccess: (channel, uid, elapsed) async {
+        this.code = channel;
+        this.uid = uid.toString();
+        userUIDs.add(uid.toString());
+        await joinMeetingInDB(channel);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("You joined $channel"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        }, error: (errorCode) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Error : $errorCode"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        }, userJoined: (uid, elapsed) async {
-          DocumentSnapshot snap = await FirebaseFirestore.instance
-              .collection("meetings")
-              .doc(code)
-              .collection("users")
-              .doc(uid.toString())
-              .get();
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Live(
+                      agora: this,
+                    )));
 
-          userUIDs.add(uid.toString());
-          userNames.add(snap.get('name'));
-          userImages.add(snap.get('image_url'));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("You joined $channel"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      error: (errorCode) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error : $errorCode"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      userJoined: (uid, elapsed) async {
+        DocumentSnapshot snap = await FirebaseFirestore.instance
+            .collection("meetings")
+            .doc(code)
+            .collection("users")
+            .doc(uid.toString())
+            .get();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("$uid joined this meeting"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        }, userOffline: (int uid, UserOfflineReason reason) {
-          int index = userUIDs.indexOf(uid.toString());
-          userUIDs.removeAt(index);
-          userNames.removeAt(index);
-          userImages.removeAt(index);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("$uid left this meeting"),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-        }));
+        userUIDs.add(uid.toString());
+        userNames.add(snap.get('name'));
+        userImages.add(snap.get('image_url'));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$uid joined this meeting"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      userOffline: (int uid, UserOfflineReason reason) {
+        int index = userUIDs.indexOf(uid.toString());
+        userUIDs.removeAt(index);
+        userNames.removeAt(index);
+        userImages.removeAt(index);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("$uid left this meeting"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      },
+      remoteAudioStateChanged: (uid, state, reason, elapsed) {
+        int index = userUIDs.indexOf(uid.toString());
+        ifUserMuted
+            .setAll(index, [reason == AudioRemoteStateReason.LocalMuted]);
+      },
+      remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        int index = userUIDs.indexOf(uid.toString());
+        ifUserVideoOff
+            .setAll(index, [reason == VideoRemoteStateReason.LocalMuted]);
+      },
+    ));
 
     await engine.enableVideo();
     await engine.enableAudio();
