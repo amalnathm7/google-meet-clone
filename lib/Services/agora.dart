@@ -9,7 +9,7 @@ import 'package:gmeet/UI/live.dart';
 class Agora {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAAyZt9FPM1fIBbUWS2z+vKI4odfzmrDfKGSiLqwqTJx0c7T9ukAAAAAEADGEkMQBD7CYAEAAQAEPsJg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IACacGfDSmh56pMVHCq9WTyFe982K+teDvkoxPonI18IPs7T9ukAAAAAEADGEkMQvE3CYAEAAQC9TcJg";
   RtcEngine engine;
   String uid;
   List<String> userUIDs = [];
@@ -48,15 +48,16 @@ class Agora {
 
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
+        await engine.muteLocalAudioStream(HomeState.isMuted);
+        await engine.muteLocalVideoStream(HomeState.isVidOff);
+
         this.uid = uid.toString();
 
         await createMeetingInDB();
 
-        if (userUIDs.indexOf(uid.toString()) == -1) {
-          userUIDs.add(uid.toString());
-          ifUserMuted.add(HomeState.isMuted);
-          ifUserVideoOff.add(HomeState.isVidOff);
-        }
+        userUIDs.setAll(0, [uid.toString()]);
+        ifUserMuted.setAll(0, [HomeState.isMuted]);
+        ifUserVideoOff.setAll(0, [HomeState.isVidOff]);
 
         Navigator.push(
             context,
@@ -132,9 +133,6 @@ class Agora {
     await engine.enableVideo();
     await engine.enableAudio();
 
-    await engine.muteLocalAudioStream(HomeState.isMuted);
-    await engine.muteLocalVideoStream(HomeState.isVidOff);
-
     await engine.joinChannel(_token, channel, null, 0);
   }
 
@@ -177,16 +175,17 @@ class Agora {
 
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
+        await engine.muteLocalAudioStream(HomeState.isMuted);
+        await engine.muteLocalVideoStream(HomeState.isVidOff);
+
         this.code = channel;
         this.uid = uid.toString();
 
         await joinMeetingInDB(channel);
 
-        if (userUIDs.indexOf(uid.toString()) == -1) {
-          userUIDs.add(uid.toString());
-          ifUserMuted.add(HomeState.isMuted);
-          ifUserVideoOff.add(HomeState.isVidOff);
-        }
+        userUIDs.setAll(0, [uid.toString()]);
+        ifUserMuted.setAll(0, [HomeState.isMuted]);
+        ifUserVideoOff.setAll(0, [HomeState.isVidOff]);
 
         Navigator.pushReplacement(
             context,
@@ -262,9 +261,6 @@ class Agora {
     await engine.enableVideo();
     await engine.enableAudio();
 
-    await engine.muteLocalAudioStream(HomeState.isMuted);
-    await engine.muteLocalVideoStream(HomeState.isVidOff);
-
     await engine.joinChannel(_token, channel, null, 0);
   }
 
@@ -327,9 +323,7 @@ class Agora {
 
     userUIDs = [];
     userImages = [FirebaseAuth.instance.currentUser.photoURL];
-    userNames = [
-      FirebaseAuth.instance.currentUser.displayName + ' (You)'
-    ];
+    userNames = [FirebaseAuth.instance.currentUser.displayName + ' (You)'];
     ifUserMuted = [];
     ifUserVideoOff = [];
     messages = [];

@@ -719,7 +719,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                         children: [
                           ListView.builder(
                               padding: EdgeInsets.zero,
-                              itemCount: agora.userUIDs.length,
+                              itemCount: agora.userNames.length,
                               itemBuilder: (context, index) {
                                 return StreamBuilder(
                                   stream: _streamEnd ? null : FirebaseFirestore.instance
@@ -729,14 +729,16 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                       .doc(agora.userUIDs[index]).snapshots(),
                                   builder: (context, snapshot) {
                                     if(snapshot.data != null && snapshot.hasData && !snapshot.hasError) {
-                                      agora.userNames.setAll(
-                                          index, [snapshot.data['name']]);
-                                      agora.userImages.setAll(
-                                          index, [snapshot.data['image_url']]);
-                                      agora.ifUserMuted.setAll(
-                                          index, [snapshot.data['isMuted']]);
-                                      agora.ifUserVideoOff.setAll(
-                                          index, [snapshot.data['isVidOff']]);
+                                      setState(() {
+                                        agora.userNames.setAll(
+                                            index, [snapshot.data['name']]);
+                                        agora.userImages.setAll(
+                                            index, [snapshot.data['image_url']]);
+                                        agora.ifUserMuted.setAll(
+                                            index, [snapshot.data['isMuted']]);
+                                        agora.ifUserVideoOff.setAll(
+                                            index, [snapshot.data['isVidOff']]);
+                                      });
                                     }
                                     return Container(
                                       width: MediaQuery.of(context).size.width,
