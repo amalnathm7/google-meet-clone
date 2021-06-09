@@ -83,7 +83,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       HomeState.isVidOff = !HomeState.isVidOff;
       agora.ifUserVideoOff.setAll(0, [HomeState.isVidOff]);
     });
-    agora.engine.enableLocalVideo(!HomeState.isVidOff);
+    agora.engine.muteLocalVideoStream(HomeState.isVidOff);
     agora.toggleCam(agora.code);
   }
 
@@ -775,11 +775,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                 size: 30,
                                               )),
                                           Positioned(
-                                            right: HomeState.isMuted ? 5 : 3,
-                                            bottom: HomeState.isMuted ? 5 : 0,
+                                            right: agora.ifUserMuted[index] ? 5 : 3,
+                                            bottom: agora.ifUserMuted[index] ? 5 : 0,
                                             child: Container(
                                                 child: Padding(
-                                                  padding: HomeState.isMuted
+                                                  padding: agora.ifUserMuted[index]
                                                       ? EdgeInsets.all(3.0)
                                                       : EdgeInsets.zero,
                                                   child: Icon(
@@ -787,19 +787,19 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                         ? Icons.mic_off
                                                         : Icons
                                                             .more_horiz_rounded,
-                                                    color: HomeState.isMuted
+                                                    color: agora.ifUserMuted[index]
                                                         ? Colors.white
                                                         : _currentUserIndex ==
                                                                 index
                                                             ? Colors.tealAccent
                                                             : Colors.teal,
-                                                    size: HomeState.isMuted
+                                                    size: agora.ifUserMuted[index]
                                                         ? 18
                                                         : 28,
                                                   ),
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: HomeState.isMuted
+                                                  color: agora.ifUserMuted[index]
                                                       ? Colors.red[800]
                                                       : Colors.transparent,
                                                   borderRadius:

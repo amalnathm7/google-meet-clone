@@ -101,6 +101,7 @@ class Agora {
         userImages.removeAt(index);
         ifUserVideoOff.removeAt(index);
         ifUserMuted.removeAt(index);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("$uid left this meeting"),
@@ -111,12 +112,12 @@ class Agora {
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserMuted
-            .setAll(index, [reason == AudioRemoteStateReason.LocalMuted]);
+            .setAll(index, [reason == AudioRemoteStateReason.RemoteMuted]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserVideoOff
-            .setAll(index, [reason == VideoRemoteStateReason.LocalMuted]);
+            .setAll(index, [reason == VideoRemoteStateReason.RemoteMuted]);
       },
     ));
 
@@ -124,7 +125,7 @@ class Agora {
     await engine.enableAudio();
 
     await engine.muteLocalAudioStream(HomeState.isMuted);
-    await engine.enableLocalVideo(!HomeState.isVidOff);
+    await engine.muteLocalVideoStream(HomeState.isVidOff);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
@@ -206,6 +207,8 @@ class Agora {
         userUIDs.add(uid.toString());
         userNames.add(snap.get('name'));
         userImages.add(snap.get('image_url'));
+        ifUserMuted.add(snap.get('isMuted'));
+        ifUserVideoOff.add(snap.get('isVidOff'));
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -219,6 +222,9 @@ class Agora {
         userUIDs.removeAt(index);
         userNames.removeAt(index);
         userImages.removeAt(index);
+        ifUserVideoOff.removeAt(index);
+        ifUserMuted.removeAt(index);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("$uid left this meeting"),
