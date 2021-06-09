@@ -55,6 +55,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _timer.cancel();
     _tabController.dispose();
     _textEditingController.dispose();
     agora.exitMeeting();

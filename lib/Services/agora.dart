@@ -17,8 +17,8 @@ class Agora {
   List<String> userNames = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
-  List<bool> ifUserMuted = [HomeState.isMuted];
-  List<bool> ifUserVideoOff = [HomeState.isVidOff];
+  List<bool> ifUserMuted = [];
+  List<bool> ifUserVideoOff = [];
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
@@ -48,7 +48,11 @@ class Agora {
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
         this.uid = uid.toString();
+
         userUIDs.add(uid.toString());
+        ifUserMuted.add(HomeState.isMuted);
+        ifUserVideoOff.add(HomeState.isVidOff);
+
         await createMeetingInDB();
 
         Navigator.push(
@@ -112,12 +116,12 @@ class Agora {
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserMuted
-            .setAll(index, [reason == AudioRemoteStateReason.RemoteMuted]);
+            .setAll(index, [state == AudioRemoteState.Stopped && reason == AudioRemoteStateReason.RemoteMuted]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserVideoOff
-            .setAll(index, [reason == VideoRemoteStateReason.RemoteMuted]);
+            .setAll(index, [state == VideoRemoteState.Stopped && reason == VideoRemoteStateReason.RemoteMuted]);
       },
     ));
 
@@ -171,7 +175,11 @@ class Agora {
       joinChannelSuccess: (channel, uid, elapsed) async {
         this.code = channel;
         this.uid = uid.toString();
+
         userUIDs.add(uid.toString());
+        ifUserMuted.add(HomeState.isMuted);
+        ifUserVideoOff.add(HomeState.isVidOff);
+
         await joinMeetingInDB(channel);
 
         Navigator.pushReplacement(
@@ -235,12 +243,12 @@ class Agora {
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserMuted
-            .setAll(index, [reason == AudioRemoteStateReason.RemoteMuted]);
+            .setAll(index, [state == AudioRemoteState.Stopped && reason == AudioRemoteStateReason.RemoteMuted]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserVideoOff
-            .setAll(index, [reason == VideoRemoteStateReason.RemoteMuted]);
+            .setAll(index, [state == VideoRemoteState.Stopped && reason == VideoRemoteStateReason.RemoteMuted]);
       },
     ));
 
