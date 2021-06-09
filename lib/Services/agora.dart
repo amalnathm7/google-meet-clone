@@ -45,11 +45,11 @@ class Agora {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
-    await createMeetingInDB();
-
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
         this.uid = uid.toString();
+
+        await createMeetingInDB();
 
         userUIDs.add(uid.toString());
         ifUserMuted.add(HomeState.isMuted);
@@ -86,18 +86,7 @@ class Agora {
         );
       },
       userJoined: (uid, elapsed) async {
-        DocumentSnapshot snap = await FirebaseFirestore.instance
-            .collection("meetings")
-            .doc(code)
-            .collection("users")
-            .doc(uid.toString())
-            .get();
-
         userUIDs.add(uid.toString());
-        userNames.add(snap.get('name'));
-        userImages.add(snap.get('image_url'));
-        ifUserMuted.add(snap.get('isMuted'));
-        ifUserVideoOff.add(snap.get('isVidOff'));
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -179,12 +168,12 @@ class Agora {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
-    await joinMeetingInDB(channel);
-
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
         this.code = channel;
         this.uid = uid.toString();
+
+        await joinMeetingInDB(channel);
 
         userUIDs.add(uid.toString());
         ifUserMuted.add(HomeState.isMuted);
@@ -221,18 +210,7 @@ class Agora {
           exitMeeting();
       },
       userJoined: (uid, elapsed) async {
-        DocumentSnapshot snap = await FirebaseFirestore.instance
-            .collection("meetings")
-            .doc(code)
-            .collection("users")
-            .doc(uid.toString())
-            .get();
-
         userUIDs.add(uid.toString());
-        userNames.add(snap.get('name'));
-        userImages.add(snap.get('image_url'));
-        ifUserMuted.add(snap.get('isMuted'));
-        ifUserVideoOff.add(snap.get('isVidOff'));
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
