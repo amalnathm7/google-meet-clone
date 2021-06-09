@@ -327,28 +327,6 @@ class Agora {
     });
   }
 
-  toggleMic(String code) async {
-    await _db
-        .collection("meetings")
-        .doc(code)
-        .collection("users")
-        .doc(uid)
-        .update({
-      'isMuted': HomeState.isMuted,
-    });
-  }
-
-  toggleCam(String code) async {
-    await _db
-        .collection("meetings")
-        .doc(code)
-        .collection("users")
-        .doc(uid)
-        .update({
-      'isVidOff': HomeState.isVidOff,
-    });
-  }
-
   exitMeeting() async {
     await FirebaseFirestore.instance
         .collection("meetings")

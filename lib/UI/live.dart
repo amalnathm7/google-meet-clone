@@ -77,7 +77,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
-    agora.toggleMic(agora.code);
   }
 
   void video() {
@@ -86,7 +85,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       agora.usersVidOff.setAll(0, [HomeState.isVidOff]);
     });
     agora.engine.muteLocalVideoStream(HomeState.isVidOff);
-    agora.toggleCam(agora.code);
   }
 
   void end() async {
