@@ -52,10 +52,11 @@ class Agora {
 
         await createMeetingInDB();
 
-        if (userUIDs.indexOf(uid.toString()) == -1)
+        if (userUIDs.indexOf(uid.toString()) == -1) {
           userUIDs.add(uid.toString());
-        ifUserMuted.add(HomeState.isMuted);
-        ifUserVideoOff.add(HomeState.isVidOff);
+          ifUserMuted.add(HomeState.isMuted);
+          ifUserVideoOff.add(HomeState.isVidOff);
+        }
 
         Navigator.push(
             context,
@@ -181,10 +182,11 @@ class Agora {
 
         await joinMeetingInDB(channel);
 
-        if (userUIDs.indexOf(uid.toString()) == -1)
+        if (userUIDs.indexOf(uid.toString()) == -1) {
           userUIDs.add(uid.toString());
-        ifUserMuted.add(HomeState.isMuted);
-        ifUserVideoOff.add(HomeState.isVidOff);
+          ifUserMuted.add(HomeState.isMuted);
+          ifUserVideoOff.add(HomeState.isVidOff);
+        }
 
         Navigator.pushReplacement(
             context,
@@ -322,5 +324,16 @@ class Agora {
         .collection("users")
         .doc(uid)
         .delete();
+
+    userUIDs = [];
+    userImages = [FirebaseAuth.instance.currentUser.photoURL];
+    userNames = [
+      FirebaseAuth.instance.currentUser.displayName + ' (You)'
+    ];
+    ifUserMuted = [];
+    ifUserVideoOff = [];
+    messages = [];
+    messageUsers = [];
+    messageTime = [];
   }
 }
