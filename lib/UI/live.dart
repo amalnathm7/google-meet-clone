@@ -29,7 +29,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _currentIndex = 0;
   var _currentUserIndex = 0;
   var _pin = -1;
-  var _streamEnd = false;
   TextEditingController _textEditingController = TextEditingController();
   Timer _timer = Timer(Duration(seconds: 0), null);
   Timer _timer2;
@@ -88,9 +87,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void end() async {
-    setState(() {
-      _streamEnd = true;
-    });
     agora.exitMeeting();
     await agora.engine.leaveChannel();
     Navigator.pop(context);
@@ -485,8 +481,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 viewInsets.bottom) *
                             .45,
                     width: MediaQuery.of(context).size.width,
-                    child: agora.usersVidOff[
-                            _pin != -1 ? _pin : _currentUserIndex]
+                    child: agora
+                            .usersVidOff[_pin != -1 ? _pin : _currentUserIndex]
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -781,12 +777,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                 size: 30,
                                               )),
                                           Positioned(
-                                            right: agora.usersMuted[index]
-                                                ? 5
-                                                : 3,
-                                            bottom: agora.usersMuted[index]
-                                                ? 5
-                                                : 0,
+                                            right:
+                                                agora.usersMuted[index] ? 5 : 3,
+                                            bottom:
+                                                agora.usersMuted[index] ? 5 : 0,
                                             child: Container(
                                                 child: Padding(
                                                   padding:
@@ -812,10 +806,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                                   ),
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color:
-                                                      agora.usersMuted[index]
-                                                          ? Colors.red[800]
-                                                          : Colors.transparent,
+                                                  color: agora.usersMuted[index]
+                                                      ? Colors.red[800]
+                                                      : Colors.transparent,
                                                   borderRadius:
                                                       BorderRadius.circular(50),
                                                 )),

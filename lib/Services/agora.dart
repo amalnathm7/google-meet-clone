@@ -117,7 +117,7 @@ class Agora {
             content: Text("$uid joined this meeting"),
             duration: Duration(milliseconds: 1000),
           ),
-        );
+        ).setState(() {});
       },
       userOffline: (int uid, UserOfflineReason reason) {
         int index = userUIDs.indexOf(uid.toString());
