@@ -9,7 +9,7 @@ import 'package:gmeet/UI/live.dart';
 class Agora {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IABezHUOGfnNFmocEdUYrhg9Q15EspOptUE6WjEBynveNs7T9ukAAAAAEADGEkMQY+zAYAEAAQBj7MBg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IAAyZt9FPM1fIBbUWS2z+vKI4odfzmrDfKGSiLqwqTJx0c7T9ukAAAAAEADGEkMQBD7CYAEAAQAEPsJg";
   RtcEngine engine;
   String uid;
   List<String> userUIDs = [];
@@ -41,7 +41,8 @@ class Agora {
     await joinCreatedChannel(context, code, homeState);
   }
 
-  joinCreatedChannel(BuildContext context, String channel, HomeState homeState) async {
+  joinCreatedChannel(
+      BuildContext context, String channel, HomeState homeState) async {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
@@ -51,7 +52,8 @@ class Agora {
 
         await createMeetingInDB();
 
-        userUIDs.add(uid.toString());
+        if (userUIDs.indexOf(uid.toString()) == -1)
+          userUIDs.add(uid.toString());
         ifUserMuted.add(HomeState.isMuted);
         ifUserVideoOff.add(HomeState.isVidOff);
 
@@ -73,8 +75,7 @@ class Agora {
         exitMeeting();
       },
       connectionStateChanged: (state, reason) {
-        if(state == ConnectionStateType.Disconnected)
-          exitMeeting();
+        if (state == ConnectionStateType.Disconnected) exitMeeting();
       },
       error: (errorCode) {
         exitMeeting();
@@ -86,7 +87,8 @@ class Agora {
         );
       },
       userJoined: (uid, elapsed) async {
-        userUIDs.add(uid.toString());
+        if (userUIDs.indexOf(uid.toString()) == -1)
+          userUIDs.add(uid.toString());
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -112,13 +114,17 @@ class Agora {
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserMuted
-            .setAll(index, [state == AudioRemoteState.Stopped && reason == AudioRemoteStateReason.RemoteMuted]);
+        ifUserMuted.setAll(index, [
+          state == AudioRemoteState.Stopped &&
+              reason == AudioRemoteStateReason.RemoteMuted
+        ]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserVideoOff
-            .setAll(index, [state == VideoRemoteState.Stopped && reason == VideoRemoteStateReason.RemoteMuted]);
+        ifUserVideoOff.setAll(index, [
+          state == VideoRemoteState.Stopped &&
+              reason == VideoRemoteStateReason.RemoteMuted
+        ]);
       },
     ));
 
@@ -175,7 +181,8 @@ class Agora {
 
         await joinMeetingInDB(channel);
 
-        userUIDs.add(uid.toString());
+        if (userUIDs.indexOf(uid.toString()) == -1)
+          userUIDs.add(uid.toString());
         ifUserMuted.add(HomeState.isMuted);
         ifUserVideoOff.add(HomeState.isVidOff);
 
@@ -206,11 +213,11 @@ class Agora {
         exitMeeting();
       },
       connectionStateChanged: (state, reason) {
-        if(state == ConnectionStateType.Disconnected)
-          exitMeeting();
+        if (state == ConnectionStateType.Disconnected) exitMeeting();
       },
       userJoined: (uid, elapsed) async {
-        userUIDs.add(uid.toString());
+        if (userUIDs.indexOf(uid.toString()) == -1)
+          userUIDs.add(uid.toString());
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -236,13 +243,17 @@ class Agora {
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserMuted
-            .setAll(index, [state == AudioRemoteState.Stopped && reason == AudioRemoteStateReason.RemoteMuted]);
+        ifUserMuted.setAll(index, [
+          state == AudioRemoteState.Stopped &&
+              reason == AudioRemoteStateReason.RemoteMuted
+        ]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserVideoOff
-            .setAll(index, [state == VideoRemoteState.Stopped && reason == VideoRemoteStateReason.RemoteMuted]);
+        ifUserVideoOff.setAll(index, [
+          state == VideoRemoteState.Stopped &&
+              reason == VideoRemoteStateReason.RemoteMuted
+        ]);
       },
     ));
 

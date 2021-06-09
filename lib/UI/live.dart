@@ -30,6 +30,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _currentIndex = 0;
   var _currentUserIndex = 0;
   var _pin = -1;
+  var _streamEnd = false;
   TextEditingController _textEditingController = TextEditingController();
   Timer _timer = Timer(Duration(seconds: 0), null);
   Timer _timer2;
@@ -56,6 +57,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    setState(() {
+      _streamEnd = true;
+    });
     _timer.cancel();
     _tabController.dispose();
     _textEditingController.dispose();
@@ -90,6 +94,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   }
 
   void end() async {
+    setState(() {
+      _streamEnd = true;
+    });
     agora.exitMeeting();
     await agora.engine.leaveChannel();
     Navigator.pop(context);
@@ -718,16 +725,22 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               itemCount: agora.userUIDs.length,
                               itemBuilder: (context, index) {
                                 return StreamBuilder(
-                                  stream: FirebaseFirestore.instance
+                                  stream: _streamEnd ? null : FirebaseFirestore.instance
                                       .collection("meetings")
                                       .doc(agora.code)
                                       .collection("users")
                                       .doc(agora.userUIDs[index]).snapshots(),
                                   builder: (context, snapshot) {
-                                    agora.userNames.add(snapshot.data['name']);
-                                    agora.userImages.add(snapshot.data['image_url']);
-                                    agora.ifUserMuted.add(snapshot.data['isMuted']);
-                                    agora.ifUserVideoOff.add(snapshot.data['isVidOff']);
+                                    if(snapshot.data != null && snapshot.hasData && !snapshot.hasError) {
+                                      agora.userNames.setAll(
+                                          index, [snapshot.data['name']]);
+                                      agora.userImages.setAll(
+                                          index, [snapshot.data['image_url']]);
+                                      agora.ifUserMuted.setAll(
+                                          index, [snapshot.data['isMuted']]);
+                                      agora.ifUserVideoOff.setAll(
+                                          index, [snapshot.data['isVidOff']]);
+                                    }
                                     return Container(
                                       width: MediaQuery.of(context).size.width,
                                       height: 70,
