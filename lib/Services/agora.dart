@@ -17,8 +17,8 @@ class Agora {
   List<String> userNames = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
-  List<bool> ifUserMuted = [];
-  List<bool> ifUserVideoOff = [];
+  List<bool> usersMuted = [];
+  List<bool> usersVidOff = [];
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
@@ -55,11 +55,9 @@ class Agora {
 
         await createMeetingInDB();
 
-        if (userUIDs.isEmpty) {
-          userUIDs.add(uid.toString());
-          ifUserMuted.add(HomeState.isMuted);
-          ifUserVideoOff.add(HomeState.isVidOff);
-        }
+        userUIDs.add(uid.toString());
+        usersMuted.add(HomeState.isMuted);
+        usersVidOff.add(HomeState.isVidOff);
 
         Navigator.push(
             context,
@@ -91,7 +89,8 @@ class Agora {
         );
       },
       userJoined: (uid, elapsed) async {
-        if (userUIDs.indexOf(uid.toString()) == -1) {
+        int index = userUIDs.indexOf(uid.toString());
+        if (index == -1) {
           userUIDs.add(uid.toString());
 
           FirebaseFirestore.instance
@@ -101,10 +100,17 @@ class Agora {
               .doc(uid.toString())
               .snapshots()
               .listen((event) {
-            userNames.add(event.get('name'));
-            userImages.add(event.get('image_url'));
-            ifUserMuted.add(event.get('ifMuted'));
-            ifUserVideoOff.add(event.get('ifVidOff'));
+            if (userNames.length == userUIDs.length) {
+              userNames.setAll(index, [event.get('name')]);
+              userImages.setAll(index, [event.get('image_url')]);
+              usersMuted.setAll(index, [event.get('isMuted')]);
+              usersVidOff.setAll(index, [event.get('isVidOff')]);
+            } else {
+              userNames.add(event.get('name'));
+              userImages.add(event.get('image_url'));
+              usersMuted.add(event.get('isMuted'));
+              usersVidOff.add(event.get('isVidOff'));
+            }
           });
         }
 
@@ -120,8 +126,8 @@ class Agora {
         userUIDs.removeAt(index);
         userNames.removeAt(index);
         userImages.removeAt(index);
-        ifUserVideoOff.removeAt(index);
-        ifUserMuted.removeAt(index);
+        usersVidOff.removeAt(index);
+        usersMuted.removeAt(index);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -132,14 +138,14 @@ class Agora {
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserMuted.setAll(index, [
+        usersMuted.setAll(index, [
           state == AudioRemoteState.Stopped &&
               reason == AudioRemoteStateReason.RemoteMuted
         ]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserVideoOff.setAll(index, [
+        usersVidOff.setAll(index, [
           state == VideoRemoteState.Stopped &&
               reason == VideoRemoteStateReason.RemoteMuted
         ]);
@@ -199,11 +205,9 @@ class Agora {
 
         await joinMeetingInDB(channel);
 
-        if (userUIDs.isEmpty) {
-          userUIDs.add(uid.toString());
-          ifUserMuted.add(HomeState.isMuted);
-          ifUserVideoOff.add(HomeState.isVidOff);
-        }
+        userUIDs.add(uid.toString());
+        usersMuted.add(HomeState.isMuted);
+        usersVidOff.add(HomeState.isVidOff);
 
         Navigator.pushReplacement(
             context,
@@ -235,19 +239,29 @@ class Agora {
         if (state == ConnectionStateType.Disconnected) exitMeeting();
       },
       userJoined: (uid, elapsed) async {
-        if (userUIDs.indexOf(uid.toString()) == -1) {
+        int index = userUIDs.indexOf(uid.toString());
+        if (index == -1) {
           userUIDs.add(uid.toString());
-          DocumentSnapshot snap = await FirebaseFirestore.instance
+
+          FirebaseFirestore.instance
               .collection("meetings")
               .doc(code)
               .collection("users")
               .doc(uid.toString())
-              .get();
-
-          userNames.add(snap.get('name'));
-          userImages.add(snap.get('image_url'));
-          ifUserMuted.add(snap.get('ifMuted'));
-          ifUserVideoOff.add(snap.get('ifVidOff'));
+              .snapshots()
+              .listen((event) {
+            if (userNames.length == userUIDs.length) {
+              userNames.setAll(index, [event.get('name')]);
+              userImages.setAll(index, [event.get('image_url')]);
+              usersMuted.setAll(index, [event.get('isMuted')]);
+              usersVidOff.setAll(index, [event.get('isVidOff')]);
+            } else {
+              userNames.add(event.get('name'));
+              userImages.add(event.get('image_url'));
+              usersMuted.add(event.get('isMuted'));
+              usersVidOff.add(event.get('isVidOff'));
+            }
+          });
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -262,8 +276,8 @@ class Agora {
         userUIDs.removeAt(index);
         userNames.removeAt(index);
         userImages.removeAt(index);
-        ifUserVideoOff.removeAt(index);
-        ifUserMuted.removeAt(index);
+        usersVidOff.removeAt(index);
+        usersMuted.removeAt(index);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -274,14 +288,14 @@ class Agora {
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserMuted.setAll(index, [
+        usersMuted.setAll(index, [
           state == AudioRemoteState.Stopped &&
               reason == AudioRemoteStateReason.RemoteMuted
         ]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
-        ifUserVideoOff.setAll(index, [
+        usersVidOff.setAll(index, [
           state == VideoRemoteState.Stopped &&
               reason == VideoRemoteStateReason.RemoteMuted
         ]);
@@ -354,8 +368,8 @@ class Agora {
     userUIDs = [];
     userImages = [FirebaseAuth.instance.currentUser.photoURL];
     userNames = [FirebaseAuth.instance.currentUser.displayName + ' (You)'];
-    ifUserMuted = [];
-    ifUserVideoOff = [];
+    usersMuted = [];
+    usersVidOff = [];
     messages = [];
     messageUsers = [];
     messageTime = [];

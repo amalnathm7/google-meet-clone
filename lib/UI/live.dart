@@ -1,6 +1,5 @@
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
@@ -68,7 +67,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void mic() {
     setState(() {
       HomeState.isMuted = !HomeState.isMuted;
-      agora.ifUserMuted.setAll(0, [HomeState.isMuted]);
+      agora.usersMuted.setAll(0, [HomeState.isMuted]);
       Fluttertoast.cancel();
     });
     agora.engine.muteLocalAudioStream(HomeState.isMuted);
@@ -84,7 +83,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void video() {
     setState(() {
       HomeState.isVidOff = !HomeState.isVidOff;
-      agora.ifUserVideoOff.setAll(0, [HomeState.isVidOff]);
+      agora.usersVidOff.setAll(0, [HomeState.isVidOff]);
     });
     agora.engine.muteLocalVideoStream(HomeState.isVidOff);
     agora.toggleCam(agora.code);
@@ -488,7 +487,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 viewInsets.bottom) *
                             .45,
                     width: MediaQuery.of(context).size.width,
-                    child: agora.ifUserVideoOff[_pin != -1 ? _pin : _currentUserIndex]
+                    child: agora.usersVidOff[
+                            _pin != -1 ? _pin : _currentUserIndex]
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -497,7 +497,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               ),
                               ClipRRect(
                                 child: Image.network(
-                                  agora.userImages[_pin != -1 ? _pin : _currentUserIndex],
+                                  agora.userImages[
+                                      _pin != -1 ? _pin : _currentUserIndex],
                                   height: 80,
                                 ),
                                 borderRadius: BorderRadius.circular(50),
@@ -506,7 +507,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 height: 20,
                               ),
                               Text(
-                                agora.userNames[_pin != -1 ? _pin : _currentUserIndex],
+                                agora.userNames[
+                                    _pin != -1 ? _pin : _currentUserIndex],
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: _userNameClr,
@@ -721,147 +723,136 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               padding: EdgeInsets.zero,
                               itemCount: agora.userNames.length,
                               itemBuilder: (context, index) {
-                                return StreamBuilder(
-                                  stream: _streamEnd ? null : FirebaseFirestore.instance
-                                      .collection("meetings")
-                                      .doc(agora.code)
-                                      .collection("users")
-                                      .doc(agora.userUIDs[index]).snapshots(),
-                                  builder: (context, snapshot) {
-                                    if(snapshot.data != null && snapshot.hasData && !snapshot.hasError) {
-                                      agora.userNames.setAll(
-                                            index, [snapshot.data['name']]);
-                                        agora.userImages.setAll(
-                                            index, [snapshot.data['image_url']]);
-                                        agora.ifUserMuted.setAll(
-                                            index, [snapshot.data['isMuted']]);
-                                        agora.ifUserVideoOff.setAll(
-                                            index, [snapshot.data['isVidOff']]);
-                                    }
-                                    return Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      height: 70,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                return Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 70,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Stack(
                                         children: [
-                                          Stack(
-                                            children: [
-                                              Container(
-                                                color: Colors.grey[200],
+                                          Container(
+                                            color: Colors.grey[200],
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3,
+                                            child: Stack(
+                                              children: [
+                                                Center(
+                                                  child: ClipRRect(
+                                                    child: Image.network(
+                                                      agora.userImages[index],
+                                                      height: 50,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Opacity(
+                                              opacity:
+                                                  _currentUserIndex == index
+                                                      ? 0.7
+                                                      : 0,
+                                              child: Container(
+                                                color: Colors.black,
                                                 width: MediaQuery.of(context)
                                                         .size
                                                         .width /
                                                     3,
-                                                child: Stack(
-                                                  children: [
-                                                    Center(
-                                                      child: ClipRRect(
-                                                        child: Image.network(
-                                                          agora.userImages[index],
-                                                          height: 50,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                                50),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Opacity(
-                                                  opacity:
-                                                      _currentUserIndex == index
-                                                          ? 0.7
-                                                          : 0,
-                                                  child: Container(
-                                                    color: Colors.black,
-                                                    width: MediaQuery.of(context)
-                                                            .size
-                                                            .width /
-                                                        3,
-                                                  )),
-                                              Positioned(
-                                                  top: 20,
-                                                  left: (MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              3 -
-                                                          30) /
-                                                      2,
-                                                  child: Icon(
-                                                    _pin == index
-                                                        ? Icons.push_pin
-                                                        : null,
-                                                    color: Colors.white,
-                                                    size: 30,
-                                                  )),
-                                              Positioned(
-                                                right: agora.ifUserMuted[index] ? 5 : 3,
-                                                bottom: agora.ifUserMuted[index] ? 5 : 0,
-                                                child: Container(
-                                                    child: Padding(
-                                                      padding: agora.ifUserMuted[index]
+                                              )),
+                                          Positioned(
+                                              top: 20,
+                                              left: (MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          3 -
+                                                      30) /
+                                                  2,
+                                              child: Icon(
+                                                _pin == index
+                                                    ? Icons.push_pin
+                                                    : null,
+                                                color: Colors.white,
+                                                size: 30,
+                                              )),
+                                          Positioned(
+                                            right: agora.usersMuted[index]
+                                                ? 5
+                                                : 3,
+                                            bottom: agora.usersMuted[index]
+                                                ? 5
+                                                : 0,
+                                            child: Container(
+                                                child: Padding(
+                                                  padding:
+                                                      agora.usersMuted[index]
                                                           ? EdgeInsets.all(3.0)
                                                           : EdgeInsets.zero,
-                                                      child: Icon(
-                                                        agora.ifUserMuted[index]
-                                                            ? Icons.mic_off
-                                                            : Icons
-                                                                .more_horiz_rounded,
-                                                        color: agora.ifUserMuted[index]
-                                                            ? Colors.white
-                                                            : _currentUserIndex ==
-                                                                    index
-                                                                ? Colors.tealAccent
-                                                                : Colors.teal,
-                                                        size: agora.ifUserMuted[index]
+                                                  child: Icon(
+                                                    agora.usersMuted[index]
+                                                        ? Icons.mic_off
+                                                        : Icons
+                                                            .more_horiz_rounded,
+                                                    color: agora
+                                                            .usersMuted[index]
+                                                        ? Colors.white
+                                                        : _currentUserIndex ==
+                                                                index
+                                                            ? Colors.tealAccent
+                                                            : Colors.teal,
+                                                    size:
+                                                        agora.usersMuted[index]
                                                             ? 18
                                                             : 28,
-                                                      ),
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: agora.ifUserMuted[index]
-                                                          ? Colors.red[800]
-                                                          : Colors.transparent,
-                                                      borderRadius:
-                                                          BorderRadius.circular(50),
-                                                    )),
-                                              ),
-                                              Material(
-                                                color: Colors.transparent,
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      _currentUserIndex = index;
-                                                      if (_pin == index)
-                                                        _pin = -1;
-                                                      else
-                                                        _pin = index;
-                                                    });
-                                                  },
-                                                  splashColor: Colors.white24,
-                                                  child: Ink(
-                                                    height: 70,
-                                                    width: MediaQuery.of(context)
-                                                            .size
-                                                            .width /
-                                                        3,
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      agora.usersMuted[index]
+                                                          ? Colors.red[800]
+                                                          : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50),
+                                                )),
                                           ),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 14),
-                                            child: Text(agora.userNames[index]),
-                                          )
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  _currentUserIndex = index;
+                                                  if (_pin == index)
+                                                    _pin = -1;
+                                                  else
+                                                    _pin = index;
+                                                });
+                                              },
+                                              splashColor: Colors.white24,
+                                              child: Ink(
+                                                height: 70,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    3,
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                    );
-                                  }
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 14),
+                                        child: Text(agora.userNames[index]),
+                                      )
+                                    ],
+                                  ),
                                 );
                               }),
                           Column(
