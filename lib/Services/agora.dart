@@ -45,6 +45,8 @@ class Agora {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
+    await createMeetingInDB();
+
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
         this.uid = uid.toString();
@@ -52,8 +54,6 @@ class Agora {
         userUIDs.add(uid.toString());
         ifUserMuted.add(HomeState.isMuted);
         ifUserVideoOff.add(HomeState.isVidOff);
-
-        await createMeetingInDB();
 
         Navigator.push(
             context,
@@ -69,7 +69,15 @@ class Agora {
         );
         homeState.stopLoading();
       },
+      connectionLost: () {
+        exitMeeting();
+      },
+      connectionStateChanged: (state, reason) {
+        if(state == ConnectionStateType.Disconnected)
+          exitMeeting();
+      },
       error: (errorCode) {
+        exitMeeting();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error : $errorCode"),
@@ -171,6 +179,8 @@ class Agora {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
+    await joinMeetingInDB(channel);
+
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
         this.code = channel;
@@ -179,8 +189,6 @@ class Agora {
         userUIDs.add(uid.toString());
         ifUserMuted.add(HomeState.isMuted);
         ifUserVideoOff.add(HomeState.isVidOff);
-
-        await joinMeetingInDB(channel);
 
         Navigator.pushReplacement(
             context,
@@ -197,12 +205,20 @@ class Agora {
         );
       },
       error: (errorCode) {
+        exitMeeting();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error : $errorCode"),
             duration: Duration(milliseconds: 1000),
           ),
         );
+      },
+      connectionLost: () {
+        exitMeeting();
+      },
+      connectionStateChanged: (state, reason) {
+        if(state == ConnectionStateType.Disconnected)
+          exitMeeting();
       },
       userJoined: (uid, elapsed) async {
         DocumentSnapshot snap = await FirebaseFirestore.instance
