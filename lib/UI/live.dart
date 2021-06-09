@@ -1,7 +1,5 @@
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
@@ -32,7 +30,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _currentUserIndex = 0;
   var _pin = -1;
   TextEditingController _textEditingController = TextEditingController();
-  User _user = FirebaseAuth.instance.currentUser;
   Timer _timer = Timer(Duration(seconds: 0), null);
   Timer _timer2;
   TabController _tabController;

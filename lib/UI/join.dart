@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/UI/home.dart';
-import 'package:gmeet/UI/live.dart';
 
 class Join extends StatefulWidget {
   Join({this.code});

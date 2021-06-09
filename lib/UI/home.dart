@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/Services/google_auth.dart';
-import 'package:gmeet/UI/live.dart';
 import 'package:gmeet/UI/meeting_code.dart';
 import 'package:headset_event/headset_event.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
@@ -90,8 +89,10 @@ class HomeState extends State<Home> {
 
     await _agora.createChannel(context);
 
-    setState(() {
-      _loading = false;
+    Future.delayed(Duration(seconds: 5), () {
+      setState(() {
+        _loading = false;
+      });
     });
   }
 

@@ -11,7 +11,7 @@ class Agora {
   final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IABezHUOGfnNFmocEdUYrhg9Q15EspOptUE6WjEBynveNs7T9ukAAAAAEADGEkMQY+zAYAEAAQBj7MBg";
   RtcEngine engine;
-  String uid = "";
+  String uid;
   List<String> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
   List<String> userNames = [
@@ -84,6 +84,8 @@ class Agora {
         userUIDs.add(uid.toString());
         userNames.add(snap.get('name'));
         userImages.add(snap.get('image_url'));
+        ifUserMuted.add(snap.get('isMuted'));
+        ifUserVideoOff.add(snap.get('isVidOff'));
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -97,6 +99,8 @@ class Agora {
         userUIDs.removeAt(index);
         userNames.removeAt(index);
         userImages.removeAt(index);
+        ifUserVideoOff.removeAt(index);
+        ifUserMuted.removeAt(index);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("$uid left this meeting"),
@@ -119,8 +123,8 @@ class Agora {
     await engine.enableVideo();
     await engine.enableAudio();
 
-    engine.muteLocalAudioStream(HomeState.isMuted);
-    engine.enableLocalVideo(!HomeState.isVidOff);
+    await engine.muteLocalAudioStream(HomeState.isMuted);
+    await engine.enableLocalVideo(!HomeState.isVidOff);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
@@ -237,8 +241,8 @@ class Agora {
     await engine.enableVideo();
     await engine.enableAudio();
 
-    engine.muteLocalAudioStream(HomeState.isMuted);
-    engine.enableLocalVideo(!HomeState.isVidOff);
+    await engine.muteLocalAudioStream(HomeState.isMuted);
+    await engine.enableLocalVideo(!HomeState.isVidOff);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
