@@ -94,17 +94,18 @@ class Agora {
         if (userUIDs.indexOf(uid.toString()) == -1) {
           userUIDs.add(uid.toString());
 
-          DocumentSnapshot snap = await FirebaseFirestore.instance
+          FirebaseFirestore.instance
               .collection("meetings")
               .doc(code)
               .collection("users")
               .doc(uid.toString())
-              .get();
-
-          userNames.add(snap.get('name'));
-          userImages.add(snap.get('image_url'));
-          ifUserMuted.add(snap.get('ifMuted'));
-          ifUserVideoOff.add(snap.get('ifVidOff'));
+              .snapshots()
+              .listen((event) {
+            userNames.add(event.get('name'));
+            userImages.add(event.get('image_url'));
+            ifUserMuted.add(event.get('ifMuted'));
+            ifUserVideoOff.add(event.get('ifVidOff'));
+          });
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
