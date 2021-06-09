@@ -235,12 +235,12 @@ class Agora {
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserMuted
-            .setAll(index, [reason == AudioRemoteStateReason.LocalMuted]);
+            .setAll(index, [reason == AudioRemoteStateReason.RemoteMuted]);
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         ifUserVideoOff
-            .setAll(index, [reason == VideoRemoteStateReason.LocalMuted]);
+            .setAll(index, [reason == VideoRemoteStateReason.RemoteMuted]);
       },
     ));
 
@@ -248,7 +248,7 @@ class Agora {
     await engine.enableAudio();
 
     await engine.muteLocalAudioStream(HomeState.isMuted);
-    await engine.enableLocalVideo(!HomeState.isVidOff);
+    await engine.muteLocalVideoStream(HomeState.isVidOff);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
