@@ -957,12 +957,12 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 20),
                                         suffixIcon: Padding(
-                                          padding: const EdgeInsets.only(top: 5),
+                                          padding: const EdgeInsets.only(top: 5, right: 5),
                                           child: IconButton(
                                             icon: Icon(Icons.send),
                                             iconSize: 22,
                                             color: Colors.teal[800],
-                                            splashRadius: 20,
+                                            splashRadius: 25,
                                             onPressed: _textEditingController
                                                     .text.isEmpty
                                                 ? null
