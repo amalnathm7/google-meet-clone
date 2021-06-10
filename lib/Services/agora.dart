@@ -282,6 +282,8 @@ class Agora extends ChangeNotifier {
       userJoined: (uid, elapsed) async {
         int index = userUIDs.indexOf(uid.toString());
         if (index == -1) {
+          while (userUIDs.isEmpty) {}
+
           userUIDs.add(uid.toString());
           usersMuted.add(false);
           usersVidOff.add(false);
@@ -356,17 +358,15 @@ class Agora extends ChangeNotifier {
             notifyListeners();
             for (int i = 1; i <= 29; i++) {
               Timer(Duration(minutes: i), () {
-                if(messageTime != []) {
-                  messageTime.setAll(
-                      messageTime.length - length, [
-                    (i + 1).toString() + " min"
-                  ]);
+                if (messageTime != []) {
+                  messageTime.setAll(messageTime.length - length,
+                      [(i + 1).toString() + " min"]);
                   notifyListeners();
                 }
               });
             }
             Timer(Duration(minutes: 30), () {
-              if(messageTime != []) {
+              if (messageTime != []) {
                 messageTime.setAll(messageTime.length - length, [time]);
                 notifyListeners();
               }
