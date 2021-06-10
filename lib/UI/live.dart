@@ -443,14 +443,14 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
     Timer(Duration(minutes: 1), () {
       if (!_timer2.isActive) {
-        if (agora.messageTime != [])
+        if (mounted)
           setState(() {
             agora.messageTime
                 .setAll(agora.messageTime.length - length, ["1 min"]);
           });
         for (int i = 1; i <= 29; i++) {
           Timer(Duration(minutes: i), () {
-            if (agora.messageTime != [])
+            if (mounted)
               setState(() {
                 agora.messageTime.setAll(agora.messageTime.length - length,
                     [(i + 1).toString() + " min"]);
@@ -458,7 +458,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
           });
         }
         Timer(Duration(minutes: 30), () {
-          if (agora.messageTime != [])
+          if (mounted)
             setState(() {
               agora.messageTime
                   .setAll(agora.messageTime.length - length, [time]);

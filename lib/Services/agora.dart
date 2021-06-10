@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IACacGfDSmh56pMVHCq9WTyFe982K+teDvkoxPonI18IPs7T9ukAAAAAEADGEkMQvE3CYAEAAQC9TcJg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IACCUKLO/MQekUfkJlAhD8WWIwJ30mBgyjAuCVTRug0xus7T9ukAAAAAEADIUmqkfGPDYAEAAQB8Y8Ng";
   RtcEngine engine;
   String uid;
   List<String> userUIDs = [];
@@ -98,21 +98,34 @@ class Agora extends ChangeNotifier {
           usersVidOff.add(false);
 
           notifyListeners();
-
-          FirebaseFirestore.instance
-              .collection("meetings")
-              .doc(code)
-              .collection("users")
-              .doc(uid.toString())
-              .snapshots()
-              .listen((event) {
-            if (userNames.length != userUIDs.length) {
-              userNames.add(event.get('name'));
-              userImages.add(event.get('image_url'));
-              notifyListeners();
-            }
-          });
         }
+
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+        print(elapsed);
+
+        FirebaseFirestore.instance
+            .collection("meetings")
+            .doc(code)
+            .collection("users")
+            .doc(uid.toString())
+            .snapshots()
+            .listen((event) {
+          if (userNames.length != userUIDs.length) {
+            userNames.add(event.get('name'));
+            userImages.add(event.get('image_url'));
+            notifyListeners();
+          }
+        });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -247,9 +260,9 @@ class Agora extends ChangeNotifier {
 
         await joinMeetingInDB(channel);
 
-        userUIDs.add(uid.toString());
-        usersMuted.add(HomeState.isMuted);
-        usersVidOff.add(HomeState.isVidOff);
+        userUIDs.insert(0, uid.toString());
+        usersMuted.insert(0, HomeState.isMuted);
+        usersVidOff.insert(0, HomeState.isVidOff);
 
         Navigator.pushReplacement(
             context,
@@ -287,21 +300,21 @@ class Agora extends ChangeNotifier {
           usersVidOff.add(false);
 
           notifyListeners();
-
-          FirebaseFirestore.instance
-              .collection("meetings")
-              .doc(code)
-              .collection("users")
-              .doc(uid.toString())
-              .snapshots()
-              .listen((event) {
-            if (userNames.length != userUIDs.length) {
-              userNames.add(event.get('name'));
-              userImages.add(event.get('image_url'));
-              notifyListeners();
-            }
-          });
         }
+
+        FirebaseFirestore.instance
+            .collection("meetings")
+            .doc(code)
+            .collection("users")
+            .doc(uid.toString())
+            .snapshots()
+            .listen((event) {
+          if (userNames.length != userUIDs.length) {
+            userNames.add(event.get('name'));
+            userImages.add(event.get('image_url'));
+            notifyListeners();
+          }
+        });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
