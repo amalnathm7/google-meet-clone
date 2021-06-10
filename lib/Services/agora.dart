@@ -142,19 +142,17 @@ class Agora extends ChangeNotifier {
       streamMessage: (uid, streamId, data) {
         if (_timer != null &&
             _timer.isActive &&
-            messageUsers.elementAt(0) ==
+            messageUsers[0] ==
                 userNames.elementAt(userUIDs.indexOf(uid.toString()))) {
           messageUsers.setAll(
               0, [userNames.elementAt(userUIDs.indexOf(uid.toString()))]);
           messageTime.setAll(0, ["Now"]);
           messages.setAll(0, [messages[0] + "\n\n" + data]);
-          notifyListeners();
         } else {
           messageUsers.insert(
               0, userNames.elementAt(userUIDs.indexOf(uid.toString())));
           messageTime.insert(0, "Now");
           messages.insert(0, data);
-          notifyListeners();
         }
 
         msgCount++;
@@ -172,8 +170,8 @@ class Agora extends ChangeNotifier {
             timer.cancel();
             notifyListeners();
           } else {
-            messageTime.setAll(
-                messageTime.length - length, [(i).toString() + " min"]);
+            messageTime
+                .setAll(messageTime.length - length, [(i).toString() + " min"]);
             i++;
             notifyListeners();
           }
@@ -325,19 +323,17 @@ class Agora extends ChangeNotifier {
       streamMessage: (uid, streamId, data) {
         if (_timer != null &&
             _timer.isActive &&
-            messageUsers.elementAt(0) ==
+            messageUsers[0] ==
                 userNames.elementAt(userUIDs.indexOf(uid.toString()))) {
           messageUsers.setAll(
               0, [userNames.elementAt(userUIDs.indexOf(uid.toString()))]);
           messageTime.setAll(0, ["Now"]);
           messages.setAll(0, [messages[0] + "\n\n" + data]);
-          notifyListeners();
         } else {
           messageUsers.insert(
               0, userNames.elementAt(userUIDs.indexOf(uid.toString())));
           messageTime.insert(0, "Now");
           messages.insert(0, data);
-          notifyListeners();
         }
 
         msgCount++;
@@ -354,8 +350,8 @@ class Agora extends ChangeNotifier {
             messageTime.setAll(messageTime.length - length, [time]);
             timer.cancel();
           } else {
-            messageTime.setAll(
-                messageTime.length - length, [(i).toString() + " min"]);
+            messageTime
+                .setAll(messageTime.length - length, [(i).toString() + " min"]);
             i++;
           }
           notifyListeners();

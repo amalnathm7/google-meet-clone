@@ -711,7 +711,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         ? Colors.teal[800]
                                         : Colors.grey[400],
                                   ),
-                                  agora.msgCount == 0 ? SizedBox() : SizedBox()
+                                  agora.msgCount == 0 ? SizedBox() : Text(agora.msgCount.toString())
                                 ],
                               ),
                             ),
