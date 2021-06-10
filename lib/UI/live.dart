@@ -72,6 +72,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {
       if (_pin >= agora.userUIDs.length) _pin = -1;
       if (_currentUserIndex >= agora.userUIDs.length) _currentUserIndex = 0;
+      if (_currentIndex == 1) agora.msgCount = 0;
     });
   }
 
