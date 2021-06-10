@@ -38,12 +38,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    agora.addListener(() {
-      setState(() {
-        if (_pin >= agora.userUIDs.length) _pin = -1;
-        if (_currentUserIndex >= agora.userUIDs.length) _currentUserIndex = 0;
-      });
-    });
+    agora.addListener(_callback);
     singleTap();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animation.addListener(() {
@@ -64,9 +59,17 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     _timer.cancel();
     _tabController.dispose();
     _textEditingController.dispose();
+    agora.removeListener(_callback);
     agora.exitMeeting();
     agora.engine.destroy();
     super.dispose();
+  }
+
+  void _callback() {
+    setState(() {
+      if (_pin >= agora.userUIDs.length) _pin = -1;
+      if (_currentUserIndex >= agora.userUIDs.length) _currentUserIndex = 0;
+    });
   }
 
   void mic() {
