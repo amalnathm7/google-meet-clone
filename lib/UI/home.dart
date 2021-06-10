@@ -725,7 +725,7 @@ class HomeState extends State<Home> {
                                               style: TextStyle(
                                                 color: Colors.teal[800],
                                                 fontFamily: 'Product Sans',
-                                                fontSize: 15,
+                                                fontSize: 16,
                                               ),
                                             ),
                                             onPressed: newMeeting,
@@ -757,7 +757,7 @@ class HomeState extends State<Home> {
                                             style: TextStyle(
                                               color: Colors.teal[800],
                                               fontFamily: 'Product Sans',
-                                              fontSize: 15,
+                                              fontSize: 16,
                                             ),
                                           ),
                                           onPressed: meetingCode,
