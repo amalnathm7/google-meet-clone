@@ -29,6 +29,7 @@ class Agora extends ChangeNotifier {
   String code = "meet";
   DocumentSnapshot document;
   Timer _timer;
+  int msgCount;
 
   createChannel(BuildContext context, HomeState homeState) async {
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -100,19 +101,6 @@ class Agora extends ChangeNotifier {
           notifyListeners();
         }
 
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-        print(elapsed);
-
         FirebaseFirestore.instance
             .collection("meetings")
             .doc(code)
@@ -171,30 +159,20 @@ class Agora extends ChangeNotifier {
 
         var length = messageTime.length;
         var time = DateFormat('hh:mm a').format(DateTime.now());
+        int i = 1;
 
         _timer = Timer(Duration(seconds: 45), () {});
 
-        Timer(Duration(minutes: 1), () {
-          if (!_timer.isActive) {
-            if (messageTime != []) {
-              messageTime.setAll(messageTime.length - length, ["1 min"]);
-              notifyListeners();
-            }
-            for (int i = 1; i <= 29; i++) {
-              Timer(Duration(minutes: i), () {
-                if (messageTime != []) {
-                  messageTime.setAll(messageTime.length - length,
-                      [(i + 1).toString() + " min"]);
-                  notifyListeners();
-                }
-              });
-            }
-            Timer(Duration(minutes: 30), () {
-              if (messageTime != []) {
-                messageTime.setAll(messageTime.length - length, [time]);
-                notifyListeners();
-              }
-            });
+        Timer.periodic(Duration(minutes: 1), (timer) {
+          if (i == 31) {
+            messageTime.setAll(messageTime.length - length, [time]);
+            timer.cancel();
+            notifyListeners();
+          } else {
+            messageTime.setAll(
+                messageTime.length - length, [(i).toString() + " min"]);
+            i++;
+            notifyListeners();
           }
         });
       },
@@ -360,28 +338,20 @@ class Agora extends ChangeNotifier {
 
         var length = messageTime.length;
         var time = DateFormat('hh:mm a').format(DateTime.now());
+        int i = 1;
 
         _timer = Timer(Duration(seconds: 45), () {});
 
-        Timer(Duration(minutes: 1), () {
-          if (!_timer.isActive) {
-            messageTime.setAll(messageTime.length - length, ["1 min"]);
+        Timer.periodic(Duration(minutes: 1), (timer) {
+          if (i == 31) {
+            messageTime.setAll(messageTime.length - length, [time]);
+            timer.cancel();
             notifyListeners();
-            for (int i = 1; i <= 29; i++) {
-              Timer(Duration(minutes: i), () {
-                if (messageTime != []) {
-                  messageTime.setAll(messageTime.length - length,
-                      [(i + 1).toString() + " min"]);
-                  notifyListeners();
-                }
-              });
-            }
-            Timer(Duration(minutes: 30), () {
-              if (messageTime != []) {
-                messageTime.setAll(messageTime.length - length, [time]);
-                notifyListeners();
-              }
-            });
+          } else {
+            messageTime.setAll(
+                messageTime.length - length, [(i).toString() + " min"]);
+            i++;
+            notifyListeners();
           }
         });
       },

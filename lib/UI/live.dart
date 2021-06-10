@@ -438,33 +438,25 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
 
     var length = agora.messageTime.length;
     var time = DateFormat('hh:mm a').format(DateTime.now());
+    var i = 1;
 
     _timer2 = Timer(Duration(seconds: 45), () {});
 
-    Timer(Duration(minutes: 1), () {
-      if (!_timer2.isActive) {
-        if (mounted)
-          setState(() {
-            agora.messageTime
-                .setAll(agora.messageTime.length - length, ["1 min"]);
-          });
-        for (int i = 1; i <= 29; i++) {
-          Timer(Duration(minutes: i), () {
-            if (mounted)
-              setState(() {
-                agora.messageTime.setAll(agora.messageTime.length - length,
-                    [(i + 1).toString() + " min"]);
-              });
-          });
-        }
-        Timer(Duration(minutes: 30), () {
-          if (mounted)
-            setState(() {
-              agora.messageTime
-                  .setAll(agora.messageTime.length - length, [time]);
-            });
+    Timer.periodic(Duration(minutes: 1), (timer) {
+      if (i == 31 && mounted) {
+        setState(() {
+          agora.messageTime.setAll(agora.messageTime.length - length, [time]);
+          i++;
         });
+        timer.cancel();
       }
+      else if (mounted)
+        setState(() {
+          agora.messageTime.setAll(
+              agora.messageTime.length - length, [(i).toString() + " min"]);
+        });
+      else
+        timer.cancel();
     });
 
     _textEditingController.clear();
@@ -709,13 +701,19 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               ),
                             ),
                             Tab(
-                              child: Icon(
-                                _currentIndex == 1
-                                    ? Icons.messenger_outlined
-                                    : Icons.message_outlined,
-                                color: _currentIndex == 1
-                                    ? Colors.teal[800]
-                                    : Colors.grey[400],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    _currentIndex == 1
+                                        ? Icons.messenger_outlined
+                                        : Icons.message_outlined,
+                                    color: _currentIndex == 1
+                                        ? Colors.teal[800]
+                                        : Colors.grey[400],
+                                  ),
+                                  agora.msgCount == 0 ? SizedBox() : SizedBox()
+                                ],
                               ),
                             ),
                             Tab(
