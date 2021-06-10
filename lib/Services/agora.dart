@@ -220,13 +220,6 @@ class Agora extends ChangeNotifier {
       'name': _user.displayName,
       'image_url': _user.photoURL,
     });
-
-    await _db
-        .collection("meetings")
-        .doc(code)
-        .collection("messages")
-        .doc("messages")
-        .set({});
   }
 
   Future<bool> ifMeetingExists(String code) async {
