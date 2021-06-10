@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/live.dart';
 
-class Agora {
+class Agora extends ChangeNotifier{
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IACacGfDSmh56pMVHCq9WTyFe982K+teDvkoxPonI18IPs7T9ukAAAAAEADGEkMQvE3CYAEAAQC9TcJg";
@@ -127,6 +127,8 @@ class Agora {
         usersVidOff.removeAt(index);
         usersMuted.removeAt(index);
 
+        notifyListeners();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("$uid left this meeting"),
@@ -140,6 +142,7 @@ class Agora {
           state == AudioRemoteState.Stopped &&
               reason == AudioRemoteStateReason.RemoteMuted
         ]);
+        notifyListeners();
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
@@ -147,6 +150,7 @@ class Agora {
           state == VideoRemoteState.Stopped &&
               reason == VideoRemoteStateReason.RemoteMuted
         ]);
+        notifyListeners();
       },
     ));
 

@@ -39,6 +39,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    agora.addListener(() {
+      setState(() {});
+    });
     singleTap();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animation.addListener(() {
