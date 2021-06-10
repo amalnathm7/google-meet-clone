@@ -29,7 +29,7 @@ class Agora extends ChangeNotifier {
   String code = "meet";
   DocumentSnapshot document;
   Timer _timer;
-  int msgCount;
+  int msgCount = 0;
 
   createChannel(BuildContext context, HomeState homeState) async {
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';

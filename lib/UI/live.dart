@@ -49,6 +49,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
+        } else {
+          agora.msgCount = 0;
         }
       });
     });
@@ -448,8 +450,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
           agora.messageTime.setAll(agora.messageTime.length - length, [time]);
         });
         timer.cancel();
-      }
-      else if (mounted)
+      } else if (mounted)
         setState(() {
           agora.messageTime.setAll(
               agora.messageTime.length - length, [(i).toString() + " min"]);
@@ -462,7 +463,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void share() {}
+  void share() {
+    setState(() {
+      agora.msgCount++;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -700,18 +705,41 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               ),
                             ),
                             Tab(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              child: Stack(
                                 children: [
-                                  Icon(
-                                    _currentIndex == 1
-                                        ? Icons.messenger_outlined
-                                        : Icons.message_outlined,
-                                    color: _currentIndex == 1
-                                        ? Colors.teal[800]
-                                        : Colors.grey[400],
+                                  Center(
+                                    child: Icon(
+                                      _currentIndex == 1
+                                          ? Icons.messenger_outlined
+                                          : Icons.message_outlined,
+                                      color: _currentIndex == 1
+                                          ? Colors.teal[800]
+                                          : Colors.grey[400],
+                                    ),
                                   ),
-                                  agora.msgCount == 0 ? SizedBox() : Text(agora.msgCount.toString())
+                                  agora.msgCount == 0
+                                      ? SizedBox()
+                                      : Positioned(
+                                          right: 30,
+                                          top: 5,
+                                          child: Container(
+                                            height: 20,
+                                            width: 20,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              color: Colors.teal[800],
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                agora.msgCount > 99 ? "99+" : agora.msgCount.toString(),
+                                                style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                        )
                                 ],
                               ),
                             ),
