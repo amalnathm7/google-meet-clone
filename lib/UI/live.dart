@@ -463,11 +463,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void share() {
-    setState(() {
-      agora.msgCount++;
-    });
-  }
+  void share() {}
 
   @override
   Widget build(BuildContext context) {
@@ -732,7 +728,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                             ),
                                             child: Center(
                                               child: Text(
-                                                agora.msgCount > 99 ? "99+" : agora.msgCount.toString(),
+                                                agora.msgCount > 99
+                                                    ? "99+"
+                                                    : agora.msgCount.toString(),
                                                 style: TextStyle(
                                                     fontSize: 11,
                                                     color: Colors.white),
