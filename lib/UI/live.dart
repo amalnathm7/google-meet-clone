@@ -446,7 +446,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       if (i == 31 && mounted) {
         setState(() {
           agora.messageTime.setAll(agora.messageTime.length - length, [time]);
-          i++;
         });
         timer.cancel();
       }
@@ -454,11 +453,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         setState(() {
           agora.messageTime.setAll(
               agora.messageTime.length - length, [(i).toString() + " min"]);
+          i++;
         });
       else
         timer.cancel();
     });
-
     _textEditingController.clear();
     setState(() {});
   }

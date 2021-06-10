@@ -157,6 +157,9 @@ class Agora extends ChangeNotifier {
           notifyListeners();
         }
 
+        msgCount++;
+        notifyListeners();
+
         var length = messageTime.length;
         var time = DateFormat('hh:mm a').format(DateTime.now());
         int i = 1;
@@ -241,6 +244,7 @@ class Agora extends ChangeNotifier {
         userUIDs.insert(0, uid.toString());
         usersMuted.insert(0, HomeState.isMuted);
         usersVidOff.insert(0, HomeState.isVidOff);
+        notifyListeners();
 
         Navigator.pushReplacement(
             context,
@@ -336,6 +340,9 @@ class Agora extends ChangeNotifier {
           notifyListeners();
         }
 
+        msgCount++;
+        notifyListeners();
+
         var length = messageTime.length;
         var time = DateFormat('hh:mm a').format(DateTime.now());
         int i = 1;
@@ -346,13 +353,12 @@ class Agora extends ChangeNotifier {
           if (i == 31) {
             messageTime.setAll(messageTime.length - length, [time]);
             timer.cancel();
-            notifyListeners();
           } else {
             messageTime.setAll(
                 messageTime.length - length, [(i).toString() + " min"]);
             i++;
-            notifyListeners();
           }
+          notifyListeners();
         });
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
