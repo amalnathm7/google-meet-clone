@@ -95,6 +95,8 @@ class Agora extends ChangeNotifier{
           usersMuted.add(false);
           usersVidOff.add(false);
 
+          notifyListeners();
+
           FirebaseFirestore.instance
               .collection("meetings")
               .doc(code)
@@ -105,9 +107,11 @@ class Agora extends ChangeNotifier{
             if (userNames.length == userUIDs.length) {
               userNames.setAll(index, [event.get('name')]);
               userImages.setAll(index, [event.get('image_url')]);
+              notifyListeners();
             } else {
               userNames.add(event.get('name'));
               userImages.add(event.get('image_url'));
+              notifyListeners();
             }
           });
         }
@@ -245,6 +249,8 @@ class Agora extends ChangeNotifier{
           usersMuted.add(false);
           usersVidOff.add(false);
 
+          notifyListeners();
+
           FirebaseFirestore.instance
               .collection("meetings")
               .doc(code)
@@ -255,9 +261,11 @@ class Agora extends ChangeNotifier{
             if (userNames.length == userUIDs.length) {
               userNames.setAll(index, [event.get('name')]);
               userImages.setAll(index, [event.get('image_url')]);
+              notifyListeners();
             } else {
               userNames.add(event.get('name'));
               userImages.add(event.get('image_url'));
+              notifyListeners();
             }
           });
         }
