@@ -282,8 +282,6 @@ class Agora extends ChangeNotifier {
       userJoined: (uid, elapsed) async {
         int index = userUIDs.indexOf(uid.toString());
         if (index == -1) {
-          while (userUIDs.isEmpty) {}
-
           userUIDs.add(uid.toString());
           usersMuted.add(false);
           usersVidOff.add(false);
