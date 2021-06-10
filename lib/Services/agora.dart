@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'dart:math';
+import 'dart:async';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -106,11 +106,7 @@ class Agora extends ChangeNotifier {
               .doc(uid.toString())
               .snapshots()
               .listen((event) {
-            if (userNames.length == userUIDs.length) {
-              userNames.setAll(index, [event.get('name')]);
-              userImages.setAll(index, [event.get('image_url')]);
-              notifyListeners();
-            } else {
+            if (userNames.length != userUIDs.length) {
               userNames.add(event.get('name'));
               userImages.add(event.get('image_url'));
               notifyListeners();
@@ -143,7 +139,10 @@ class Agora extends ChangeNotifier {
         );
       },
       streamMessage: (uid, streamId, data) {
-        if (_timer != null && _timer.isActive) {
+        if (_timer != null &&
+            _timer.isActive &&
+            messageUsers.elementAt(0) ==
+                userNames.elementAt(userUIDs.indexOf(uid.toString()))) {
           messageUsers.setAll(
               0, [userNames.elementAt(userUIDs.indexOf(uid.toString()))]);
           messageTime.setAll(0, ["Now"]);
@@ -164,18 +163,24 @@ class Agora extends ChangeNotifier {
 
         Timer(Duration(minutes: 1), () {
           if (!_timer.isActive) {
-            messageTime.setAll(messageTime.length - length, ["1 min"]);
-            notifyListeners();
+            if (messageTime != []) {
+              messageTime.setAll(messageTime.length - length, ["1 min"]);
+              notifyListeners();
+            }
             for (int i = 1; i <= 29; i++) {
               Timer(Duration(minutes: i), () {
-                messageTime.setAll(
-                    messageTime.length - length, [(i + 1).toString() + " min"]);
-                notifyListeners();
+                if (messageTime != []) {
+                  messageTime.setAll(messageTime.length - length,
+                      [(i + 1).toString() + " min"]);
+                  notifyListeners();
+                }
               });
             }
             Timer(Duration(minutes: 30), () {
-              messageTime.setAll(messageTime.length - length, [time]);
-              notifyListeners();
+              if (messageTime != []) {
+                messageTime.setAll(messageTime.length - length, [time]);
+                notifyListeners();
+              }
             });
           }
         });
@@ -290,11 +295,7 @@ class Agora extends ChangeNotifier {
               .doc(uid.toString())
               .snapshots()
               .listen((event) {
-            if (userNames.length == userUIDs.length) {
-              userNames.setAll(index, [event.get('name')]);
-              userImages.setAll(index, [event.get('image_url')]);
-              notifyListeners();
-            } else {
+            if (userNames.length != userUIDs.length) {
               userNames.add(event.get('name'));
               userImages.add(event.get('image_url'));
               notifyListeners();
@@ -327,7 +328,10 @@ class Agora extends ChangeNotifier {
         );
       },
       streamMessage: (uid, streamId, data) {
-        if (_timer != null && _timer.isActive) {
+        if (_timer != null &&
+            _timer.isActive &&
+            messageUsers.elementAt(0) ==
+                userNames.elementAt(userUIDs.indexOf(uid.toString()))) {
           messageUsers.setAll(
               0, [userNames.elementAt(userUIDs.indexOf(uid.toString()))]);
           messageTime.setAll(0, ["Now"]);
@@ -352,14 +356,20 @@ class Agora extends ChangeNotifier {
             notifyListeners();
             for (int i = 1; i <= 29; i++) {
               Timer(Duration(minutes: i), () {
-                messageTime.setAll(
-                    messageTime.length - length, [(i + 1).toString() + " min"]);
-                notifyListeners();
+                if(messageTime != []) {
+                  messageTime.setAll(
+                      messageTime.length - length, [
+                    (i + 1).toString() + " min"
+                  ]);
+                  notifyListeners();
+                }
               });
             }
             Timer(Duration(minutes: 30), () {
-              messageTime.setAll(messageTime.length - length, [time]);
-              notifyListeners();
+              if(messageTime != []) {
+                messageTime.setAll(messageTime.length - length, [time]);
+                notifyListeners();
+              }
             });
           }
         });
@@ -413,6 +423,7 @@ class Agora extends ChangeNotifier {
         .doc(uid)
         .delete();
 
+    _timer?.cancel();
     userUIDs = [];
     userImages = [FirebaseAuth.instance.currentUser.photoURL];
     userNames = [FirebaseAuth.instance.currentUser.displayName + ' (You)'];

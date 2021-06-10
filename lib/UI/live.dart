@@ -57,6 +57,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   @override
   void dispose() {
     _timer.cancel();
+    _timer2.cancel();
     _tabController.dispose();
     _textEditingController.dispose();
     agora.removeListener(_callback);
@@ -424,7 +425,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void sendMsg() {
     agora.sendMessage(_textEditingController.text, agora.code);
 
-    if (_timer2 != null && _timer2.isActive) {
+    if (_timer2 != null && _timer2.isActive && agora.messageUsers[0] == "You") {
       agora.messageUsers.setAll(0, ["You"]);
       agora.messageTime.setAll(0, ["Now"]);
       agora.messages.setAll(
@@ -443,20 +444,24 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     Timer(Duration(minutes: 1), () {
       if (!_timer2.isActive) {
         setState(() {
-          agora.messageTime
-              .setAll(agora.messageTime.length - length, ["1 min"]);
+          if (agora.messageTime != [])
+            agora.messageTime
+                .setAll(agora.messageTime.length - length, ["1 min"]);
         });
         for (int i = 1; i <= 29; i++) {
           Timer(Duration(minutes: i), () {
             setState(() {
-              agora.messageTime.setAll(agora.messageTime.length - length,
-                  [(i + 1).toString() + " min"]);
+              if (agora.messageTime != [])
+                agora.messageTime.setAll(agora.messageTime.length - length,
+                    [(i + 1).toString() + " min"]);
             });
           });
         }
         Timer(Duration(minutes: 30), () {
           setState(() {
-            agora.messageTime.setAll(agora.messageTime.length - length, [time]);
+            if (agora.messageTime != [])
+              agora.messageTime
+                  .setAll(agora.messageTime.length - length, [time]);
           });
         });
       }
@@ -929,7 +934,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.only(top: 10, bottom: 8),
+                                    const EdgeInsets.only(bottom: 5),
                                 child: Container(
                                   decoration: BoxDecoration(
                                       border: Border(
@@ -950,20 +955,23 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                     textAlignVertical: TextAlignVertical.center,
                                     decoration: InputDecoration(
                                         border: InputBorder.none,
-                                        contentPadding: EdgeInsets.all(15),
-                                        suffixIcon: IconButton(
-                                          icon: Icon(Icons.send),
-                                          iconSize: 20,
-                                          color: Colors.teal[800],
-                                          splashRadius: 20,
-                                          onPressed: _textEditingController
-                                                  .text.isEmpty
-                                              ? null
-                                              : sendMsg,
+                                        contentPadding: EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 20),
+                                        suffixIcon: Padding(
+                                          padding: const EdgeInsets.only(top: 5),
+                                          child: IconButton(
+                                            icon: Icon(Icons.send),
+                                            iconSize: 22,
+                                            color: Colors.teal[800],
+                                            splashRadius: 20,
+                                            onPressed: _textEditingController
+                                                    .text.isEmpty
+                                                ? null
+                                                : sendMsg,
+                                          ),
                                         ),
                                         hintText:
                                             "Send a message to everyone here",
-                                        hintStyle: TextStyle(fontSize: 13)),
+                                        hintStyle: TextStyle(fontSize: 13.5)),
                                   ),
                                 ),
                               ),
