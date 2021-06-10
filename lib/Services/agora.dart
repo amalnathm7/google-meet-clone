@@ -80,7 +80,6 @@ class Agora extends ChangeNotifier{
         if (state == ConnectionStateType.Disconnected) exitMeeting();
       },
       error: (errorCode) {
-        exitMeeting();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error : $errorCode"),
@@ -228,7 +227,6 @@ class Agora extends ChangeNotifier{
         );
       },
       error: (errorCode) {
-        exitMeeting();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error : $errorCode"),
@@ -285,6 +283,8 @@ class Agora extends ChangeNotifier{
         usersVidOff.removeAt(index);
         usersMuted.removeAt(index);
 
+        notifyListeners();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("$uid left this meeting"),
@@ -298,6 +298,7 @@ class Agora extends ChangeNotifier{
           state == AudioRemoteState.Stopped &&
               reason == AudioRemoteStateReason.RemoteMuted
         ]);
+        notifyListeners();
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
@@ -305,6 +306,7 @@ class Agora extends ChangeNotifier{
           state == VideoRemoteState.Stopped &&
               reason == VideoRemoteStateReason.RemoteMuted
         ]);
+        notifyListeners();
       },
     ));
 

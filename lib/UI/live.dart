@@ -39,7 +39,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     agora.addListener(() {
-      setState(() {});
+      setState(() {
+        if (_pin >= agora.userUIDs.length) _pin = -1;
+        if (_currentUserIndex >= agora.userUIDs.length) _currentUserIndex = 0;
+      });
     });
     singleTap();
     _tabController = TabController(length: 3, vsync: this);
@@ -484,41 +487,50 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 viewInsets.bottom) *
                             .45,
                     width: MediaQuery.of(context).size.width,
-                    child: agora
-                            .usersVidOff[_pin != -1 ? _pin : _currentUserIndex]
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: 50,
-                              ),
-                              ClipRRect(
-                                child: Image.network(
-                                  agora.userImages[
-                                      _pin != -1 ? _pin : _currentUserIndex],
-                                  height: 80,
-                                ),
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                agora.userNames[
-                                    _pin != -1 ? _pin : _currentUserIndex],
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: _userNameClr,
-                                ),
+                    child: agora.usersVidOff.length > _pin &&
+                            agora.usersVidOff.length > _currentUserIndex
+                        ? agora.usersVidOff[
+                                _pin != -1 ? _pin : _currentUserIndex]
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 50,
+                                  ),
+                                  ClipRRect(
+                                    child: Image.network(
+                                      agora.userImages[_pin != -1
+                                          ? _pin
+                                          : _currentUserIndex],
+                                      height: 80,
+                                    ),
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  Text(
+                                    agora.userNames[
+                                        _pin != -1 ? _pin : _currentUserIndex],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: _userNameClr,
+                                    ),
+                                  )
+                                ],
                               )
-                            ],
-                          )
-                        : _currentUserIndex == 0
-                            ? RtcLocalView.SurfaceView()
-                            : RtcRemoteView.SurfaceView(
-                                uid: int.parse(agora.userUIDs[
-                                    _pin != -1 ? _pin : _currentUserIndex]),
-                              )),
+                            : _currentUserIndex == 0
+                                ? RtcLocalView.SurfaceView()
+                                : agora.userUIDs.length > _pin &&
+                                        agora.userUIDs.length >
+                                            _currentUserIndex
+                                    ? RtcRemoteView.SurfaceView(
+                                        uid: int.parse(agora.userUIDs[_pin != -1
+                                            ? _pin
+                                            : _currentUserIndex]),
+                                      )
+                                    : SizedBox()
+                        : SizedBox()),
                 Positioned(
                   top: 40,
                   right: 0,
