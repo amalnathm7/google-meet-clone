@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,8 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/live.dart';
+import 'package:intl/intl.dart';
 
-class Agora extends ChangeNotifier{
+class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IACacGfDSmh56pMVHCq9WTyFe982K+teDvkoxPonI18IPs7T9ukAAAAAEADGEkMQvE3CYAEAAQC9TcJg";
@@ -26,6 +28,7 @@ class Agora extends ChangeNotifier{
   final _user = FirebaseAuth.instance.currentUser;
   String code = "meet";
   DocumentSnapshot document;
+  Timer _timer;
 
   createChannel(BuildContext context, HomeState homeState) async {
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -138,6 +141,44 @@ class Agora extends ChangeNotifier{
             duration: Duration(milliseconds: 1000),
           ),
         );
+      },
+      streamMessage: (uid, streamId, data) {
+        if (_timer != null && _timer.isActive) {
+          messageUsers.setAll(
+              0, [userNames.elementAt(userUIDs.indexOf(uid.toString()))]);
+          messageTime.setAll(0, ["Now"]);
+          messages.setAll(0, [messages[0] + "\n\n" + data]);
+          notifyListeners();
+        } else {
+          messageUsers.insert(
+              0, userNames.elementAt(userUIDs.indexOf(uid.toString())));
+          messageTime.insert(0, "Now");
+          messages.insert(0, data);
+          notifyListeners();
+        }
+
+        var length = messageTime.length;
+        var time = DateFormat('hh:mm a').format(DateTime.now());
+
+        _timer = Timer(Duration(seconds: 45), () {});
+
+        Timer(Duration(minutes: 1), () {
+          if (!_timer.isActive) {
+            messageTime.setAll(messageTime.length - length, ["1 min"]);
+            notifyListeners();
+            for (int i = 1; i <= 29; i++) {
+              Timer(Duration(minutes: i), () {
+                messageTime.setAll(
+                    messageTime.length - length, [(i + 1).toString() + " min"]);
+                notifyListeners();
+              });
+            }
+            Timer(Duration(minutes: 30), () {
+              messageTime.setAll(messageTime.length - length, [time]);
+              notifyListeners();
+            });
+          }
+        });
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
@@ -292,6 +333,44 @@ class Agora extends ChangeNotifier{
           ),
         );
       },
+      streamMessage: (uid, streamId, data) {
+        if (_timer != null && _timer.isActive) {
+          messageUsers.setAll(
+              0, [userNames.elementAt(userUIDs.indexOf(uid.toString()))]);
+          messageTime.setAll(0, ["Now"]);
+          messages.setAll(0, [messages[0] + "\n\n" + data]);
+          notifyListeners();
+        } else {
+          messageUsers.insert(
+              0, userNames.elementAt(userUIDs.indexOf(uid.toString())));
+          messageTime.insert(0, "Now");
+          messages.insert(0, data);
+          notifyListeners();
+        }
+
+        var length = messageTime.length;
+        var time = DateFormat('hh:mm a').format(DateTime.now());
+
+        _timer = Timer(Duration(seconds: 45), () {});
+
+        Timer(Duration(minutes: 1), () {
+          if (!_timer.isActive) {
+            messageTime.setAll(messageTime.length - length, ["1 min"]);
+            notifyListeners();
+            for (int i = 1; i <= 29; i++) {
+              Timer(Duration(minutes: i), () {
+                messageTime.setAll(
+                    messageTime.length - length, [(i + 1).toString() + " min"]);
+                notifyListeners();
+              });
+            }
+            Timer(Duration(minutes: 30), () {
+              messageTime.setAll(messageTime.length - length, [time]);
+              notifyListeners();
+            });
+          }
+        });
+      },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid.toString());
         usersMuted.setAll(index, [
@@ -329,16 +408,8 @@ class Agora extends ChangeNotifier{
   }
 
   sendMessage(String msg, String code) async {
-    await _db
-        .collection("meetings")
-        .doc(code)
-        .collection("messages")
-        .doc("messages")
-        .update({
-      DateTime.now().toString().substring(0, 19) +
-          ":" +
-          DateTime.now().millisecond.toString(): {_user.displayName: msg}
-    });
+    int streamId = await engine.createDataStream(true, true);
+    engine.sendStreamMessage(streamId, msg);
   }
 
   exitMeeting() async {
