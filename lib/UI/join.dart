@@ -194,7 +194,7 @@ class JoinState extends State<Join> {
   }
 
   void askToJoin() async {
-    await _agora.joinExistingChannel(context, code);
+    await _agora.askToJoin(context, code);
   }
 
   @override

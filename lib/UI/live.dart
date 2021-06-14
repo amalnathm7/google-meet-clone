@@ -145,7 +145,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
-    _showDialog();
   }
 
   void _video() {
@@ -518,8 +517,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _share() {
-    Share.share("Join my meeting using the code: " + agora.code);
+  void _share() async {
+    await Share.share("Join my meeting using the code: " +
+        agora.code +
+        "\n\nApp link: https://");
   }
 
   @override

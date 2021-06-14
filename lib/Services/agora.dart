@@ -13,7 +13,6 @@ class Agora extends ChangeNotifier {
   final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IAD2Sal1ygzO3dYILPZ/g4poo4jBnt09KddVTIrJ8hHWlM7T9ukAAAAAEAAUVcyAfqTIYAEAAQAmV8hg";
   RtcEngine engine;
-  String uid;
   List<String> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
   List<String> userNames = [
@@ -24,7 +23,7 @@ class Agora extends ChangeNotifier {
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
-  final _db = FirebaseFirestore.instance;
+  FirebaseFirestore _db = FirebaseFirestore.instance;
   final _user = FirebaseAuth.instance.currentUser;
   String code = "meet";
   DocumentSnapshot document;
@@ -55,8 +54,6 @@ class Agora extends ChangeNotifier {
         await engine.muteLocalAudioStream(HomeState.isMuted);
         await engine.muteLocalVideoStream(HomeState.isVidOff);
 
-        this.uid = uid.toString();
-
         await createMeetingInDB();
 
         userUIDs.add(uid.toString());
@@ -76,6 +73,57 @@ class Agora extends ChangeNotifier {
           ),
         );
         homeState.stopLoading();
+
+        _db
+            .collection("meetings")
+            .doc(code)
+            .collection("users")
+            .snapshots()
+            .listen((event) {
+          if (userNames.length != userUIDs.length) {
+            List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+            list.forEach((element) {
+              DocumentSnapshot<Map<String, dynamic>> doc = element.doc;
+              Map<String, dynamic> map = doc.data();
+              print(map['name']);
+              userNames.add(map['name']);
+              userImages.add(map['image_url']);
+            });
+            notifyListeners();
+          }
+        });
+
+        _db
+            .collection("meetings")
+            .doc(code)
+            .collection("requests")
+            .snapshots()
+            .listen((event) {
+          List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+          list.forEach((element) {
+            DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
+            Map<String, dynamic> map = snapshot.data();
+            if (!map['isAccepted'])
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              _db
+                                  .collection("meetings")
+                                  .doc(code)
+                                  .collection("requests")
+                                  .doc(snapshot.id)
+                                  .set({'isAccepted': true});
+                            },
+                            child: Text("ALLOW"))
+                      ],
+                    );
+                  });
+          });
+        });
       },
       connectionLost: () {
         exitMeeting();
@@ -101,20 +149,6 @@ class Agora extends ChangeNotifier {
 
           notifyListeners();
         }
-
-        FirebaseFirestore.instance
-            .collection("meetings")
-            .doc(code)
-            .collection("users")
-            .doc(uid.toString())
-            .snapshots()
-            .listen((event) {
-          if (userNames.length != userUIDs.length) {
-            userNames.add(event.get('name'));
-            userImages.add(event.get('image_url'));
-            notifyListeners();
-          }
-        });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -213,6 +247,8 @@ class Agora extends ChangeNotifier {
   }
 
   createMeetingInDB() async {
+    await _db.collection("meetings").doc(code).delete();
+
     await _db.collection("meetings").doc(code).set({
       'host': _user.uid,
       'token':
@@ -223,7 +259,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(uid)
+        .doc(_user.uid)
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
@@ -246,13 +282,12 @@ class Agora extends ChangeNotifier {
         await engine.muteLocalVideoStream(HomeState.isVidOff);
 
         this.code = channel;
-        this.uid = uid.toString();
 
         await joinMeetingInDB(channel);
 
-        userUIDs.insert(0, uid.toString());
-        usersMuted.insert(0, HomeState.isMuted);
-        usersVidOff.insert(0, HomeState.isVidOff);
+        userUIDs.add(uid.toString());
+        usersMuted.add(HomeState.isMuted);
+        usersVidOff.add(HomeState.isVidOff);
         notifyListeners();
 
         Navigator.pushReplacement(
@@ -268,6 +303,61 @@ class Agora extends ChangeNotifier {
             duration: Duration(milliseconds: 1000),
           ),
         );
+
+        _db
+            .collection("meetings")
+            .doc(code)
+            .collection("users")
+            .snapshots()
+            .listen((event) {
+          if (userNames.length != userUIDs.length) {
+            List<DocumentChange<Map<String, String>>> list = event.docChanges;
+            list.forEach((element) {
+              DocumentSnapshot<Map<String, String>> doc = element.doc;
+              Map<String, String> map = doc.data();
+              userNames.add(map['name']);
+              userImages.add(map['image_url']);
+            });
+            notifyListeners();
+          }
+        });
+
+        DocumentSnapshot<Map<String, dynamic>> snap =
+            await _db.collection("meetings").doc(code).get();
+        Map<String, dynamic> map = snap.data();
+
+        if (map['host'] == _user.uid)
+          _db
+              .collection("meetings")
+              .doc(code)
+              .collection("requests")
+              .snapshots()
+              .listen((event) {
+            List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+            list.forEach((element) {
+              DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
+              Map<String, dynamic> map = snapshot.data();
+              if (!map['isAccepted'])
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                _db
+                                    .collection("meetings")
+                                    .doc(code)
+                                    .collection("requests")
+                                    .doc(snapshot.id)
+                                    .set({'isAccepted': true});
+                              },
+                              child: Text("ALLOW"))
+                        ],
+                      );
+                    });
+            });
+          });
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -292,20 +382,6 @@ class Agora extends ChangeNotifier {
 
           notifyListeners();
         }
-
-        FirebaseFirestore.instance
-            .collection("meetings")
-            .doc(code)
-            .collection("users")
-            .doc(uid.toString())
-            .snapshots()
-            .listen((event) {
-          if (userNames.length != userUIDs.length) {
-            userNames.add(event.get('name'));
-            userImages.add(event.get('image_url'));
-            notifyListeners();
-          }
-        });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -396,8 +472,29 @@ class Agora extends ChangeNotifier {
 
     await engine.enableVideo();
     await engine.enableAudio();
+    await engine.enableLocalAudio(!HomeState.isMuted);
+    await engine.enableLocalVideo(!HomeState.isVidOff);
 
     await engine.joinChannel(_token, channel, null, 0);
+  }
+
+  askToJoin(BuildContext context, String code) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection('requests')
+        .doc(_user.uid)
+        .set({'isAccepted': false});
+
+    _db
+        .collection("meetings")
+        .doc(code)
+        .collection('requests')
+        .doc(_user.uid)
+        .snapshots()
+        .listen((event) {
+      if (event.get('isAccepted')) joinExistingChannel(context, code);
+    });
   }
 
   joinMeetingInDB(String code) async {
@@ -405,7 +502,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(uid)
+        .doc(_user.uid)
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
@@ -418,11 +515,11 @@ class Agora extends ChangeNotifier {
   }
 
   exitMeeting() async {
-    await FirebaseFirestore.instance
+    await _db
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(uid)
+        .doc(_user.uid)
         .delete();
 
     _timer?.cancel();
@@ -434,5 +531,6 @@ class Agora extends ChangeNotifier {
     messages = [];
     messageUsers = [];
     messageTime = [];
+    _db = FirebaseFirestore.instance;
   }
 }
