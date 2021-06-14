@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IACCUKLO/MQekUfkJlAhD8WWIwJ30mBgyjAuCVTRug0xus7T9ukAAAAAEADIUmqkfGPDYAEAAQB8Y8Ng";
+      "0066d4aa2fdccfd43438c4c811d12f16141IAD2Sal1ygzO3dYILPZ/g4poo4jBnt09KddVTIrJ8hHWlM7T9ukAAAAAEAAUVcyAfqTIYAEAAQAmV8hg";
   RtcEngine engine;
   String uid;
   List<String> userUIDs = [];
@@ -79,11 +79,9 @@ class Agora extends ChangeNotifier {
       },
       connectionLost: () {
         exitMeeting();
-        homeState.stopLoading();
       },
       connectionStateChanged: (state, reason) {
         if (state == ConnectionStateType.Disconnected) exitMeeting();
-        homeState.stopLoading();
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(

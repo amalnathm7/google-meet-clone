@@ -570,7 +570,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                   bottom: _bottom,
                   left: (MediaQuery.of(context).size.width - 215) / 2,
                   curve: Curves.easeInOut,
-                  duration: Duration(milliseconds: 200),
+                  duration: Duration(milliseconds: 250),
                   child: Column(
                     children: [
                       Row(
