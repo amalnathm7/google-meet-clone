@@ -53,14 +53,56 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         }
       });
     });
-    _showDialog();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showDialog());
   }
 
   _showDialog() {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog();
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8)
+            ),
+            contentPadding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 10),
+            title: Text(
+              "Share this to invite others",
+            ),
+            titleTextStyle: TextStyle(
+                color: Colors.black87, fontSize: 18, letterSpacing: 0.3, fontFamily: 'Product Sans'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Share this info with people that you want to meet with. "
+                      "Make sure that you save it somewhere if you plan to meet later.",
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700]
+                  ),
+                ),
+                SizedBox(height: 25,),
+                Text("Meeting code : " + agora.code, style: TextStyle(
+                  fontSize: 14
+                ),),
+                TextButton.icon(
+                  onPressed: _share,
+                  icon: Icon(
+                    Icons.share_outlined,
+                    color: Colors.teal[700],
+                  ),
+                  style: ButtonStyle(
+                      overlayColor: MaterialStateProperty.all(Colors.teal[50])),
+                  label: Text(
+                    "Share",
+                    style: TextStyle(color: Colors.teal[700]),
+                  ),
+                ),
+              ],
+            ),
+          );
         });
   }
 
@@ -97,6 +139,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       textColor: Colors.white,
       backgroundColor: Colors.transparent,
     );
+    _showDialog();
   }
 
   void _video() {
@@ -135,9 +178,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       });
   }
 
-  void _doubleTap() {
-    //agora.engine.setCameraZoomFactor(20);
-  }
+  void _doubleTap() {}
 
   void _speaker() {
     agora.engine.muteAllRemoteAudioStreams(false);
@@ -687,7 +728,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                           indicatorColor: Colors.teal[700],
                           indicatorWeight: 3,
                           indicatorSize: TabBarIndicatorSize.label,
-                          overlayColor: MaterialStateProperty.all(Colors.teal[100]),
+                          overlayColor:
+                              MaterialStateProperty.all(Colors.teal[100]),
                           tabs: [
                             Tab(
                               child: Row(
@@ -1056,7 +1098,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               Padding(
                                 padding: const EdgeInsets.only(left: 15),
                                 child: Text(
-                                  "meet.google.com/" + agora.code,
+                                  "Meeting code : " + agora.code,
                                   style: TextStyle(
                                     fontSize: 16,
                                   ),
