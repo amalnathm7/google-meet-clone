@@ -206,6 +206,8 @@ class Agora extends ChangeNotifier {
 
     await engine.enableVideo();
     await engine.enableAudio();
+    await engine.enableLocalVideo(!HomeState.isVidOff);
+    await engine.enableLocalAudio(!HomeState.isMuted);
 
     await engine.joinChannel(_token, channel, null, 0);
   }

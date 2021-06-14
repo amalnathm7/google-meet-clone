@@ -25,7 +25,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   var _opacity = 0.0;
   var _bottom = -60.0;
   var _capPressed = false;
-  var _userNameClr = Colors.white;
   var _currentIndex = 0;
   var _currentUserIndex = 0;
   var _pin = -1;
@@ -111,12 +110,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       if (_opacity == 0) {
         _opacity = 1;
         _bottom = 20;
-        _userNameClr = Colors.transparent;
         _timer = Timer(Duration(seconds: 5), btnFade);
       } else {
         _opacity = 0;
         _bottom = -60;
-        _userNameClr = Colors.white;
       }
     });
   }
@@ -126,7 +123,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       setState(() {
         _opacity = 0;
         _bottom = -60;
-        _userNameClr = Colors.white;
       });
   }
 
@@ -512,14 +508,19 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   SizedBox(
                                     height: 20,
                                   ),
-                                  Text(
-                                    agora.userNames[
-                                        _pin != -1 ? _pin : _currentUserIndex],
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: _userNameClr,
+                                  AnimatedOpacity(
+                                    opacity: 1 - _opacity,
+                                    duration: Duration(milliseconds: 300),
+                                    child: Text(
+                                      agora.userNames[_pin != -1
+                                          ? _pin
+                                          : _currentUserIndex],
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  )
+                                  ),
                                 ],
                               )
                             : _currentUserIndex == 0
@@ -538,7 +539,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                   top: 40,
                   right: 0,
                   child: AnimatedOpacity(
-                    curve: Curves.easeInOut,
+                    curve: Curves.easeIn,
                     opacity: _opacity,
                     duration: Duration(milliseconds: 300),
                     child: Container(
@@ -572,7 +573,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                   bottom: _bottom,
                   left: (MediaQuery.of(context).size.width - 215) / 2,
                   curve: Curves.easeInOut,
-                  duration: Duration(milliseconds: 250),
+                  duration: Duration(milliseconds: 300),
                   child: Column(
                     children: [
                       Row(
