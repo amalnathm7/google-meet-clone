@@ -194,6 +194,14 @@ class Agora extends ChangeNotifier {
         ]);
         notifyListeners();
       },
+      localAudioStateChanged: (state, error) {
+        usersMuted.setAll(0, [state == AudioLocalState.Stopped]);
+        notifyListeners();
+      },
+      localVideoStateChanged: (state, error) {
+        usersVidOff.setAll(0, [state == LocalVideoStreamState.Stopped]);
+        notifyListeners();
+      },
     ));
 
     await engine.enableVideo();
@@ -372,6 +380,14 @@ class Agora extends ChangeNotifier {
           state == VideoRemoteState.Stopped &&
               reason == VideoRemoteStateReason.RemoteMuted
         ]);
+        notifyListeners();
+      },
+      localAudioStateChanged: (state, error) {
+        usersMuted.setAll(0, [state == AudioLocalState.Stopped]);
+        notifyListeners();
+      },
+      localVideoStateChanged: (state, error) {
+        usersVidOff.setAll(0, [state == LocalVideoStreamState.Stopped]);
         notifyListeners();
       },
     ));
