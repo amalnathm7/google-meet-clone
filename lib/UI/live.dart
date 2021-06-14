@@ -130,7 +130,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       });
   }
 
-  void doubleTap() {}
+  void doubleTap() {
+    //agora.engine.setCameraZoomFactor(20);
+  }
 
   void speaker() {
     agora.engine.muteAllRemoteAudioStreams(false);
