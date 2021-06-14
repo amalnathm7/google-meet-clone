@@ -39,6 +39,7 @@ dependencies:
   camera: ^0.8.1
   headset_event: ^0.0.2
   agora_rtc_engine: ^3.3.3
+  share_plus: ^2.1.2
 
 # Do not upgrade Agora since it doesn't work properly in higher versions (>3.3.3)
 

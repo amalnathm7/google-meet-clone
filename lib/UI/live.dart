@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/UI/home.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -56,56 +57,6 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) => _showDialog());
   }
 
-  _showDialog() {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8)
-            ),
-            contentPadding: EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 10),
-            title: Text(
-              "Share this to invite others",
-            ),
-            titleTextStyle: TextStyle(
-                color: Colors.black87, fontSize: 18, letterSpacing: 0.3, fontFamily: 'Product Sans'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Share this info with people that you want to meet with. "
-                      "Make sure that you save it somewhere if you plan to meet later.",
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700]
-                  ),
-                ),
-                SizedBox(height: 25,),
-                Text("Meeting code : " + agora.code, style: TextStyle(
-                  fontSize: 14
-                ),),
-                TextButton.icon(
-                  onPressed: _share,
-                  icon: Icon(
-                    Icons.share_outlined,
-                    color: Colors.teal[700],
-                  ),
-                  style: ButtonStyle(
-                      overlayColor: MaterialStateProperty.all(Colors.teal[50])),
-                  label: Text(
-                    "Share",
-                    style: TextStyle(color: Colors.teal[700]),
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
-  }
-
   @override
   void dispose() {
     _timer.cancel();
@@ -124,6 +75,61 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       if (_currentUserIndex >= agora.userUIDs.length) _currentUserIndex = 0;
       if (_currentIndex == 1) agora.msgCount = 0;
     });
+  }
+
+  _showDialog() {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding:
+                EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 10),
+            title: Text(
+              "Share this to invite others",
+            ),
+            titleTextStyle: TextStyle(
+                color: Colors.black87,
+                fontSize: 18,
+                letterSpacing: 0.3,
+                fontFamily: 'Product Sans'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Share this info with people that you want to meet with. "
+                  "Make sure that you save it somewhere if you plan to meet later.",
+                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Text(
+                  "Meeting code: " + agora.code,
+                  style: TextStyle(fontSize: 14),
+                ),
+                TextButton.icon(
+                  onPressed: _share,
+                  icon: Icon(
+                    Icons.share_outlined,
+                    color: Colors.teal[700],
+                  ),
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all(
+                          EdgeInsets.only(left: 3, right: 3)),
+                      overlayColor: MaterialStateProperty.all(Colors.teal[50])),
+                  label: Text(
+                    "Share",
+                    style: TextStyle(color: Colors.teal[700]),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
   }
 
   void _mic() {
@@ -512,7 +518,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _share() {}
+  void _share() {
+    Share.share("Join my meeting using the code: " + agora.code);
+  }
 
   @override
   Widget build(BuildContext context) {
