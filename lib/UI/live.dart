@@ -38,7 +38,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     agora.addListener(_callback);
-    singleTap();
+    _singleTap();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.animation.addListener(() {
       setState(() {
@@ -53,6 +53,15 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         }
       });
     });
+    _showDialog();
+  }
+
+  _showDialog() {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog();
+        });
   }
 
   @override
@@ -75,7 +84,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     });
   }
 
-  void mic() {
+  void _mic() {
     setState(() {
       HomeState.isMuted = !HomeState.isMuted;
       agora.usersMuted.setAll(0, [HomeState.isMuted]);
@@ -90,7 +99,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     );
   }
 
-  void video() {
+  void _video() {
     setState(() {
       HomeState.isVidOff = !HomeState.isVidOff;
       agora.usersVidOff.setAll(0, [HomeState.isVidOff]);
@@ -98,19 +107,19 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     agora.engine.muteLocalVideoStream(HomeState.isVidOff);
   }
 
-  void end() async {
+  void _end() async {
     agora.exitMeeting();
     await agora.engine.leaveChannel();
     Navigator.pop(context);
   }
 
-  void singleTap() {
+  void _singleTap() {
     _timer.cancel();
     setState(() {
       if (_opacity == 0) {
         _opacity = 1;
         _bottom = 20;
-        _timer = Timer(Duration(seconds: 5), btnFade);
+        _timer = Timer(Duration(seconds: 5), _btnFade);
       } else {
         _opacity = 0;
         _bottom = -60;
@@ -118,7 +127,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     });
   }
 
-  void btnFade() {
+  void _btnFade() {
     if (_opacity != 0)
       setState(() {
         _opacity = 0;
@@ -126,11 +135,11 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       });
   }
 
-  void doubleTap() {
+  void _doubleTap() {
     //agora.engine.setCameraZoomFactor(20);
   }
 
-  void speaker() {
+  void _speaker() {
     agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
       HomeState.clr1 = Colors.teal[700];
@@ -141,7 +150,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     Navigator.pop(context);
   }
 
-  void phone() {
+  void _phone() {
     agora.engine.muteAllRemoteAudioStreams(false);
     setState(() {
       HomeState.clr2 = Colors.teal[700];
@@ -154,7 +163,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     Navigator.pop(context);
   }
 
-  void audioOff() {
+  void _audioOff() {
     agora.engine.muteAllRemoteAudioStreams(true);
     setState(() {
       HomeState.clr3 = Colors.teal[700];
@@ -165,7 +174,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     Navigator.pop(context);
   }
 
-  void vol() {
+  void _vol() {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -177,7 +186,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 height: 8,
               ),
               ListTile(
-                onTap: speaker,
+                onTap: _speaker,
                 dense: true,
                 leading: Icon(
                   Icons.volume_up_outlined,
@@ -196,7 +205,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
               ),
               ListTile(
-                onTap: phone,
+                onTap: _phone,
                 dense: true,
                 leading: Icon(
                   HomeState.isHeadphoneConnected
@@ -217,7 +226,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
               ),
               ListTile(
-                onTap: audioOff,
+                onTap: _audioOff,
                 dense: true,
                 leading: Icon(
                   Icons.volume_off_outlined,
@@ -260,7 +269,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         });
   }
 
-  void captions() {
+  void _captions() {
     setState(() {
       _capPressed = !_capPressed;
     });
@@ -273,34 +282,34 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       );
   }
 
-  void switchCamera() {
+  void _switchCamera() {
     Navigator.pop(context);
     agora.engine.switchCamera();
   }
 
-  void present() {
+  void _present() {
     Navigator.pop(context);
   }
 
-  void reportProblem() async {
+  void _reportProblem() async {
     Navigator.pop(context);
     const _url = 'mailto:amalnathm7@gmail.com?subject=Feedback';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
   }
 
-  void reportAbuse() async {
+  void _reportAbuse() async {
     Navigator.pop(context);
     const _url = 'https://support.google.com/meet/contact/abuse';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
   }
 
-  void help() async {
+  void _help() async {
     Navigator.pop(context);
     const _url = 'https://support.google.com';
     await canLaunch(_url) ? await launch(_url) : throw "Could not launch $_url";
   }
 
-  void moreOptions() {
+  void _moreOptions() {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -309,7 +318,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                onTap: switchCamera,
+                onTap: _switchCamera,
                 horizontalTitleGap: 3,
                 leading: Icon(
                   Icons.flip_camera_android,
@@ -326,7 +335,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
               ListTile(
                 onTap: () {
                   Navigator.pop(context);
-                  captions();
+                  _captions();
                 },
                 horizontalTitleGap: 3,
                 leading: Icon(
@@ -342,7 +351,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
               ),
               ListTile(
-                onTap: present,
+                onTap: _present,
                 horizontalTitleGap: 3,
                 leading: Icon(
                   Icons.present_to_all,
@@ -357,7 +366,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
               ),
               ListTile(
-                onTap: reportProblem,
+                onTap: _reportProblem,
                 horizontalTitleGap: 3,
                 leading: Icon(
                   Icons.announcement_outlined,
@@ -372,7 +381,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
               ),
               ListTile(
-                onTap: reportAbuse,
+                onTap: _reportAbuse,
                 horizontalTitleGap: 3,
                 leading: Icon(
                   Icons.report_gmailerrorred_outlined,
@@ -387,7 +396,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                 ),
               ),
               ListTile(
-                onTap: help,
+                onTap: _help,
                 horizontalTitleGap: 3,
                 leading: Icon(
                   Icons.help_outline,
@@ -423,7 +432,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
         });
   }
 
-  void sendMsg() {
+  void _sendMsg() {
     agora.sendMessage(_textEditingController.text, agora.code);
 
     if (_timer2 != null && _timer2.isActive && agora.messageUsers[0] == "You") {
@@ -462,7 +471,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void share() {}
+  void _share() {}
 
   @override
   Widget build(BuildContext context) {
@@ -474,8 +483,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       body: Column(
         children: [
           GestureDetector(
-            onTap: singleTap,
-            onDoubleTap: doubleTap,
+            onTap: _singleTap,
+            onDoubleTap: _doubleTap,
             child: Stack(
               children: [
                 Container(
@@ -547,7 +556,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                         children: [
                           IconButton(
                             icon: Icon(HomeState.soundIcon),
-                            onPressed: _opacity == 0 ? null : vol,
+                            onPressed: _opacity == 0 ? null : _vol,
                             color: Colors.white,
                             highlightColor: Colors.white10,
                             splashRadius: 25,
@@ -556,12 +565,12 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                             icon: Icon(_capPressed
                                 ? Icons.closed_caption
                                 : Icons.closed_caption_off),
-                            onPressed: _opacity == 0 ? null : captions,
+                            onPressed: _opacity == 0 ? null : _captions,
                             color: Colors.white,
                           ),
                           IconButton(
                             icon: Icon(Icons.more_horiz),
-                            onPressed: _opacity == 0 ? null : moreOptions,
+                            onPressed: _opacity == 0 ? null : _moreOptions,
                             color: Colors.white,
                           )
                         ],
@@ -598,7 +607,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               icon: Icon(HomeState.isMuted
                                   ? Icons.mic_off_outlined
                                   : Icons.mic_none_outlined),
-                              onPressed: mic,
+                              onPressed: _mic,
                               color: Colors.white,
                             ),
                           ),
@@ -619,7 +628,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               splashRadius: 25,
                               splashColor: Colors.transparent,
                               icon: Icon(Icons.call_end),
-                              onPressed: end,
+                              onPressed: _end,
                               color: Colors.red,
                             ),
                           ),
@@ -645,7 +654,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                               icon: Icon(HomeState.isVidOff
                                   ? Icons.videocam_off_outlined
                                   : Icons.videocam_outlined),
-                              onPressed: video,
+                              onPressed: _video,
                               color: Colors.white,
                             ),
                           )
@@ -675,9 +684,10 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                         color: Colors.white,
                         child: TabBar(
                           controller: _tabController,
-                          indicatorColor: Colors.teal[800],
+                          indicatorColor: Colors.teal[700],
                           indicatorWeight: 3,
                           indicatorSize: TabBarIndicatorSize.label,
+                          overlayColor: MaterialStateProperty.all(Colors.teal[100]),
                           tabs: [
                             Tab(
                               child: Row(
@@ -688,8 +698,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         ? Icons.people_alt
                                         : Icons.people_alt_outlined,
                                     color: _currentIndex == 0
-                                        ? Colors.teal[800]
-                                        : Colors.grey[400],
+                                        ? Colors.teal[700]
+                                        : Colors.grey[700],
                                   ),
                                   Text(
                                     ' (' +
@@ -697,52 +707,59 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         ')',
                                     style: TextStyle(
                                       color: _currentIndex == 0
-                                          ? Colors.teal[800]
-                                          : Colors.grey[400],
+                                          ? Colors.teal[700]
+                                          : Colors.grey[700],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                             Tab(
-                              child: Stack(
-                                children: [
-                                  Center(
-                                    child: Icon(
-                                      _currentIndex == 1
-                                          ? Icons.messenger_outlined
-                                          : Icons.message_outlined,
-                                      color: _currentIndex == 1
-                                          ? Colors.teal[800]
-                                          : Colors.grey[400],
+                              child: Container(
+                                height: 30,
+                                width: 30,
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                      child: Icon(
+                                        _currentIndex == 1
+                                            ? Icons.messenger_outlined
+                                            : Icons.message_outlined,
+                                        color: _currentIndex == 1
+                                            ? Colors.teal[700]
+                                            : Colors.grey[700],
+                                      ),
                                     ),
-                                  ),
-                                  agora.msgCount == 0
-                                      ? SizedBox()
-                                      : Positioned(
-                                          right: 30,
-                                          top: 5,
-                                          child: Container(
-                                            height: 20,
-                                            width: 20,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              color: Colors.teal[800],
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                agora.msgCount > 99
-                                                    ? "99+"
-                                                    : agora.msgCount.toString(),
-                                                style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: Colors.white),
+                                    agora.msgCount == 0
+                                        ? SizedBox()
+                                        : Positioned(
+                                            right: 30,
+                                            top: 5,
+                                            child: Container(
+                                              height: 18,
+                                              width: 18,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                color: Colors.teal[800],
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  agora.msgCount > 99
+                                                      ? "99+"
+                                                      : agora.msgCount
+                                                          .toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: Colors.white),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )
-                                ],
+                                          )
+                                  ],
+                                ),
                               ),
                             ),
                             Tab(
@@ -751,8 +768,8 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                     ? Icons.info
                                     : Icons.info_outline,
                                 color: _currentIndex == 2
-                                    ? Colors.teal[800]
-                                    : Colors.grey[400],
+                                    ? Colors.teal[700]
+                                    : Colors.grey[700],
                               ),
                             ),
                           ],
@@ -965,6 +982,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   decoration: BoxDecoration(
                                       border: Border(
                                           top: BorderSide(
+                                              width: 1.25,
                                               color: Colors.grey[300]))),
                                   child: TextField(
                                     controller: _textEditingController,
@@ -997,7 +1015,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                             onPressed: _textEditingController
                                                     .text.isEmpty
                                                 ? null
-                                                : sendMsg,
+                                                : _sendMsg,
                                           ),
                                         ),
                                         hintText:
@@ -1018,7 +1036,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                   agora.code,
                                   style: TextStyle(
                                     fontFamily: 'Product Sans',
-                                    fontSize: 22,
+                                    fontSize: 24,
                                   ),
                                 ),
                               ),
@@ -1028,8 +1046,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 child: Text(
                                   "Joining info",
                                   style: TextStyle(
+                                    color: Colors.grey[800],
                                     fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.5,
+                                    letterSpacing: -0.1,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -1039,28 +1058,30 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 child: Text(
                                   "meet.google.com/" + agora.code,
                                   style: TextStyle(
-                                    letterSpacing: -0.3,
-                                    fontSize: 15,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),
-                              TextButton.icon(
-                                onPressed: share,
-                                icon: Icon(
-                                  Icons.share_outlined,
-                                  color: Colors.teal[700],
-                                ),
-                                style: ButtonStyle(
-                                    overlayColor: MaterialStateProperty.all(
-                                        Colors.teal[50])),
-                                label: Text(
-                                  "Share",
-                                  style: TextStyle(color: Colors.teal[700]),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5, top: 3),
+                                child: TextButton.icon(
+                                  onPressed: _share,
+                                  icon: Icon(
+                                    Icons.share_outlined,
+                                    color: Colors.teal[700],
+                                  ),
+                                  style: ButtonStyle(
+                                      overlayColor: MaterialStateProperty.all(
+                                          Colors.teal[50])),
+                                  label: Text(
+                                    "Share",
+                                    style: TextStyle(color: Colors.teal[700]),
+                                  ),
                                 ),
                               ),
                               Divider(
-                                color: Colors.grey,
-                                thickness: 0.25,
+                                color: Colors.grey[300],
+                                thickness: 1.25,
                                 indent: 15,
                                 height: 0,
                               ),
@@ -1070,9 +1091,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 child: Text(
                                   "Attachments (0)",
                                   style: TextStyle(
+                                    color: Colors.grey[800],
                                     fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.5,
-                                    fontSize: 15,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),
@@ -1081,7 +1102,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                 child: Text(
                                   "Google Calendar attachments will be shown here",
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     color: Colors.grey[700],
                                   ),
                                 ),
