@@ -79,9 +79,11 @@ class Agora extends ChangeNotifier {
       },
       connectionLost: () {
         exitMeeting();
+        homeState.stopLoading();
       },
       connectionStateChanged: (state, reason) {
         if (state == ConnectionStateType.Disconnected) exitMeeting();
+        homeState.stopLoading();
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +92,7 @@ class Agora extends ChangeNotifier {
             duration: Duration(milliseconds: 1000),
           ),
         );
+        homeState.stopLoading();
       },
       userJoined: (uid, elapsed) async {
         int index = userUIDs.indexOf(uid.toString());

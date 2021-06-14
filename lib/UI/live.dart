@@ -570,7 +570,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                   bottom: _bottom,
                   left: (MediaQuery.of(context).size.width - 215) / 2,
                   curve: Curves.easeInOut,
-                  duration: Duration(milliseconds: 300),
+                  duration: Duration(milliseconds: 200),
                   child: Column(
                     children: [
                       Row(
@@ -579,7 +579,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                           AnimatedContainer(
                             height: 55,
                             width: 55,
-                            duration: Duration(milliseconds: 300),
+                            duration: Duration(milliseconds: 200),
                             decoration: BoxDecoration(
                                 color: HomeState.isMuted
                                     ? Colors.red[800]
@@ -626,7 +626,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                           AnimatedContainer(
                             height: 55,
                             width: 55,
-                            duration: Duration(milliseconds: 300),
+                            duration: Duration(milliseconds: 200),
                             decoration: BoxDecoration(
                                 color: HomeState.isVidOff
                                     ? Colors.red[800]
