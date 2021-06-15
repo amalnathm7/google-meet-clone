@@ -20,7 +20,8 @@ class Live extends StatefulWidget {
   }
 }
 
-class LiveState extends State<Live> with TickerProviderStateMixin {
+class LiveState extends State<Live>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   LiveState({this.agora});
 
   var _opacity = 0.0;
@@ -55,6 +56,7 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
       });
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => _showDialog());
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -66,7 +68,19 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
     agora.removeListener(_callback);
     agora.exitMeeting();
     agora.engine.destroy();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _video();
+    } else if (state == AppLifecycleState.resumed) {
+      _video();
+      _singleTap();
+    }
+    super.didChangeAppLifecycleState(state);
   }
 
   void _callback() {

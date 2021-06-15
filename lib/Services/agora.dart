@@ -87,8 +87,7 @@ class Agora extends ChangeNotifier {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
             doc.forEach((element) {
-              if(element.id == snap.id)
-                present = true;
+              if (element.id == snap.id) present = true;
             });
             if (!present) {
               int index = userImages.indexOf(map['image_url']);
@@ -311,8 +310,7 @@ class Agora extends ChangeNotifier {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
             doc.forEach((element) {
-              if(element.id == snap.id)
-                present = true;
+              if (element.id == snap.id) present = true;
             });
             if (!present) {
               int index = userImages.indexOf(map['image_url']);
