@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAAXCzxMS7hDdmRJ3RgV90jIsNuvzXQzKm3b174hnCdoQs7T9ukAAAAAEAARnS3HdarJYAEAAQB1qslg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IAAkeO9uiJ6FA4nfKreDMUm3GcSv0tFt0XqkvnHSQYsPPc7T9ukAAAAAEAARnS3HIC3KYAEAAQAgLcpg";
   RtcEngine engine;
   List<int> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
@@ -94,11 +94,13 @@ class Agora extends ChangeNotifier {
               if (element.id == snap.id) present = true;
             });
             if (!present) {
-              int index = userImages.indexOf(map['image_url']);
-              userNames.remove(map['name']);
-              userImages.remove(map['image_url']);
-              usersMuted.removeAt(index);
-              usersVidOff.removeAt(index);
+              if (map['image_url'] != _user.photoURL) {
+                int index = userImages.indexOf(map['image_url']);
+                userNames.remove(map['name']);
+                userImages.remove(map['image_url']);
+                usersMuted.removeAt(index);
+                usersVidOff.removeAt(index);
+              }
             } else if (snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
@@ -377,11 +379,13 @@ class Agora extends ChangeNotifier {
               if (element.id == snap.id) present = true;
             });
             if (!present) {
-              int index = userImages.indexOf(map['image_url']);
-              userNames.remove(map['name']);
-              userImages.remove(map['image_url']);
-              usersMuted.removeAt(index);
-              usersVidOff.removeAt(index);
+              if (map['image_url'] != _user.photoURL) {
+                int index = userImages.indexOf(map['image_url']);
+                userNames.remove(map['name']);
+                userImages.remove(map['image_url']);
+                usersMuted.removeAt(index);
+                usersVidOff.removeAt(index);
+              }
             } else if (snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
@@ -658,13 +662,16 @@ class Agora extends ChangeNotifier {
 
     _timer?.cancel();
     userUIDs = [];
-    userImages = [FirebaseAuth.instance.currentUser.photoURL];
-    userNames = [FirebaseAuth.instance.currentUser.displayName + ' (You)'];
+    userNames = [_user.displayName + ' (You)'];
+    userImages = [_user.photoURL];
     usersMuted = [];
     usersVidOff = [];
     messages = [];
     messageUsers = [];
     messageTime = [];
+    _db.terminate();
     _db = FirebaseFirestore.instance;
+    HomeState.isVidOff = true;
+    notifyListeners();
   }
 }
