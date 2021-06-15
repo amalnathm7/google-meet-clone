@@ -24,6 +24,7 @@ class Agora extends ChangeNotifier {
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
+  List<String> usersHere = [];
   FirebaseFirestore _db = FirebaseFirestore.instance;
   final _user = FirebaseAuth.instance.currentUser;
   String code = "meet";
@@ -32,6 +33,7 @@ class Agora extends ChangeNotifier {
   int msgCount = 0;
   bool askingToJoin = false;
   bool isHost = false;
+  bool isAlreadyAccepted = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
     isHost = true;
@@ -85,15 +87,10 @@ class Agora extends ChangeNotifier {
             .snapshots()
             .listen((event) {
           List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> doc = event.docs;
-          bool present = false;
           list.forEach((element) {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
-            doc.forEach((element) {
-              if (element.id == snap.id) present = true;
-            });
-            if (!present) {
+            if (element.type == DocumentChangeType.removed) {
               if (map['image_url'] != _user.photoURL) {
                 int index = userImages.indexOf(map['image_url']);
                 userNames.remove(map['name']);
@@ -116,18 +113,10 @@ class Agora extends ChangeNotifier {
             .snapshots()
             .listen((event) {
           List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> doc = event.docs;
-
-          bool present = false;
-
           list.forEach((element) {
             DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
             if (snapshot.exists) {
-              doc.forEach((element) {
-                if (element.id == snapshot.id) present = true;
-              });
-
-              if (present) {
+              if (element.type != DocumentChangeType.removed) {
                 Map<String, dynamic> map = snapshot.data();
                 if (!map['isAccepted'])
                   showDialog(
@@ -327,6 +316,33 @@ class Agora extends ChangeNotifier {
 
   Future<bool> ifMeetingExists(String code) async {
     document = await _db.collection("meetings").doc(code).get();
+
+    DocumentSnapshot<Map<String, dynamic>> request = await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("requests")
+        .doc(_user.uid)
+        .get();
+    if (request.exists && request.get('isAccepted')) {
+      isAlreadyAccepted = true;
+      _db
+          .collection("meetings")
+          .doc(code)
+          .collection("users")
+          .snapshots()
+          .listen((event) {
+        List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+        list.forEach((element) {
+          DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
+          if(element.type == DocumentChangeType.removed)
+            usersHere.remove(snap.get('name'));
+          else
+            usersHere.add(snap.get('name'));
+        });
+        notifyListeners();
+      });
+    }
+
     if (document.exists) return true;
     return false;
   }
@@ -370,15 +386,10 @@ class Agora extends ChangeNotifier {
             .snapshots()
             .listen((event) {
           List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-          List<QueryDocumentSnapshot<Map<String, dynamic>>> doc = event.docs;
-          bool present = false;
           list.forEach((element) {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
-            doc.forEach((element) {
-              if (element.id == snap.id) present = true;
-            });
-            if (!present) {
+            if (element.type == DocumentChangeType.removed) {
               if (map['image_url'] != _user.photoURL) {
                 int index = userImages.indexOf(map['image_url']);
                 userNames.remove(map['name']);
@@ -406,18 +417,10 @@ class Agora extends ChangeNotifier {
               .snapshots()
               .listen((event) {
             List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-            List<QueryDocumentSnapshot<Map<String, dynamic>>> doc = event.docs;
-
-            bool present = false;
-
             list.forEach((element) {
               DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
               if (snapshot.exists) {
-                doc.forEach((element) {
-                  if (element.id == snapshot.id) present = true;
-                });
-
-                if (present) {
+                if (element.type != DocumentChangeType.removed) {
                   Map<String, dynamic> map = snapshot.data();
                   if (!map['isAccepted'])
                     showDialog(
@@ -425,8 +428,6 @@ class Agora extends ChangeNotifier {
                         builder: (context) {
                           return AlertDialog(
                             content: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(30),
@@ -434,6 +435,9 @@ class Agora extends ChangeNotifier {
                                       height: 40,
                                       width: 40,
                                       child: Image.network(map['image_url'])),
+                                ),
+                                SizedBox(
+                                  width: 20,
                                 ),
                                 Container(
                                   width: 200,
@@ -479,8 +483,8 @@ class Agora extends ChangeNotifier {
                                   child: Text(
                                     "Admit",
                                     style: TextStyle(
-                                        color: Colors.teal[800],
                                         fontSize: 14,
+                                        color: Colors.teal[800],
                                         fontFamily: 'Product Sans'),
                                   )),
                             ],

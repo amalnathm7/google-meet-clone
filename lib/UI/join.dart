@@ -205,6 +205,12 @@ class JoinState extends State<Join> {
     Navigator.pop(context);
   }
 
+  void join() async {
+    await _agora.joinExistingChannel(context, code);
+  }
+
+  void present() async {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -372,26 +378,74 @@ class JoinState extends State<Join> {
                           style: TextStyle(color: Colors.black, fontSize: 18),
                         ),
                       ),
-                      ElevatedButton(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10, right: 10),
-                          child: Text(
-                            "Ask to join",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Product Sans',
-                              fontSize: 16,
+                      _agora.isAlreadyAccepted
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                MaterialButton(
+                                  animationDuration: Duration(milliseconds: 0),
+                                  color: Colors.teal[800],
+                                  textColor: Colors.white,
+                                  elevation: 0,
+                                  child: Text(
+                                    "Join meeting",
+                                    style: TextStyle(
+                                      fontFamily: 'Product Sans',
+                                    ),
+                                  ),
+                                  splashColor: Colors.transparent,
+                                  disabledColor: Colors.grey,
+                                  onPressed: join,
+                                  padding: EdgeInsets.only(left: 25, right: 25),
+                                  shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: Colors.grey[300], width: 1),
+                                      borderRadius: BorderRadius.circular(3)),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                MaterialButton(
+                                  animationDuration: Duration(milliseconds: 0),
+                                  elevation: 0,
+                                  textColor: Colors.teal[800],
+                                  child: Text(
+                                    "Present",
+                                    style: TextStyle(
+                                      fontFamily: 'Product Sans',
+                                    ),
+                                  ),
+                                  splashColor: Colors.transparent,
+                                  onPressed: present,
+                                  padding: EdgeInsets.only(left: 25, right: 25),
+                                  shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: Colors.grey[300], width: 1),
+                                      borderRadius: BorderRadius.circular(3)),
+                                ),
+                              ],
+                            )
+                          : ElevatedButton(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Text(
+                                  "Ask to join",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Product Sans',
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              onPressed: askToJoin,
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0,
+                                primary: Colors.teal[800],
+                                onPrimary: Colors.teal[800],
+                                shadowColor: Colors.transparent,
+                              ),
                             ),
-                          ),
-                        ),
-                        onPressed: askToJoin,
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          primary: Colors.teal[800],
-                          onPrimary: Colors.teal[800],
-                          shadowColor: Colors.transparent,
-                        ),
-                      ),
                       SizedBox(
                         height: 10,
                       ),
