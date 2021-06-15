@@ -588,9 +588,9 @@ class LiveState extends State<Live> with TickerProviderStateMixin {
                                         agora.userUIDs.length >
                                             _currentUserIndex
                                     ? RtcRemoteView.SurfaceView(
-                                        uid: int.parse(agora.userUIDs[_pin != -1
+                                        uid: agora.userUIDs[_pin != -1
                                             ? _pin
-                                            : _currentUserIndex]),
+                                            : _currentUserIndex],
                                       )
                                     : SizedBox()
                         : SizedBox()),
