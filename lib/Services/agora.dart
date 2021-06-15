@@ -235,8 +235,9 @@ class Agora extends ChangeNotifier {
 
     await engine.enableVideo();
     await engine.enableAudio();
-    await engine.enableLocalVideo(!HomeState.isVidOff);
-    await engine.enableLocalAudio(!HomeState.isMuted);
+
+    await engine.muteLocalVideoStream(HomeState.isVidOff);
+    await engine.muteLocalAudioStream(HomeState.isMuted);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
@@ -461,8 +462,9 @@ class Agora extends ChangeNotifier {
 
     await engine.enableVideo();
     await engine.enableAudio();
-    await engine.enableLocalAudio(!HomeState.isMuted);
-    await engine.enableLocalVideo(!HomeState.isVidOff);
+
+    await engine.muteLocalVideoStream(HomeState.isVidOff);
+    await engine.muteLocalAudioStream(HomeState.isMuted);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
