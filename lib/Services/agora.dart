@@ -172,7 +172,7 @@ class Agora extends ChangeNotifier {
                                   "Deny entry",
                                   style: TextStyle(
                                       color: Colors.teal[800],
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       fontFamily: 'Product Sans'),
                                 )),
                             TextButton(
@@ -188,7 +188,7 @@ class Agora extends ChangeNotifier {
                                 child: Text(
                                   "Admit",
                                   style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       color: Colors.teal[800],
                                       fontFamily: 'Product Sans'),
                                 )),
@@ -460,7 +460,7 @@ class Agora extends ChangeNotifier {
                                     "Deny entry",
                                     style: TextStyle(
                                         color: Colors.teal[800],
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontFamily: 'Product Sans'),
                                   )),
                               TextButton(
@@ -477,7 +477,7 @@ class Agora extends ChangeNotifier {
                                     "Admit",
                                     style: TextStyle(
                                         color: Colors.teal[800],
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontFamily: 'Product Sans'),
                                   )),
                             ],
@@ -616,7 +616,7 @@ class Agora extends ChangeNotifier {
           msg: "Someone in the meeting denied your request to join",
           gravity: ToastGravity.BOTTOM,
           textColor: Colors.white,
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.grey[800],
         );
       } else if (event.get('isAccepted')) joinExistingChannel(context, code);
     });
