@@ -102,8 +102,26 @@ class LiveState extends State<Live>
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding:
                 EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 10),
-            title: Text(
-              "Share this to invite others",
+            titlePadding: EdgeInsets.only(left: 24, right: 10, top: 24),
+            title: Row(
+              children: [
+                Text(
+                  "Share this to invite others",
+                ),
+                SizedBox(
+                  width: 40,
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(
+                    Icons.close,
+                    color: Colors.grey[700],
+                  ),
+                  splashRadius: 20,
+                ),
+              ],
             ),
             titleTextStyle: TextStyle(
                 color: Colors.black87,
