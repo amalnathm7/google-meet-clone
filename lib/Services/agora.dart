@@ -60,9 +60,9 @@ class Agora extends ChangeNotifier {
 
         await createMeetingInDB();
 
-        userUIDs.add(uid);
-        usersMuted.add(HomeState.isMuted);
-        usersVidOff.add(HomeState.isVidOff);
+        userUIDs.insert(0, uid);
+        usersMuted.insert(0, HomeState.isMuted);
+        usersVidOff.insert(0, HomeState.isVidOff);
 
         Navigator.push(
             context,
@@ -425,6 +425,8 @@ class Agora extends ChangeNotifier {
                         builder: (context) {
                           return AlertDialog(
                             content: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(30),
@@ -432,9 +434,6 @@ class Agora extends ChangeNotifier {
                                       height: 40,
                                       width: 40,
                                       child: Image.network(map['image_url'])),
-                                ),
-                                SizedBox(
-                                  width: 20,
                                 ),
                                 Container(
                                   width: 200,

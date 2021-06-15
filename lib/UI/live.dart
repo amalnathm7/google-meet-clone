@@ -104,12 +104,11 @@ class LiveState extends State<Live>
                 EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 10),
             titlePadding: EdgeInsets.only(left: 24, right: 10, top: 24),
             title: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Share this to invite others",
-                ),
-                SizedBox(
-                  width: 40,
                 ),
                 IconButton(
                   onPressed: () {
