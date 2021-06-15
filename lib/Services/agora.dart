@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAD2Sal1ygzO3dYILPZ/g4poo4jBnt09KddVTIrJ8hHWlM7T9ukAAAAAEAAUVcyAfqTIYAEAAQAmV8hg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IAAXCzxMS7hDdmRJ3RgV90jIsNuvzXQzKm3b174hnCdoQs7T9ukAAAAAEAARnS3HdarJYAEAAQB1qslg";
   RtcEngine engine;
   List<int> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
