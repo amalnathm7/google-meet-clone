@@ -194,7 +194,15 @@ class JoinState extends State<Join> {
   }
 
   void askToJoin() async {
+    setState(() {
+      _agora.askingToJoin = true;
+    });
     await _agora.askToJoin(context, code);
+  }
+
+  void cancel() async {
+    await _agora.cancelAskToJoin(code);
+    Navigator.pop(context);
   }
 
   @override
@@ -243,7 +251,8 @@ class JoinState extends State<Join> {
                         ? _controller.value.isInitialized
                             ? Container(
                                 width: MediaQuery.of(context).size.width,
-                                height: MediaQuery.of(context).size.height - 160,
+                                height:
+                                    MediaQuery.of(context).size.height - 160,
                                 child: CameraPreview(_controller),
                               )
                             : SizedBox()
@@ -320,62 +329,95 @@ class JoinState extends State<Join> {
             color: Colors.white,
             height: 160,
             width: MediaQuery.of(context).size.width,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Text(
-                    code,
-                    style: TextStyle(color: Colors.black, fontSize: 18),
-                  ),
-                ),
-                ElevatedButton(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
-                    child: Text(
-                      "Ask to join",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Product Sans',
-                        fontSize: 16,
+            child: _agora.askingToJoin
+                ? Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text(
+                          "Asking to join...",
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        ),
                       ),
-                    ),
-                  ),
-                  onPressed: askToJoin,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    primary: Colors.teal[800],
-                    onPrimary: Colors.teal[800],
-                    shadowColor: Colors.transparent,
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "Joining as",
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _user != null
-                        ? ClipRRect(
-                            child: Image.network(
-                              _user.photoURL,
-                              height: 20,
+                      Text("You'll join the meeting when someone lets you in"),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      MaterialButton(
+                        animationDuration: Duration(milliseconds: 0),
+                        elevation: 0,
+                        textColor: Colors.teal[800],
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            fontFamily: 'Product Sans',
+                          ),
+                        ),
+                        splashColor: Colors.transparent,
+                        onPressed: cancel,
+                        padding: EdgeInsets.only(left: 20, right: 20),
+                        shape: RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.grey[300], width: 1),
+                            borderRadius: BorderRadius.circular(3)),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Text(
+                          code,
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        ),
+                      ),
+                      ElevatedButton(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: Text(
+                            "Ask to join",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Product Sans',
+                              fontSize: 16,
                             ),
-                            borderRadius: BorderRadius.circular(50),
-                          )
-                        : SizedBox(),
-                    Text("  " + _user?.email)
-                  ],
-                )
-              ],
-            ),
+                          ),
+                        ),
+                        onPressed: askToJoin,
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          primary: Colors.teal[800],
+                          onPrimary: Colors.teal[800],
+                          shadowColor: Colors.transparent,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Joining as",
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _user != null
+                              ? ClipRRect(
+                                  child: Image.network(
+                                    _user.photoURL,
+                                    height: 20,
+                                  ),
+                                  borderRadius: BorderRadius.circular(50),
+                                )
+                              : SizedBox(),
+                          Text("  " + _user?.email)
+                        ],
+                      )
+                    ],
+                  ),
           )
         ],
       ),

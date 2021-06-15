@@ -55,7 +55,9 @@ class LiveState extends State<Live>
         }
       });
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _showDialog());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (agora.isHost) _showDialog();
+    });
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -170,9 +172,9 @@ class LiveState extends State<Live>
   }
 
   void _end() async {
-    agora.exitMeeting();
     await agora.engine.leaveChannel();
     Navigator.pop(context);
+    await agora.exitMeeting();
   }
 
   void _singleTap() {

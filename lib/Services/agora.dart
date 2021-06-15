@@ -4,6 +4,7 @@ import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/UI/home.dart';
 import 'package:gmeet/UI/live.dart';
 import 'package:intl/intl.dart';
@@ -29,8 +30,11 @@ class Agora extends ChangeNotifier {
   DocumentSnapshot document;
   Timer _timer;
   int msgCount = 0;
+  bool askingToJoin = false;
+  bool isHost = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
+    isHost = true;
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
     //Random _rnd = Random.secure();
     /*code = String.fromCharCodes(Iterable.generate(
@@ -110,30 +114,90 @@ class Agora extends ChangeNotifier {
             .snapshots()
             .listen((event) {
           List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+          List<QueryDocumentSnapshot<Map<String, dynamic>>> doc = event.docs;
+
+          bool present = false;
+
           list.forEach((element) {
             DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
             if (snapshot.exists) {
-              Map<String, dynamic> map = snapshot.data();
-              if (!map['isAccepted'])
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        actions: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                _db
-                                    .collection("meetings")
-                                    .doc(code)
-                                    .collection("requests")
-                                    .doc(snapshot.id)
-                                    .set({'isAccepted': true});
-                              },
-                              child: Text("ALLOW"))
-                        ],
-                      );
-                    });
+              doc.forEach((element) {
+                if (element.id == snapshot.id) present = true;
+              });
+
+              if (present) {
+                Map<String, dynamic> map = snapshot.data();
+                if (!map['isAccepted'])
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    child: Image.network(map['image_url'])),
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Container(
+                                width: 200,
+                                child: Text(
+                                  "Someone called " +
+                                      map['name'] +
+                                      " wants to join this meeting",
+                                  style: TextStyle(fontSize: 16),
+                                  overflow: TextOverflow.clip,
+                                ),
+                              ),
+                            ],
+                          ),
+                          contentPadding: EdgeInsets.only(
+                              left: 24, right: 24, top: 10, bottom: 10),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  _db
+                                      .collection("meetings")
+                                      .doc(code)
+                                      .collection("requests")
+                                      .doc(snapshot.id)
+                                      .delete();
+                                },
+                                child: Text(
+                                  "Deny entry",
+                                  style: TextStyle(
+                                      color: Colors.teal[800],
+                                      fontSize: 16,
+                                      fontFamily: 'Product Sans'),
+                                )),
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _db
+                                      .collection("meetings")
+                                      .doc(code)
+                                      .collection("requests")
+                                      .doc(snapshot.id)
+                                      .set({'isAccepted': true});
+                                },
+                                child: Text(
+                                  "Admit",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.teal[800],
+                                      fontFamily: 'Product Sans'),
+                                )),
+                          ],
+                        );
+                      });
+              } else {
+                Navigator.pop(context);
+              }
             }
           });
         });
@@ -338,30 +402,90 @@ class Agora extends ChangeNotifier {
               .snapshots()
               .listen((event) {
             List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+            List<QueryDocumentSnapshot<Map<String, dynamic>>> doc = event.docs;
+
+            bool present = false;
+
             list.forEach((element) {
               DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
               if (snapshot.exists) {
-                Map<String, dynamic> map = snapshot.data();
-                if (!map['isAccepted'])
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          actions: [
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  _db
-                                      .collection("meetings")
-                                      .doc(code)
-                                      .collection("requests")
-                                      .doc(snapshot.id)
-                                      .set({'isAccepted': true});
-                                },
-                                child: Text("ALLOW"))
-                          ],
-                        );
-                      });
+                doc.forEach((element) {
+                  if (element.id == snapshot.id) present = true;
+                });
+
+                if (present) {
+                  Map<String, dynamic> map = snapshot.data();
+                  if (!map['isAccepted'])
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(30),
+                                  child: Container(
+                                      height: 40,
+                                      width: 40,
+                                      child: Image.network(map['image_url'])),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Container(
+                                  width: 200,
+                                  child: Text(
+                                    "Someone called " +
+                                        map['name'] +
+                                        " wants to join this meeting",
+                                    style: TextStyle(fontSize: 16),
+                                    overflow: TextOverflow.clip,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            contentPadding: EdgeInsets.only(
+                                left: 24, right: 24, top: 10, bottom: 10),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    _db
+                                        .collection("meetings")
+                                        .doc(code)
+                                        .collection("requests")
+                                        .doc(snapshot.id)
+                                        .delete();
+                                  },
+                                  child: Text(
+                                    "Deny entry",
+                                    style: TextStyle(
+                                        color: Colors.teal[800],
+                                        fontSize: 16,
+                                        fontFamily: 'Product Sans'),
+                                  )),
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _db
+                                        .collection("meetings")
+                                        .doc(code)
+                                        .collection("requests")
+                                        .doc(snapshot.id)
+                                        .set({'isAccepted': true});
+                                  },
+                                  child: Text(
+                                    "Admit",
+                                    style: TextStyle(
+                                        color: Colors.teal[800],
+                                        fontSize: 16,
+                                        fontFamily: 'Product Sans'),
+                                  )),
+                            ],
+                          );
+                        });
+                } else {
+                  Navigator.pop(context);
+                }
               }
             });
           });
@@ -473,7 +597,11 @@ class Agora extends ChangeNotifier {
         .doc(code)
         .collection('requests')
         .doc(_user.uid)
-        .set({'isAccepted': false});
+        .set({
+      'isAccepted': false,
+      'name': _user.displayName,
+      'image_url': _user.photoURL
+    });
 
     _db
         .collection("meetings")
@@ -482,8 +610,25 @@ class Agora extends ChangeNotifier {
         .doc(_user.uid)
         .snapshots()
         .listen((event) {
-      if (event.get('isAccepted')) joinExistingChannel(context, code);
+      if (!event.exists) {
+        Navigator.pop(context);
+        Fluttertoast.showToast(
+          msg: "Someone in the meeting denied your request to join",
+          gravity: ToastGravity.BOTTOM,
+          textColor: Colors.white,
+          backgroundColor: Colors.black,
+        );
+      } else if (event.get('isAccepted')) joinExistingChannel(context, code);
     });
+  }
+
+  cancelAskToJoin(String code) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection('requests')
+        .doc(_user.uid)
+        .delete();
   }
 
   joinMeetingInDB(String code) async {
