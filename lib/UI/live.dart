@@ -1,5 +1,6 @@
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
@@ -36,6 +37,7 @@ class LiveState extends State<Live>
   TabController _tabController;
   Agora agora;
   List<bool> msgSent = [];
+  StreamSubscription<ConnectivityResult> subscription;
 
   @override
   void initState() {
@@ -56,6 +58,19 @@ class LiveState extends State<Live>
         }
       });
     });
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+          if(result == ConnectivityResult.none) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("No Internet connection"),
+                duration: Duration(milliseconds: 1000),
+              ),
+            );
+          }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (agora.isHost) _showDialog();
     });
@@ -71,6 +86,7 @@ class LiveState extends State<Live>
     agora.removeListener(_callback);
     agora.exitMeeting();
     agora.engine.destroy();
+    subscription.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
