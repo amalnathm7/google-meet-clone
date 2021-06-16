@@ -609,14 +609,16 @@ class HomeState extends State<Home> {
                   ),
                 );
               _snack = false;
-              setState(() {
-                if (state.extent > MediaQuery.of(context).size.height / 1.5) {
-                  _sheet = true;
-                  _opacity = 0;
-                } else {
-                  _opacity = 1;
-                  _sheet = false;
-                }
+              WidgetsBinding.instance.addPostFrameCallback((_){
+                setState(() {
+                  if (state.extent > MediaQuery.of(context).size.height / 1.5) {
+                    _sheet = true;
+                    _opacity = 0;
+                  } else {
+                    _opacity = 1;
+                    _sheet = false;
+                  }
+                });
               });
               return true;
             }, builder: (context, state) {
