@@ -339,8 +339,8 @@ class Agora extends ChangeNotifier {
               usersHere.remove(snap.get('name'));
             else
               usersHere.add(snap.get('name'));
+            notifyListeners();
           });
-          notifyListeners();
         });
       }
       return true;

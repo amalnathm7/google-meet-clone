@@ -29,7 +29,12 @@ class JoinState extends State<Join> {
   @override
   void initState() {
     super.initState();
+    agora.addListener(_callback);
     camera();
+  }
+
+  void _callback() {
+    setState(() {});
   }
 
   void camera() async {
@@ -45,6 +50,7 @@ class JoinState extends State<Join> {
 
   @override
   void dispose() {
+    agora.removeListener(_callback);
     _controller?.dispose();
     super.dispose();
   }
@@ -405,11 +411,22 @@ class JoinState extends State<Join> {
                                           child: Text(
                                             agora.usersHere.isEmpty
                                                 ? "You're the first one here."
-                                                : agora.usersHere[0] +
-                                                    " and " +
-                                                    (agora.usersHere.length - 1)
-                                                        .toString() +
-                                                    "others are here.",
+                                                : agora.usersHere.length == 1
+                                                    ? agora.usersHere[0] +
+                                                        " is here."
+                                                    : agora.usersHere.length ==
+                                                            2
+                                                        ? agora.usersHere[0] +
+                                                            " and " +
+                                                            agora.usersHere[1] +
+                                                            " are here."
+                                                        : agora.usersHere[0] +
+                                                            " and " +
+                                                            (agora.usersHere
+                                                                        .length -
+                                                                    1)
+                                                                .toString() +
+                                                            " others are here.",
                                             textAlign: TextAlign.center,
                                             overflow: TextOverflow.clip,
                                           ),

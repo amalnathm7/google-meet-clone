@@ -800,8 +800,8 @@ class LiveState extends State<Live>
                             ),
                             Tab(
                               child: Container(
-                                height: 30,
-                                width: 30,
+                                height: agora.msgCount == 0 ? 30 : 50,
+                                width: agora.msgCount == 0 ? 30 : 50,
                                 child: Stack(
                                   children: [
                                     Center(
@@ -817,11 +817,13 @@ class LiveState extends State<Live>
                                     agora.msgCount == 0
                                         ? SizedBox()
                                         : Positioned(
-                                            right: 30,
+                                            right: 7,
                                             top: 5,
                                             child: Container(
-                                              height: 18,
-                                              width: 18,
+                                              height:
+                                                  agora.msgCount > 9 ? 18 : 16,
+                                              width:
+                                                  agora.msgCount > 9 ? 18 : 16,
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(10),
@@ -1041,10 +1043,10 @@ class LiveState extends State<Live>
                                                   Text(
                                                     agora.messageTime[index],
                                                     style: TextStyle(
-                                                      fontSize: 11,
+                                                      fontSize: 12,
                                                       color: Colors.grey[700],
                                                     ),
-                                                  )
+                                                  ),
                                                 ],
                                               ),
                                               SizedBox(
