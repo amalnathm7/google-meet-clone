@@ -535,7 +535,7 @@ class LiveState extends State<Live>
       msgSent[0] = true;
     });
 
-    if(agora.messageTime[0].isNotEmpty) {
+    if (agora.messageTime[0].isNotEmpty) {
       var length = agora.messageTime.length;
       var time = DateFormat('hh:mm a').format(DateTime.now());
       var i = 1;
@@ -1035,7 +1035,7 @@ class LiveState extends State<Live>
                                             children: [
                                               SizedBox(
                                                 height: agora.messageTime[index]
-                                                    .isEmpty
+                                                        .isEmpty
                                                     ? 0
                                                     : 20,
                                               ),
