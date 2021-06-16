@@ -34,7 +34,6 @@ class Agora extends ChangeNotifier {
   bool askingToJoin = false;
   bool isHost = false;
   bool isAlreadyAccepted = false;
-  bool msgSent = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
     isHost = true;
@@ -121,10 +120,9 @@ class Agora extends ChangeNotifier {
               if (_timer != null &&
                   _timer.isActive &&
                   messageUsers[0] == snap.get('name')) {
-                messageUsers.setAll(0, [snap.get('name')]);
-                messageTime.setAll(0, ["Now"]);
-                messages
-                    .setAll(0, [messages[0] + "\n\n" + snap.get('message')]);
+                messageUsers.insert(0, "");
+                messageTime.insert(0, "");
+                messages.insert(0, snap.get('message'));
               } else {
                 messageUsers.insert(0, snap.get('name'));
                 messageTime.insert(0, "Now");
@@ -134,23 +132,25 @@ class Agora extends ChangeNotifier {
               msgCount++;
               notifyListeners();
 
-              var length = messageTime.length;
-              var time = DateFormat('hh:mm a').format(DateTime.now());
-              int i = 1;
+              if(messageTime[0].isNotEmpty) {
+                var length = messageTime.length;
+                var time = DateFormat('hh:mm a').format(DateTime.now());
+                int i = 1;
 
-              _timer = Timer(Duration(seconds: 45), () {});
+                _timer = Timer(Duration(seconds: 45), () {});
 
-              Timer.periodic(Duration(minutes: 1), (timer) {
-                if (i == 31) {
-                  messageTime.setAll(messageTime.length - length, [time]);
-                  timer.cancel();
-                } else {
-                  messageTime.setAll(
-                      messageTime.length - length, [(i).toString() + " min"]);
-                  i++;
-                }
-                notifyListeners();
-              });
+                Timer.periodic(Duration(minutes: 1), (timer) {
+                  if (i == 31) {
+                    messageTime.setAll(messageTime.length - length, [time]);
+                    timer.cancel();
+                  } else {
+                    messageTime.setAll(
+                        messageTime.length - length, [(i).toString() + " min"]);
+                    i++;
+                  }
+                  notifyListeners();
+                });
+              }
             }
           });
         });
@@ -435,10 +435,9 @@ class Agora extends ChangeNotifier {
               if (_timer != null &&
                   _timer.isActive &&
                   messageUsers[0] == snap.get('name')) {
-                messageUsers.setAll(0, [snap.get('name')]);
-                messageTime.setAll(0, ["Now"]);
-                messages
-                    .setAll(0, [messages[0] + "\n\n" + snap.get('message')]);
+                messageUsers.insert(0, "");
+                messageTime.insert(0, "");
+                messages.insert(0, snap.get('message'));
               } else {
                 messageUsers.insert(0, snap.get('name'));
                 messageTime.insert(0, "Now");
@@ -448,23 +447,25 @@ class Agora extends ChangeNotifier {
               msgCount++;
               notifyListeners();
 
-              var length = messageTime.length;
-              var time = DateFormat('hh:mm a').format(DateTime.now());
-              int i = 1;
+              if(messageTime[0].isNotEmpty) {
+                var length = messageTime.length;
+                var time = DateFormat('hh:mm a').format(DateTime.now());
+                int i = 1;
 
-              _timer = Timer(Duration(seconds: 45), () {});
+                _timer = Timer(Duration(seconds: 45), () {});
 
-              Timer.periodic(Duration(minutes: 1), (timer) {
-                if (i == 31) {
-                  messageTime.setAll(messageTime.length - length, [time]);
-                  timer.cancel();
-                } else {
-                  messageTime.setAll(
-                      messageTime.length - length, [(i).toString() + " min"]);
-                  i++;
-                }
-                notifyListeners();
-              });
+                Timer.periodic(Duration(minutes: 1), (timer) {
+                  if (i == 31) {
+                    messageTime.setAll(messageTime.length - length, [time]);
+                    timer.cancel();
+                  } else {
+                    messageTime.setAll(
+                        messageTime.length - length, [(i).toString() + " min"]);
+                    i++;
+                  }
+                  notifyListeners();
+                });
+              }
             }
           });
         });

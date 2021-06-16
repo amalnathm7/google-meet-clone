@@ -35,6 +35,7 @@ class LiveState extends State<Live>
   Timer _timer2;
   TabController _tabController;
   Agora agora;
+  List<bool> msgSent = [];
 
   @override
   void initState() {
@@ -513,14 +514,13 @@ class LiveState extends State<Live>
 
   void _sendMsg() async {
     setState(() {
-      agora.msgSent = false;
+      msgSent.insert(0, false);
     });
 
     if (_timer2 != null && _timer2.isActive && agora.messageUsers[0] == "You") {
-      agora.messageUsers.setAll(0, ["You"]);
-      agora.messageTime.setAll(0, ["Now"]);
-      agora.messages.setAll(
-          0, [agora.messages[0] + "\n\n" + _textEditingController.text]);
+      agora.messageUsers.insert(0, "");
+      agora.messageTime.insert(0, "");
+      agora.messages.insert(0, _textEditingController.text);
     } else {
       agora.messageUsers.insert(0, "You");
       agora.messageTime.insert(0, "Now");
@@ -528,35 +528,36 @@ class LiveState extends State<Live>
     }
 
     _textEditingController.clear();
-    setState(() {});
 
     await agora.sendMessage(_textEditingController.text, agora.code);
 
     setState(() {
-      agora.msgSent = true;
+      msgSent[0] = true;
     });
 
-    var length = agora.messageTime.length;
-    var time = DateFormat('hh:mm a').format(DateTime.now());
-    var i = 1;
+    if(agora.messageTime[0].isNotEmpty) {
+      var length = agora.messageTime.length;
+      var time = DateFormat('hh:mm a').format(DateTime.now());
+      var i = 1;
 
-    _timer2 = Timer(Duration(seconds: 45), () {});
+      _timer2 = Timer(Duration(seconds: 45), () {});
 
-    Timer.periodic(Duration(minutes: 1), (timer) {
-      if (i == 31 && mounted) {
-        setState(() {
-          agora.messageTime.setAll(agora.messageTime.length - length, [time]);
-        });
-        timer.cancel();
-      } else if (mounted)
-        setState(() {
-          agora.messageTime.setAll(
-              agora.messageTime.length - length, [(i).toString() + " min"]);
-          i++;
-        });
-      else
-        timer.cancel();
-    });
+      Timer.periodic(Duration(minutes: 1), (timer) {
+        if (i == 31 && mounted) {
+          setState(() {
+            agora.messageTime.setAll(agora.messageTime.length - length, [time]);
+          });
+          timer.cancel();
+        } else if (mounted)
+          setState(() {
+            agora.messageTime.setAll(
+                agora.messageTime.length - length, [(i).toString() + " min"]);
+            i++;
+          });
+        else
+          timer.cancel();
+      });
+    }
   }
 
   void _share() async {
@@ -1033,35 +1034,57 @@ class LiveState extends State<Live>
                                                 CrossAxisAlignment.start,
                                             children: [
                                               SizedBox(
-                                                height: 20,
+                                                height: agora.messageTime[index]
+                                                    .isEmpty
+                                                    ? 0
+                                                    : 20,
                                               ),
                                               Row(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.end,
                                                 children: [
-                                                  Text(
-                                                    agora.messageUsers[index],
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                  agora.messageUsers[index]
+                                                          .isEmpty
+                                                      ? SizedBox()
+                                                      : Text(
+                                                          agora.messageUsers[
+                                                              index],
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
                                                   SizedBox(
-                                                    width: 8,
+                                                    width: agora
+                                                            .messageTime[index]
+                                                            .isEmpty
+                                                        ? 0
+                                                        : 8,
                                                   ),
-                                                  Text(
-                                                    agora.messageTime[index],
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[700],
-                                                    ),
-                                                  ),
+                                                  agora.messageTime[index]
+                                                          .isEmpty
+                                                      ? SizedBox()
+                                                      : Text(
+                                                          agora.messageTime[
+                                                              index],
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors
+                                                                .grey[700],
+                                                          ),
+                                                        ),
                                                 ],
                                               ),
                                               SizedBox(
                                                 height: 3,
                                               ),
-                                              Text(agora.messages[index]),
+                                              Text(
+                                                agora.messages[index],
+                                                style: TextStyle(
+                                                    color: msgSent[index]
+                                                        ? Colors.black
+                                                        : Colors.grey),
+                                              ),
                                               SizedBox(
                                                 height: 10,
                                               ),
