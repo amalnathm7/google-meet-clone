@@ -593,7 +593,7 @@ class HomeState extends State<Home> {
               _loading
                   ? Center(
                       child: CircularProgressIndicator(
-                        color: Colors.green[800],
+                        color: Colors.teal[800],
                       ),
                     )
                   : SizedBox(),

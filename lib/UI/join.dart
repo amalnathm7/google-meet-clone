@@ -6,23 +6,25 @@ import 'package:gmeet/Services/agora.dart';
 import 'package:gmeet/UI/home.dart';
 
 class Join extends StatefulWidget {
-  Join({this.code});
+  Join({this.code, this.agora});
 
   final String code;
+  final Agora agora;
 
   @override
   State<StatefulWidget> createState() {
-    return JoinState(code: code);
+    return JoinState(code: code, agora: agora);
   }
 }
 
 class JoinState extends State<Join> {
-  JoinState({this.code});
+  JoinState({this.code, this.agora});
 
   final String code;
+  final Agora agora;
   User _user = FirebaseAuth.instance.currentUser;
   CameraController _controller;
-  Agora _agora = Agora();
+  bool _loading = false;
 
   @override
   void initState() {
@@ -195,285 +197,339 @@ class JoinState extends State<Join> {
 
   void askToJoin() async {
     setState(() {
-      _agora.askingToJoin = true;
+      agora.askingToJoin = true;
     });
-    await _agora.askToJoin(context, code);
+    await agora.askToJoin(context, code);
   }
 
   void cancel() async {
-    await _agora.cancelAskToJoin(code);
+    await agora.cancelAskToJoin(code);
     Navigator.pop(context);
   }
 
   void join() async {
-    await _agora.joinExistingChannel(context, code);
+    setState(() {
+      _loading = true;
+    });
+    await agora.joinExistingChannel(context, code);
   }
 
   void present() async {}
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
+    return Opacity(
+      opacity: _loading ? 0.5 : 1,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        actions: <Widget>[
-          IconButton(
-            onPressed: btm,
-            splashRadius: 25,
-            splashColor: Colors.transparent,
-            icon: Icon(
-              HomeState.soundIcon,
-              color: Colors.white,
-            ),
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          automaticallyImplyLeading: false,
+          actions: <Widget>[
+            IconButton(
+              onPressed: btm,
+              splashRadius: 25,
+              splashColor: Colors.transparent,
+              icon: Icon(
+                HomeState.soundIcon,
+                color: Colors.white,
+              ),
+            )
+          ],
+        ),
+        body: Stack(
+          children: [
+            Column(
               children: [
-                HomeState.isVidOff
-                    ? _user != null
-                        ? Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height - 160,
-                            child: Center(
-                              child: ClipRRect(
-                                child: Image.network(
-                                  _user.photoURL,
-                                  height: 80,
-                                ),
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                            ),
-                          )
-                        : SizedBox()
-                    : _controller != null
-                        ? _controller.value.isInitialized
-                            ? Container(
-                                width: MediaQuery.of(context).size.width,
-                                height:
-                                    MediaQuery.of(context).size.height - 160,
-                                child: CameraPreview(_controller),
-                              )
-                            : SizedBox()
-                        : SizedBox(),
-                Positioned(
-                  bottom: 0,
-                  left: (MediaQuery.of(context).size.width - 150) / 2,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                Expanded(
+                  child: Stack(
                     children: [
-                      Row(
-                        children: [
-                          AnimatedContainer(
-                            height: 55,
-                            width: 55,
-                            duration: Duration(milliseconds: 300),
-                            decoration: BoxDecoration(
-                                color: HomeState.isMuted
-                                    ? Colors.red[800]
-                                    : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: HomeState.isMuted
-                                        ? Colors.transparent
-                                        : Colors.white)),
-                            child: IconButton(
-                              splashRadius: 25,
-                              splashColor: Colors.transparent,
-                              icon: Icon(HomeState.isMuted
-                                  ? Icons.mic_off_outlined
-                                  : Icons.mic_none_outlined),
-                              onPressed: mic,
-                              color: Colors.white,
+                      HomeState.isVidOff
+                          ? _user != null
+                              ? Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height:
+                                      MediaQuery.of(context).size.height - 160,
+                                  child: Center(
+                                    child: ClipRRect(
+                                      child: Image.network(
+                                        _user.photoURL,
+                                        height: 80,
+                                      ),
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                  ),
+                                )
+                              : SizedBox()
+                          : _controller != null
+                              ? _controller.value.isInitialized
+                                  ? Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      height:
+                                          MediaQuery.of(context).size.height -
+                                              160,
+                                      child: CameraPreview(_controller),
+                                    )
+                                  : SizedBox()
+                              : SizedBox(),
+                      Positioned(
+                        bottom: 0,
+                        left: (MediaQuery.of(context).size.width - 150) / 2,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                AnimatedContainer(
+                                  height: 55,
+                                  width: 55,
+                                  duration: Duration(milliseconds: 300),
+                                  decoration: BoxDecoration(
+                                      color: HomeState.isMuted
+                                          ? Colors.red[800]
+                                          : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: HomeState.isMuted
+                                              ? Colors.transparent
+                                              : Colors.white)),
+                                  child: IconButton(
+                                    splashRadius: 25,
+                                    splashColor: Colors.transparent,
+                                    icon: Icon(HomeState.isMuted
+                                        ? Icons.mic_off_outlined
+                                        : Icons.mic_none_outlined),
+                                    onPressed: mic,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 40,
+                                ),
+                                AnimatedContainer(
+                                  height: 55,
+                                  width: 55,
+                                  duration: Duration(milliseconds: 300),
+                                  decoration: BoxDecoration(
+                                      color: HomeState.isVidOff
+                                          ? Colors.red[800]
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(
+                                          color: HomeState.isVidOff
+                                              ? Colors.transparent
+                                              : Colors.white)),
+                                  child: IconButton(
+                                    splashRadius: 25,
+                                    splashColor: Colors.transparent,
+                                    icon: Icon(HomeState.isVidOff
+                                        ? Icons.videocam_off_outlined
+                                        : Icons.videocam_outlined),
+                                    onPressed: video,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              ],
                             ),
-                          ),
-                          SizedBox(
-                            width: 40,
-                          ),
-                          AnimatedContainer(
-                            height: 55,
-                            width: 55,
-                            duration: Duration(milliseconds: 300),
-                            decoration: BoxDecoration(
-                                color: HomeState.isVidOff
-                                    ? Colors.red[800]
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                    color: HomeState.isVidOff
-                                        ? Colors.transparent
-                                        : Colors.white)),
-                            child: IconButton(
-                              splashRadius: 25,
-                              splashColor: Colors.transparent,
-                              icon: Icon(HomeState.isVidOff
-                                  ? Icons.videocam_off_outlined
-                                  : Icons.videocam_outlined),
-                              onPressed: video,
-                              color: Colors.white,
+                            SizedBox(
+                              height: 15,
                             ),
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: 15,
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          Container(
-            color: Colors.white,
-            height: 160,
-            width: MediaQuery.of(context).size.width,
-            child: _agora.askingToJoin
-                ? Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Text(
-                          "Asking to join...",
-                          style: TextStyle(color: Colors.black, fontSize: 18),
-                        ),
-                      ),
-                      Text("You'll join the meeting when someone lets you in"),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      MaterialButton(
-                        animationDuration: Duration(milliseconds: 0),
-                        elevation: 0,
-                        textColor: Colors.teal[800],
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(
-                            fontFamily: 'Product Sans',
-                          ),
-                        ),
-                        splashColor: Colors.transparent,
-                        onPressed: cancel,
-                        padding: EdgeInsets.only(left: 20, right: 20),
-                        shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.grey[300], width: 1),
-                            borderRadius: BorderRadius.circular(3)),
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Text(
-                          code,
-                          style: TextStyle(color: Colors.black, fontSize: 18),
-                        ),
-                      ),
-                      _agora.isAlreadyAccepted
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                MaterialButton(
-                                  animationDuration: Duration(milliseconds: 0),
-                                  color: Colors.teal[800],
-                                  textColor: Colors.white,
-                                  elevation: 0,
-                                  child: Text(
-                                    "Join meeting",
-                                    style: TextStyle(
-                                      fontFamily: 'Product Sans',
-                                    ),
-                                  ),
-                                  splashColor: Colors.transparent,
-                                  disabledColor: Colors.grey,
-                                  onPressed: join,
-                                  padding: EdgeInsets.only(left: 25, right: 25),
-                                  shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                          color: Colors.grey[300], width: 1),
-                                      borderRadius: BorderRadius.circular(3)),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                MaterialButton(
-                                  animationDuration: Duration(milliseconds: 0),
-                                  elevation: 0,
-                                  textColor: Colors.teal[800],
-                                  child: Text(
-                                    "Present",
-                                    style: TextStyle(
-                                      fontFamily: 'Product Sans',
-                                    ),
-                                  ),
-                                  splashColor: Colors.transparent,
-                                  onPressed: present,
-                                  padding: EdgeInsets.only(left: 25, right: 25),
-                                  shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                          color: Colors.grey[300], width: 1),
-                                      borderRadius: BorderRadius.circular(3)),
-                                ),
-                              ],
-                            )
-                          : ElevatedButton(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 10, right: 10),
-                                child: Text(
-                                  "Ask to join",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'Product Sans',
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                              onPressed: askToJoin,
-                              style: ElevatedButton.styleFrom(
-                                elevation: 0,
-                                primary: Colors.teal[800],
-                                onPrimary: Colors.teal[800],
-                                shadowColor: Colors.transparent,
+                Container(
+                  color: Colors.white,
+                  height: agora.isAlreadyAccepted ? 180 : 160,
+                  width: MediaQuery.of(context).size.width,
+                  child: agora.askingToJoin
+                      ? Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text(
+                                "Asking to join...",
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18),
                               ),
                             ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Joining as",
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _user != null
-                              ? ClipRRect(
-                                  child: Image.network(
-                                    _user.photoURL,
-                                    height: 20,
+                            Text(
+                                "You'll join the meeting when someone lets you in"),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            MaterialButton(
+                              animationDuration: Duration(milliseconds: 0),
+                              elevation: 0,
+                              textColor: Colors.teal[800],
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  fontFamily: 'Product Sans',
+                                ),
+                              ),
+                              splashColor: Colors.transparent,
+                              onPressed: cancel,
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      color: Colors.grey[300], width: 1),
+                                  borderRadius: BorderRadius.circular(3)),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(15),
+                              child: Text(
+                                code,
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18),
+                              ),
+                            ),
+                            agora.isAlreadyAccepted
+                                ? Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10, right: 10),
+                                        child: Container(
+                                          width: 500,
+                                          height: 20,
+                                          child: Text(
+                                            agora.usersHere.isEmpty
+                                                ? "You're the first one here."
+                                                : agora.usersHere[0] +
+                                                    " and " +
+                                                    (agora.usersHere.length - 1)
+                                                        .toString() +
+                                                    "others are here.",
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.clip,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          MaterialButton(
+                                            animationDuration:
+                                                Duration(milliseconds: 0),
+                                            color: Colors.teal[800],
+                                            textColor: Colors.white,
+                                            elevation: 0,
+                                            child: Text(
+                                              "Join meeting",
+                                              style: TextStyle(
+                                                fontFamily: 'Product Sans',
+                                              ),
+                                            ),
+                                            splashColor: Colors.transparent,
+                                            onPressed: join,
+                                            padding: EdgeInsets.only(
+                                                left: 25, right: 25),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(3)),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          MaterialButton(
+                                            animationDuration:
+                                                Duration(milliseconds: 0),
+                                            elevation: 0,
+                                            textColor: Colors.teal[800],
+                                            child: Text(
+                                              "Present",
+                                              style: TextStyle(
+                                                fontFamily: 'Product Sans',
+                                              ),
+                                            ),
+                                            splashColor: Colors.transparent,
+                                            onPressed: present,
+                                            padding: EdgeInsets.only(
+                                                left: 25, right: 25),
+                                            shape: RoundedRectangleBorder(
+                                                side: BorderSide(
+                                                    color: Colors.grey[300],
+                                                    width: 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(3)),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                : ElevatedButton(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, right: 10),
+                                      child: Text(
+                                        "Ask to join",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Product Sans',
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: askToJoin,
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 0,
+                                      primary: Colors.teal[800],
+                                      onPrimary: Colors.teal[800],
+                                      shadowColor: Colors.transparent,
+                                    ),
                                   ),
-                                  borderRadius: BorderRadius.circular(50),
-                                )
-                              : SizedBox(),
-                          Text("  " + _user?.email)
-                        ],
-                      )
-                    ],
-                  ),
-          )
-        ],
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Joining as",
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _user != null
+                                    ? ClipRRect(
+                                        child: Image.network(
+                                          _user.photoURL,
+                                          height: 20,
+                                        ),
+                                        borderRadius: BorderRadius.circular(50),
+                                      )
+                                    : SizedBox(),
+                                Text("  " + _user?.email)
+                              ],
+                            )
+                          ],
+                        ),
+                )
+              ],
+            ),
+            _loading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.teal[800],
+                    ),
+                  )
+                : SizedBox(),
+          ],
+        ),
       ),
     );
   }

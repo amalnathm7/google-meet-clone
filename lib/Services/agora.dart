@@ -316,34 +316,35 @@ class Agora extends ChangeNotifier {
 
   Future<bool> ifMeetingExists(String code) async {
     document = await _db.collection("meetings").doc(code).get();
-
-    DocumentSnapshot<Map<String, dynamic>> request = await _db
-        .collection("meetings")
-        .doc(code)
-        .collection("requests")
-        .doc(_user.uid)
-        .get();
-    if (request.exists && request.get('isAccepted')) {
-      isAlreadyAccepted = true;
-      _db
+    if (document.exists) {
+      DocumentSnapshot<Map<String, dynamic>> request = await _db
           .collection("meetings")
           .doc(code)
-          .collection("users")
-          .snapshots()
-          .listen((event) {
-        List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-        list.forEach((element) {
-          DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
-          if(element.type == DocumentChangeType.removed)
-            usersHere.remove(snap.get('name'));
-          else
-            usersHere.add(snap.get('name'));
+          .collection("requests")
+          .doc(_user.uid)
+          .get();
+      if (document.get('host') == _user.uid ||
+          (request.exists && request.get('isAccepted'))) {
+        isAlreadyAccepted = true;
+        _db
+            .collection("meetings")
+            .doc(code)
+            .collection("users")
+            .snapshots()
+            .listen((event) {
+          List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+          list.forEach((element) {
+            DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
+            if (element.type == DocumentChangeType.removed)
+              usersHere.remove(snap.get('name'));
+            else
+              usersHere.add(snap.get('name'));
+          });
+          notifyListeners();
         });
-        notifyListeners();
-      });
+      }
+      return true;
     }
-
-    if (document.exists) return true;
     return false;
   }
 

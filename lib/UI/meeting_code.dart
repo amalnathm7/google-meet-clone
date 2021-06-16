@@ -15,17 +15,19 @@ class MeetingCodeState extends State<MeetingCode> {
   var _ifCodeEntered = false;
   var _validate = true;
   var _loading = false;
+  Agora agora = Agora();
 
   void join() async {
     setState(() {
       _loading = true;
     });
-    if (await Agora().ifMeetingExists(_controller.text))
+    if (await agora.ifMeetingExists(_controller.text))
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => Join(
                     code: _controller.text,
+                    agora: agora,
                   )));
     else {
       setState(() {
@@ -79,7 +81,7 @@ class MeetingCodeState extends State<MeetingCode> {
             _loading
                 ? Center(
                     child: CircularProgressIndicator(
-                      color: Colors.green[800],
+                      color: Colors.teal[800],
                     ),
                   )
                 : SizedBox(),
@@ -184,7 +186,6 @@ class MeetingCodeState extends State<MeetingCode> {
                       onPressed: _ifCodeEntered ? join : null,
                       padding: EdgeInsets.only(left: 25, right: 25),
                       shape: RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.grey[300], width: 1),
                           borderRadius: BorderRadius.circular(3)),
                     ),
                     SizedBox(
