@@ -33,6 +33,7 @@ class HomeState extends State<Home> {
   var _opacity = 1.0;
   User _user = FirebaseAuth.instance.currentUser;
   Agora _agora = Agora();
+  Camera _camera = Camera();
 
   @override
   void initState() {
@@ -589,7 +590,7 @@ class HomeState extends State<Home> {
                             ),
                           ],
                         )
-                      : Camera(),
+                      : _camera,
               _loading
                   ? Center(
                       child: CircularProgressIndicator(

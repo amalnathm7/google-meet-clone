@@ -255,9 +255,6 @@ class JoinState extends State<Join> {
                       HomeState.isVidOff
                           ? _user != null
                               ? Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height:
-                                      MediaQuery.of(context).size.height - 160,
                                   child: Center(
                                     child: ClipRRect(
                                       child: Image.network(
