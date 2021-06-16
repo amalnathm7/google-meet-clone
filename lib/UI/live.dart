@@ -511,8 +511,10 @@ class LiveState extends State<Live>
         });
   }
 
-  void _sendMsg() {
-    agora.sendMessage(_textEditingController.text, agora.code);
+  void _sendMsg() async {
+    setState(() {
+      agora.msgSent = false;
+    });
 
     if (_timer2 != null && _timer2.isActive && agora.messageUsers[0] == "You") {
       agora.messageUsers.setAll(0, ["You"]);
@@ -524,6 +526,15 @@ class LiveState extends State<Live>
       agora.messageTime.insert(0, "Now");
       agora.messages.insert(0, _textEditingController.text);
     }
+
+    _textEditingController.clear();
+    setState(() {});
+
+    await agora.sendMessage(_textEditingController.text, agora.code);
+
+    setState(() {
+      agora.msgSent = true;
+    });
 
     var length = agora.messageTime.length;
     var time = DateFormat('hh:mm a').format(DateTime.now());
@@ -546,8 +557,6 @@ class LiveState extends State<Live>
       else
         timer.cancel();
     });
-    _textEditingController.clear();
-    setState(() {});
   }
 
   void _share() async {

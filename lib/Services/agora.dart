@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAAkeO9uiJ6FA4nfKreDMUm3GcSv0tFt0XqkvnHSQYsPPc7T9ukAAAAAEAARnS3HIC3KYAEAAQAgLcpg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IABhGKGyzUIO/YT0yI0TfsgNbVnJVaGMYKix+BVNBnhTUs7T9ukAAAAAEAARpytrO3zLYAEAAQA7fMtg";
   RtcEngine engine;
   List<int> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
@@ -34,6 +34,7 @@ class Agora extends ChangeNotifier {
   bool askingToJoin = false;
   bool isHost = false;
   bool isAlreadyAccepted = false;
+  bool msgSent = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
     isHost = true;
@@ -104,6 +105,54 @@ class Agora extends ChangeNotifier {
             }
           });
           notifyListeners();
+        });
+
+        _db
+            .collection("meetings")
+            .doc(code)
+            .collection("messages")
+            .snapshots()
+            .listen((event) {
+          List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+          list.forEach((element) {
+            if (element.type == DocumentChangeType.added &&
+                element.doc.id != _user.uid) {
+              DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
+              if (_timer != null &&
+                  _timer.isActive &&
+                  messageUsers[0] == snap.get('name')) {
+                messageUsers.setAll(0, [snap.get('name')]);
+                messageTime.setAll(0, ["Now"]);
+                messages
+                    .setAll(0, [messages[0] + "\n\n" + snap.get('message')]);
+              } else {
+                messageUsers.insert(0, snap.get('name'));
+                messageTime.insert(0, "Now");
+                messages.insert(0, snap.get('message'));
+              }
+
+              msgCount++;
+              notifyListeners();
+
+              var length = messageTime.length;
+              var time = DateFormat('hh:mm a').format(DateTime.now());
+              int i = 1;
+
+              _timer = Timer(Duration(seconds: 45), () {});
+
+              Timer.periodic(Duration(minutes: 1), (timer) {
+                if (i == 31) {
+                  messageTime.setAll(messageTime.length - length, [time]);
+                  timer.cancel();
+                } else {
+                  messageTime.setAll(
+                      messageTime.length - length, [(i).toString() + " min"]);
+                  i++;
+                }
+                notifyListeners();
+              });
+            }
+          });
         });
 
         _db
@@ -197,7 +246,8 @@ class Agora extends ChangeNotifier {
         exitMeeting();
       },
       connectionStateChanged: (state, reason) {
-        if (state == ConnectionStateType.Disconnected) exitMeeting();
+        if (state == ConnectionStateType.Disconnected ||
+            state == ConnectionStateType.Failed) exitMeeting();
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -233,41 +283,6 @@ class Agora extends ChangeNotifier {
             duration: Duration(milliseconds: 1000),
           ),
         );
-      },
-      streamMessage: (uid, streamId, data) {
-        if (_timer != null &&
-            _timer.isActive &&
-            messageUsers[0] == userNames.elementAt(userUIDs.indexOf(uid))) {
-          messageUsers.setAll(0, [userNames.elementAt(userUIDs.indexOf(uid))]);
-          messageTime.setAll(0, ["Now"]);
-          messages.setAll(0, [messages[0] + "\n\n" + data]);
-        } else {
-          messageUsers.insert(0, userNames.elementAt(userUIDs.indexOf(uid)));
-          messageTime.insert(0, "Now");
-          messages.insert(0, data);
-        }
-
-        msgCount++;
-        notifyListeners();
-
-        var length = messageTime.length;
-        var time = DateFormat('hh:mm a').format(DateTime.now());
-        int i = 1;
-
-        _timer = Timer(Duration(seconds: 45), () {});
-
-        Timer.periodic(Duration(minutes: 1), (timer) {
-          if (i == 31) {
-            messageTime.setAll(messageTime.length - length, [time]);
-            timer.cancel();
-            notifyListeners();
-          } else {
-            messageTime
-                .setAll(messageTime.length - length, [(i).toString() + " min"]);
-            i++;
-            notifyListeners();
-          }
-        });
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid);
@@ -406,6 +421,54 @@ class Agora extends ChangeNotifier {
           notifyListeners();
         });
 
+        _db
+            .collection("meetings")
+            .doc(code)
+            .collection("messages")
+            .snapshots()
+            .listen((event) {
+          List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+          list.forEach((element) {
+            if (element.type == DocumentChangeType.added &&
+                element.doc.id != _user.uid) {
+              DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
+              if (_timer != null &&
+                  _timer.isActive &&
+                  messageUsers[0] == snap.get('name')) {
+                messageUsers.setAll(0, [snap.get('name')]);
+                messageTime.setAll(0, ["Now"]);
+                messages
+                    .setAll(0, [messages[0] + "\n\n" + snap.get('message')]);
+              } else {
+                messageUsers.insert(0, snap.get('name'));
+                messageTime.insert(0, "Now");
+                messages.insert(0, snap.get('message'));
+              }
+
+              msgCount++;
+              notifyListeners();
+
+              var length = messageTime.length;
+              var time = DateFormat('hh:mm a').format(DateTime.now());
+              int i = 1;
+
+              _timer = Timer(Duration(seconds: 45), () {});
+
+              Timer.periodic(Duration(minutes: 1), (timer) {
+                if (i == 31) {
+                  messageTime.setAll(messageTime.length - length, [time]);
+                  timer.cancel();
+                } else {
+                  messageTime.setAll(
+                      messageTime.length - length, [(i).toString() + " min"]);
+                  i++;
+                }
+                notifyListeners();
+              });
+            }
+          });
+        });
+
         DocumentSnapshot<Map<String, dynamic>> snap =
             await _db.collection("meetings").doc(code).get();
         Map<String, dynamic> map = snap.data();
@@ -510,7 +573,8 @@ class Agora extends ChangeNotifier {
         exitMeeting();
       },
       connectionStateChanged: (state, reason) {
-        if (state == ConnectionStateType.Disconnected) exitMeeting();
+        if (state == ConnectionStateType.Disconnected ||
+            state == ConnectionStateType.Failed) exitMeeting();
       },
       userJoined: (uid, elapsed) async {
         if (!userUIDs.contains(uid)) {
@@ -537,40 +601,6 @@ class Agora extends ChangeNotifier {
             duration: Duration(milliseconds: 1000),
           ),
         );
-      },
-      streamMessage: (uid, streamId, data) {
-        if (_timer != null &&
-            _timer.isActive &&
-            messageUsers[0] == userNames.elementAt(userUIDs.indexOf(uid))) {
-          messageUsers.setAll(0, [userNames.elementAt(userUIDs.indexOf(uid))]);
-          messageTime.setAll(0, ["Now"]);
-          messages.setAll(0, [messages[0] + "\n\n" + data]);
-        } else {
-          messageUsers.insert(0, userNames.elementAt(userUIDs.indexOf(uid)));
-          messageTime.insert(0, "Now");
-          messages.insert(0, data);
-        }
-
-        msgCount++;
-        notifyListeners();
-
-        var length = messageTime.length;
-        var time = DateFormat('hh:mm a').format(DateTime.now());
-        int i = 1;
-
-        _timer = Timer(Duration(seconds: 45), () {});
-
-        Timer.periodic(Duration(minutes: 1), (timer) {
-          if (i == 31) {
-            messageTime.setAll(messageTime.length - length, [time]);
-            timer.cancel();
-          } else {
-            messageTime
-                .setAll(messageTime.length - length, [(i).toString() + " min"]);
-            i++;
-          }
-          notifyListeners();
-        });
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
         int index = userUIDs.indexOf(uid);
@@ -652,8 +682,19 @@ class Agora extends ChangeNotifier {
   }
 
   sendMessage(String msg, String code) async {
-    int streamId = await engine.createDataStream(true, true);
-    engine.sendStreamMessage(streamId, msg);
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("messages")
+        .doc(_user.uid)
+        .set({'name': _user.displayName, 'message': msg},
+            SetOptions(merge: false));
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("messages")
+        .doc(_user.uid)
+        .delete();
   }
 
   exitMeeting() async {
