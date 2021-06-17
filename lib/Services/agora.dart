@@ -675,7 +675,7 @@ class Agora extends ChangeNotifier {
     }, SetOptions(merge: false));
   }
 
-  sendMessage(String msg, String code) async {
+  sendMessage(String msg) async {
     await _db
         .collection("meetings")
         .doc(code)
@@ -685,6 +685,9 @@ class Agora extends ChangeNotifier {
       'name': _user.displayName,
       'message': msg,
     }, SetOptions(merge: false));
+  }
+
+  deleteMessage() async {
     await _db
         .collection("meetings")
         .doc(code)

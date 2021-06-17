@@ -60,15 +60,15 @@ class LiveState extends State<Live>
     subscription = Connectivity()
         .onConnectivityChanged
         .listen((ConnectivityResult result) {
-          if(result == ConnectivityResult.none) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("No Internet connection"),
-                duration: Duration(milliseconds: 1000),
-              ),
-            );
-          }
+      if (result == ConnectivityResult.none) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("No Internet connection"),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (agora.isHost) _showDialog();
@@ -532,7 +532,9 @@ class LiveState extends State<Live>
       agora.msgSentReceived.insert(0, false);
     });
 
-    if (_timer2 != null && _timer2.isActive && (agora.messageUsers[0] == "You" || agora.messageUsers[0].isEmpty)) {
+    if (_timer2 != null &&
+        _timer2.isActive &&
+        (agora.messageUsers[0] == "You" || agora.messageUsers[0].isEmpty)) {
       agora.messageUsers.insert(0, "");
       agora.messageTime.insert(0, "");
       agora.messages.insert(0, _textEditingController.text);
@@ -542,9 +544,11 @@ class LiveState extends State<Live>
       agora.messages.insert(0, _textEditingController.text);
     }
 
+    String temp = _textEditingController.text;
+
     _textEditingController.clear();
 
-    await agora.sendMessage(_textEditingController.text, agora.code);
+    await agora.sendMessage(temp);
 
     setState(() {
       agora.msgSentReceived[0] = true;
@@ -573,6 +577,8 @@ class LiveState extends State<Live>
           timer.cancel();
       });
     }
+
+    await agora.deleteMessage();
   }
 
   void _share() async {
@@ -845,8 +851,7 @@ class LiveState extends State<Live>
                                             right: 5,
                                             top: 5,
                                             child: Container(
-                                              height:
-                                                  16,
+                                              height: 16,
                                               width:
                                                   agora.msgCount > 9 ? 22 : 16,
                                               decoration: BoxDecoration(
@@ -1096,9 +1101,11 @@ class LiveState extends State<Live>
                                               Text(
                                                 agora.messages[index],
                                                 style: TextStyle(
-                                                    color: agora.msgSentReceived[index]
-                                                        ? Colors.black
-                                                        : Colors.grey),
+                                                    color:
+                                                        agora.msgSentReceived[
+                                                                index]
+                                                            ? Colors.black
+                                                            : Colors.grey),
                                               ),
                                               SizedBox(
                                                 height: 10,
