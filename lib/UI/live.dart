@@ -36,7 +36,6 @@ class LiveState extends State<Live>
   Timer _timer2;
   TabController _tabController;
   Agora agora;
-  List<bool> msgSent = [];
   StreamSubscription<ConnectivityResult> subscription;
 
   @override
@@ -530,10 +529,10 @@ class LiveState extends State<Live>
 
   void _sendMsg() async {
     setState(() {
-      msgSent.insert(0, false);
+      agora.msgSentReceived.insert(0, false);
     });
 
-    if (_timer2 != null && _timer2.isActive && agora.messageUsers[0] == "You") {
+    if (_timer2 != null && _timer2.isActive && (agora.messageUsers[0] == "You" || agora.messageUsers[0].isEmpty)) {
       agora.messageUsers.insert(0, "");
       agora.messageTime.insert(0, "");
       agora.messages.insert(0, _textEditingController.text);
@@ -548,7 +547,7 @@ class LiveState extends State<Live>
     await agora.sendMessage(_textEditingController.text, agora.code);
 
     setState(() {
-      msgSent[0] = true;
+      agora.msgSentReceived[0] = true;
     });
 
     if (agora.messageTime[0].isNotEmpty) {
@@ -843,13 +842,13 @@ class LiveState extends State<Live>
                                     agora.msgCount == 0
                                         ? SizedBox()
                                         : Positioned(
-                                            right: 7,
+                                            right: 5,
                                             top: 5,
                                             child: Container(
                                               height:
-                                                  agora.msgCount > 9 ? 18 : 16,
+                                                  16,
                                               width:
-                                                  agora.msgCount > 9 ? 18 : 16,
+                                                  agora.msgCount > 9 ? 22 : 16,
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(10),
@@ -862,7 +861,7 @@ class LiveState extends State<Live>
                                                       : agora.msgCount
                                                           .toString(),
                                                   style: TextStyle(
-                                                      fontSize: 10,
+                                                      fontSize: 11,
                                                       fontWeight:
                                                           FontWeight.w400,
                                                       color: Colors.white),
@@ -1097,7 +1096,7 @@ class LiveState extends State<Live>
                                               Text(
                                                 agora.messages[index],
                                                 style: TextStyle(
-                                                    color: msgSent[index]
+                                                    color: agora.msgSentReceived[index]
                                                         ? Colors.black
                                                         : Colors.grey),
                                               ),

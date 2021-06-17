@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IABhGKGyzUIO/YT0yI0TfsgNbVnJVaGMYKix+BVNBnhTUs7T9ukAAAAAEAARpytrO3zLYAEAAQA7fMtg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IADYO+aSUZjO4pCiWOFBOTkVOFMcK4NTzSBZnekdg8YdHc7T9ukAAAAAEABFAsi62MbMYAEAAQDZxsxg";
   RtcEngine engine;
   List<int> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
@@ -24,6 +24,7 @@ class Agora extends ChangeNotifier {
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
+  List<bool> msgSentReceived = [];
   List<String> usersHere = [];
   FirebaseFirestore _db = FirebaseFirestore.instance;
   final _user = FirebaseAuth.instance.currentUser;
@@ -101,6 +102,8 @@ class Agora extends ChangeNotifier {
             } else if (snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
+              usersMuted.add(false);
+              usersVidOff.add(false);
             }
           });
           notifyListeners();
@@ -119,7 +122,8 @@ class Agora extends ChangeNotifier {
               DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
               if (_timer != null &&
                   _timer.isActive &&
-                  messageUsers[0] == snap.get('name')) {
+                  (messageUsers[0] == snap.get('name') ||
+                      messageUsers[0].isEmpty)) {
                 messageUsers.insert(0, "");
                 messageTime.insert(0, "");
                 messages.insert(0, snap.get('message'));
@@ -130,9 +134,10 @@ class Agora extends ChangeNotifier {
               }
 
               msgCount++;
+              msgSentReceived.insert(0, true);
               notifyListeners();
 
-              if(messageTime[0].isNotEmpty) {
+              if (messageTime[0].isNotEmpty) {
                 var length = messageTime.length;
                 var time = DateFormat('hh:mm a').format(DateTime.now());
                 int i = 1;
@@ -261,8 +266,6 @@ class Agora extends ChangeNotifier {
       userJoined: (uid, elapsed) async {
         if (!userUIDs.contains(uid)) {
           userUIDs.add(uid);
-          usersVidOff.add(false);
-          usersMuted.add(false);
           notifyListeners();
         }
 
@@ -305,10 +308,10 @@ class Agora extends ChangeNotifier {
     await engine.enableVideo();
     await engine.enableAudio();
 
+    await engine.joinChannel(_token, channel, null, 0);
+
     await engine.muteLocalVideoStream(HomeState.isVidOff);
     await engine.muteLocalAudioStream(HomeState.isMuted);
-
-    await engine.joinChannel(_token, channel, null, 0);
   }
 
   createMeetingInDB() async {
@@ -376,9 +379,9 @@ class Agora extends ChangeNotifier {
 
         await joinMeetingInDB(channel);
 
-        userUIDs.add(uid);
-        usersMuted.add(HomeState.isMuted);
-        usersVidOff.add(HomeState.isVidOff);
+        userUIDs.insert(0, uid);
+        usersMuted.insert(0, HomeState.isMuted);
+        usersVidOff.insert(0, HomeState.isVidOff);
         notifyListeners();
 
         Navigator.pushReplacement(
@@ -416,6 +419,8 @@ class Agora extends ChangeNotifier {
             } else if (snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
+              usersMuted.add(false);
+              usersVidOff.add(false);
             }
           });
           notifyListeners();
@@ -434,7 +439,8 @@ class Agora extends ChangeNotifier {
               DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
               if (_timer != null &&
                   _timer.isActive &&
-                  messageUsers[0] == snap.get('name')) {
+                  (messageUsers[0] == snap.get('name') ||
+                      messageUsers[0].isEmpty)) {
                 messageUsers.insert(0, "");
                 messageTime.insert(0, "");
                 messages.insert(0, snap.get('message'));
@@ -445,9 +451,10 @@ class Agora extends ChangeNotifier {
               }
 
               msgCount++;
+              msgSentReceived.insert(0, true);
               notifyListeners();
 
-              if(messageTime[0].isNotEmpty) {
+              if (messageTime[0].isNotEmpty) {
                 var length = messageTime.length;
                 var time = DateFormat('hh:mm a').format(DateTime.now());
                 int i = 1;
@@ -580,8 +587,6 @@ class Agora extends ChangeNotifier {
       userJoined: (uid, elapsed) async {
         if (!userUIDs.contains(uid)) {
           userUIDs.add(uid);
-          usersVidOff.add(false);
-          usersMuted.add(false);
           notifyListeners();
         }
 
@@ -624,10 +629,10 @@ class Agora extends ChangeNotifier {
     await engine.enableVideo();
     await engine.enableAudio();
 
+    await engine.joinChannel(_token, channel, null, 0);
+
     await engine.muteLocalVideoStream(HomeState.isVidOff);
     await engine.muteLocalAudioStream(HomeState.isMuted);
-
-    await engine.joinChannel(_token, channel, null, 0);
   }
 
   askToJoin(BuildContext context, String code) async {
@@ -688,8 +693,10 @@ class Agora extends ChangeNotifier {
         .doc(code)
         .collection("messages")
         .doc(_user.uid)
-        .set({'name': _user.displayName, 'message': msg},
-            SetOptions(merge: false));
+        .set({
+      'name': _user.displayName,
+      'message': msg,
+    }, SetOptions(merge: false));
     await _db
         .collection("meetings")
         .doc(code)
