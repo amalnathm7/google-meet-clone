@@ -102,8 +102,8 @@ class Agora extends ChangeNotifier {
             } else if (snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
-              usersMuted.add(false);
-              usersVidOff.add(false);
+              usersMuted.add(true);
+              usersVidOff.add(true);
             }
           });
           notifyListeners();
@@ -288,19 +288,13 @@ class Agora extends ChangeNotifier {
         );
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
-        int index = userUIDs.indexOf(uid);
-        usersMuted.setAll(index, [
-          state == AudioRemoteState.Stopped &&
-              reason == AudioRemoteStateReason.RemoteMuted
-        ]);
+        usersMuted
+            .setAll(userUIDs.indexOf(uid), [state == AudioRemoteState.Stopped]);
         notifyListeners();
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
-        int index = userUIDs.indexOf(uid);
-        usersVidOff.setAll(index, [
-          state == VideoRemoteState.Stopped &&
-              reason == VideoRemoteStateReason.RemoteMuted
-        ]);
+        usersVidOff
+            .setAll(userUIDs.indexOf(uid), [state == VideoRemoteState.Stopped]);
         notifyListeners();
       },
     ));
@@ -419,8 +413,8 @@ class Agora extends ChangeNotifier {
             } else if (snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
-              usersMuted.add(false);
-              usersVidOff.add(false);
+              usersMuted.add(true);
+              usersVidOff.add(true);
             }
           });
           notifyListeners();
@@ -609,19 +603,13 @@ class Agora extends ChangeNotifier {
         );
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
-        int index = userUIDs.indexOf(uid);
-        usersMuted.setAll(index, [
-          state == AudioRemoteState.Stopped &&
-              reason == AudioRemoteStateReason.RemoteMuted
-        ]);
+        usersMuted
+            .setAll(userUIDs.indexOf(uid), [state == AudioRemoteState.Stopped]);
         notifyListeners();
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
-        int index = userUIDs.indexOf(uid);
-        usersVidOff.setAll(index, [
-          state == VideoRemoteState.Stopped &&
-              reason == VideoRemoteStateReason.RemoteMuted
-        ]);
+        usersVidOff
+            .setAll(userUIDs.indexOf(uid), [state == VideoRemoteState.Stopped]);
         notifyListeners();
       },
     ));
