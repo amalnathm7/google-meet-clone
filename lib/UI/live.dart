@@ -29,7 +29,6 @@ class LiveState extends State<Live>
   var _bottom = -60.0;
   var _capPressed = false;
   var _currentIndex = 0;
-  var _currentUserIndex = 0;
   var _pin = -1;
   TextEditingController _textEditingController = TextEditingController();
   Timer _timer = Timer(Duration(seconds: 0), null);
@@ -104,7 +103,8 @@ class LiveState extends State<Live>
   void _callback() {
     setState(() {
       if (_pin >= agora.userUIDs.length) _pin = -1;
-      if (_currentUserIndex >= agora.userUIDs.length) _currentUserIndex = 0;
+      if (agora.currentUserIndex >= agora.userUIDs.length)
+        agora.currentUserIndex = 0;
       if (_currentIndex == 1) agora.msgCount = 0;
     });
   }
@@ -610,9 +610,9 @@ class LiveState extends State<Live>
                             .45,
                     width: MediaQuery.of(context).size.width,
                     child: agora.usersVidOff.length > _pin &&
-                            agora.usersVidOff.length > _currentUserIndex
+                            agora.usersVidOff.length > agora.currentUserIndex
                         ? agora.usersVidOff[
-                                _pin != -1 ? _pin : _currentUserIndex]
+                                _pin != -1 ? _pin : agora.currentUserIndex]
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -623,7 +623,7 @@ class LiveState extends State<Live>
                                     child: Image.network(
                                       agora.userImages[_pin != -1
                                           ? _pin
-                                          : _currentUserIndex],
+                                          : agora.currentUserIndex],
                                       height: 80,
                                     ),
                                     borderRadius: BorderRadius.circular(50),
@@ -637,7 +637,7 @@ class LiveState extends State<Live>
                                     child: Text(
                                       agora.userNames[_pin != -1
                                           ? _pin
-                                          : _currentUserIndex],
+                                          : agora.currentUserIndex],
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: Colors.white,
@@ -646,15 +646,15 @@ class LiveState extends State<Live>
                                   ),
                                 ],
                               )
-                            : _currentUserIndex == 0
+                            : agora.currentUserIndex == 0
                                 ? RtcLocalView.SurfaceView()
                                 : agora.userUIDs.length > _pin &&
                                         agora.userUIDs.length >
-                                            _currentUserIndex
+                                            agora.currentUserIndex
                                     ? RtcRemoteView.SurfaceView(
                                         uid: agora.userUIDs[_pin != -1
                                             ? _pin
-                                            : _currentUserIndex],
+                                            : agora.currentUserIndex],
                                       )
                                     : SizedBox()
                         : SizedBox()),
@@ -933,8 +933,12 @@ class LiveState extends State<Live>
                                             ),
                                           ),
                                           Opacity(
-                                              opacity:
-                                                  _currentUserIndex == index
+                                              opacity: _pin != -1
+                                                  ? _pin == index
+                                                      ? 0.7
+                                                      : 0
+                                                  : agora.currentUserIndex ==
+                                                          index
                                                       ? 0.7
                                                       : 0,
                                               child: Container(
@@ -978,10 +982,16 @@ class LiveState extends State<Live>
                                                     color: agora
                                                             .usersMuted[index]
                                                         ? Colors.white
-                                                        : _currentUserIndex ==
-                                                                index
-                                                            ? Colors.tealAccent
-                                                            : Colors.teal,
+                                                        : _pin != -1
+                                                            ? _pin == index
+                                                                ? Colors
+                                                                    .tealAccent
+                                                                : Colors.teal
+                                                            : agora.currentUserIndex ==
+                                                                    index
+                                                                ? Colors
+                                                                    .tealAccent
+                                                                : Colors.teal,
                                                     size:
                                                         agora.usersMuted[index]
                                                             ? 18
@@ -1001,7 +1011,8 @@ class LiveState extends State<Live>
                                             child: InkWell(
                                               onTap: () {
                                                 setState(() {
-                                                  _currentUserIndex = index;
+                                                  agora.currentUserIndex =
+                                                      index;
                                                   if (_pin == index)
                                                     _pin = -1;
                                                   else

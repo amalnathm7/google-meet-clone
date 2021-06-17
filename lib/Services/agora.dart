@@ -13,6 +13,7 @@ class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IADYO+aSUZjO4pCiWOFBOTkVOFMcK4NTzSBZnekdg8YdHc7T9ukAAAAAEABFAsi62MbMYAEAAQDZxsxg";
+  final _user = FirebaseAuth.instance.currentUser;
   RtcEngine engine;
   List<int> userUIDs = [];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
@@ -27,10 +28,10 @@ class Agora extends ChangeNotifier {
   List<bool> msgSentReceived = [];
   List<String> usersHere = [];
   FirebaseFirestore _db = FirebaseFirestore.instance;
-  final _user = FirebaseAuth.instance.currentUser;
   String code = "meet";
   DocumentSnapshot document;
   Timer _timer;
+  int currentUserIndex = 0;
   int msgCount = 0;
   bool askingToJoin = false;
   bool isHost = false;
@@ -288,11 +289,15 @@ class Agora extends ChangeNotifier {
         );
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
+        if(state == AudioRemoteState.Decoding)
+          currentUserIndex = userUIDs.indexOf(uid);
         usersMuted
             .setAll(userUIDs.indexOf(uid), [state == AudioRemoteState.Stopped]);
         notifyListeners();
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        if(state == VideoRemoteState.Decoding)
+          currentUserIndex = userUIDs.indexOf(uid);
         usersVidOff
             .setAll(userUIDs.indexOf(uid), [state == VideoRemoteState.Stopped]);
         notifyListeners();
@@ -603,11 +608,15 @@ class Agora extends ChangeNotifier {
         );
       },
       remoteAudioStateChanged: (uid, state, reason, elapsed) {
+        if(state == AudioRemoteState.Decoding)
+          currentUserIndex = userUIDs.indexOf(uid);
         usersMuted
             .setAll(userUIDs.indexOf(uid), [state == AudioRemoteState.Stopped]);
         notifyListeners();
       },
       remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        if(state == VideoRemoteState.Decoding)
+          currentUserIndex = userUIDs.indexOf(uid);
         usersVidOff
             .setAll(userUIDs.indexOf(uid), [state == VideoRemoteState.Stopped]);
         notifyListeners();
