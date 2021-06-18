@@ -72,7 +72,7 @@ class LiveState extends State<Live>
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (agora.isHost) _showDialog();
+      if (agora.isHost && agora.meetCreated) _showDialog();
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -1020,8 +1020,6 @@ class LiveState extends State<Live>
                                             child: InkWell(
                                               onTap: () {
                                                 setState(() {
-                                                  agora.currentUserIndex =
-                                                      index;
                                                   if (_pin == index)
                                                     _pin = -1;
                                                   else

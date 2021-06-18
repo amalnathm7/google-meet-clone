@@ -37,9 +37,12 @@ class Agora extends ChangeNotifier {
   bool askingToJoin = false;
   bool isHost = false;
   bool isAlreadyAccepted = false;
+  bool cancelled = false;
+  bool meetCreated = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
     isHost = true;
+
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
     //Random _rnd = Random.secure();
     /*code = String.fromCharCodes(Iterable.generate(
@@ -49,6 +52,20 @@ class Agora extends ChangeNotifier {
         code.substring(3, 7) +
         '-' +
         code.substring(7, 10);*/
+
+    Future.delayed(Duration(seconds: 10), () {
+      if (!meetCreated) {
+        homeState.stopLoading();
+        engine.leaveChannel();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Failed to create meeting. Please check your Internet connection and try again."),
+            duration: Duration(milliseconds: 2000),
+          ),
+        );
+      }
+    });
 
     await joinCreatedChannel(context, code, homeState);
   }
@@ -75,12 +92,24 @@ class Agora extends ChangeNotifier {
                 builder: (context) => Live(
                       agora: this,
                     )));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("You joined $channel"),
-            duration: Duration(milliseconds: 1000),
-          ),
-        );
+
+        if (usersHere.isNotEmpty)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(usersHere.length == 1
+                  ? usersHere[0] + " has joined."
+                  : usersHere.length == 2
+                      ? usersHere[0] + " and " + usersHere[1] + " have joined."
+                      : usersHere[0] +
+                          ", " +
+                          usersHere[1] +
+                          " and " +
+                          usersHere.length.toString() +
+                          " others have joined."),
+              duration: Duration(milliseconds: 1000),
+            ),
+          );
+
         homeState.stopLoading();
 
         _db
@@ -100,6 +129,13 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(map['name'] + " has left"),
+                    duration: Duration(milliseconds: 1000),
+                  ),
+                );
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
@@ -109,7 +145,14 @@ class Agora extends ChangeNotifier {
               usersVidOff.add(map['isVidOff']);
               currentUserIndex = userUIDs.indexOf(
                   userUIDs.elementAt(userImages.indexOf(map['image_url'])));
-            } else {
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(map['name'] + " has joined"),
+                  duration: Duration(milliseconds: 1000),
+                ),
+              );
+            } else if (snap.id != _user.uid) {
               usersMuted.setAll(
                   userImages.indexOf(map['image_url']), [map['isMuted']]);
               usersVidOff.setAll(
@@ -192,6 +235,8 @@ class Agora extends ChangeNotifier {
                       barrierDismissible: false,
                       builder: (context) {
                         return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                           content: Row(
                             children: [
                               ClipRRect(
@@ -216,8 +261,8 @@ class Agora extends ChangeNotifier {
                               ),
                             ],
                           ),
-                          contentPadding: EdgeInsets.only(
-                              left: 24, right: 24, top: 24, bottom: 10),
+                          contentPadding:
+                              EdgeInsets.only(left: 24, right: 24, top: 24),
                           actions: [
                             TextButton(
                                 onPressed: () {
@@ -232,7 +277,7 @@ class Agora extends ChangeNotifier {
                                   "Deny entry",
                                   style: TextStyle(
                                       color: Colors.teal[800],
-                                      fontSize: 14,
+                                      fontSize: 16,
                                       fontFamily: 'Product Sans'),
                                 )),
                             TextButton(
@@ -248,7 +293,7 @@ class Agora extends ChangeNotifier {
                                 child: Text(
                                   "Admit",
                                   style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 16,
                                       color: Colors.teal[800],
                                       fontFamily: 'Product Sans'),
                                 )),
@@ -283,24 +328,10 @@ class Agora extends ChangeNotifier {
           userUIDs.add(uid);
           notifyListeners();
         }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$uid joined this meeting"),
-            duration: Duration(milliseconds: 1000),
-          ),
-        );
       },
       userOffline: (int uid, UserOfflineReason reason) {
         userUIDs.remove(uid);
         notifyListeners();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$uid left this meeting"),
-            duration: Duration(milliseconds: 1000),
-          ),
-        );
       },
       remoteAudioStats: (stats) {
         if (stats.uid != userUIDs[0])
@@ -338,6 +369,8 @@ class Agora extends ChangeNotifier {
       'isMuted': HomeState.isMuted,
       'isVidOff': HomeState.isVidOff,
     });
+
+    meetCreated = true;
   }
 
   Future<bool> ifMeetingExists(String code) async {
@@ -399,12 +432,22 @@ class Agora extends ChangeNotifier {
                       agora: this,
                     )));
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("You joined $channel"),
-            duration: Duration(milliseconds: 1000),
-          ),
-        );
+        if (usersHere.isNotEmpty)
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(usersHere.length == 1
+                  ? usersHere[0] + " has joined."
+                  : usersHere.length == 2
+                      ? usersHere[0] + " and " + usersHere[1] + " have joined."
+                      : usersHere[0] +
+                          ", " +
+                          usersHere[1] +
+                          " and " +
+                          usersHere.length.toString() +
+                          " others have joined."),
+              duration: Duration(milliseconds: 1000),
+            ),
+          );
 
         _db
             .collection("meetings")
@@ -423,6 +466,13 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(map['name'] + " has left"),
+                    duration: Duration(milliseconds: 1000),
+                  ),
+                );
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
@@ -430,7 +480,16 @@ class Agora extends ChangeNotifier {
               userImages.add(map['image_url']);
               usersMuted.add(map['isMuted']);
               usersVidOff.add(map['isVidOff']);
-            } else {
+              currentUserIndex = userUIDs.indexOf(
+                  userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(map['name'] + " has joined"),
+                  duration: Duration(milliseconds: 1000),
+                ),
+              );
+            } else if (snap.id != _user.uid) {
               usersMuted.setAll(
                   userImages.indexOf(map['image_url']), [map['isMuted']]);
               usersVidOff.setAll(
@@ -518,6 +577,8 @@ class Agora extends ChangeNotifier {
                         barrierDismissible: false,
                         builder: (context) {
                           return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                             content: Row(
                               children: [
                                 ClipRRect(
@@ -542,8 +603,8 @@ class Agora extends ChangeNotifier {
                                 ),
                               ],
                             ),
-                            contentPadding: EdgeInsets.only(
-                                left: 24, right: 24, top: 10, bottom: 10),
+                            contentPadding:
+                                EdgeInsets.only(left: 24, right: 24, top: 24),
                             actions: [
                               TextButton(
                                   onPressed: () {
@@ -558,7 +619,7 @@ class Agora extends ChangeNotifier {
                                     "Deny entry",
                                     style: TextStyle(
                                         color: Colors.teal[800],
-                                        fontSize: 14,
+                                        fontSize: 16,
                                         fontFamily: 'Product Sans'),
                                   )),
                               TextButton(
@@ -574,7 +635,7 @@ class Agora extends ChangeNotifier {
                                   child: Text(
                                     "Admit",
                                     style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 16,
                                         color: Colors.teal[800],
                                         fontFamily: 'Product Sans'),
                                   )),
@@ -608,24 +669,10 @@ class Agora extends ChangeNotifier {
           userUIDs.add(uid);
           notifyListeners();
         }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$uid joined this meeting"),
-            duration: Duration(milliseconds: 1000),
-          ),
-        );
       },
       userOffline: (int uid, UserOfflineReason reason) {
         userUIDs.remove(uid.toString());
         notifyListeners();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$uid left this meeting"),
-            duration: Duration(milliseconds: 1000),
-          ),
-        );
       },
       remoteAudioStats: (stats) {
         if (stats.uid != userUIDs[0])
@@ -666,17 +713,22 @@ class Agora extends ChangeNotifier {
         .listen((event) {
       if (!event.exists) {
         Navigator.pop(context);
-        Fluttertoast.showToast(
-          msg: "Someone in the meeting denied your request to join",
-          gravity: ToastGravity.BOTTOM,
-          textColor: Colors.white,
-          backgroundColor: Colors.grey[800],
-        );
+        if (!cancelled)
+          Fluttertoast.showToast(
+            msg: "Someone in the meeting denied your request to join",
+            gravity: ToastGravity.BOTTOM,
+            textColor: Colors.white,
+            backgroundColor: Colors.grey[800],
+          );
+        else
+          cancelled = false;
+        terminate();
       } else if (event.get('isAccepted')) joinExistingChannel(context, code);
     });
   }
 
   cancelAskToJoin(String code) async {
+    cancelled = true;
     await _db
         .collection("meetings")
         .doc(code)
@@ -745,7 +797,10 @@ class Agora extends ChangeNotifier {
         .collection("users")
         .doc(_user.uid)
         .delete();
+    terminate();
+  }
 
+  terminate() {
     _timer?.cancel();
     userUIDs = [];
     userNames = [_user.displayName + ' (You)'];
@@ -757,6 +812,7 @@ class Agora extends ChangeNotifier {
     messageTime = [];
     _db.terminate();
     _db = FirebaseFirestore.instance;
+    meetCreated = false;
     HomeState.isVidOff = true;
     notifyListeners();
   }
