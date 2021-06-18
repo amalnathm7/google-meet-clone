@@ -1,6 +1,7 @@
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gmeet/Services/agora.dart';
@@ -25,11 +26,12 @@ class LiveState extends State<Live>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   LiveState({this.agora});
 
-  var _opacity = 0.0;
-  var _bottom = -60.0;
-  var _capPressed = false;
-  var _currentIndex = 0;
-  var _pin = -1;
+  double _opacity = 0.0;
+  double _bottom = -60.0;
+  bool _capPressed = false;
+  int _currentIndex = 0;
+  int _pin = -1;
+  bool offed = false;
   TextEditingController _textEditingController = TextEditingController();
   Timer _timer = Timer(Duration(seconds: 0), null);
   Timer _timer2;
@@ -91,10 +93,13 @@ class LiveState extends State<Live>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _video();
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      if (!HomeState.isVidOff) {
+        _video();
+        offed = true;
+      }
     } else if (state == AppLifecycleState.resumed) {
-      _video();
+      if (offed) _video();
       _singleTap();
     }
     super.didChangeAppLifecycleState(state);
@@ -102,8 +107,8 @@ class LiveState extends State<Live>
 
   void _callback() {
     setState(() {
-      if (_pin >= agora.userUIDs.length) _pin = -1;
-      if (agora.currentUserIndex >= agora.userUIDs.length)
+      if (_pin >= agora.userNames.length) _pin = -1;
+      if (agora.currentUserIndex >= agora.userNames.length)
         agora.currentUserIndex = 0;
       if (_currentIndex == 1) agora.msgCount = 0;
     });
@@ -188,6 +193,7 @@ class LiveState extends State<Live>
       Fluttertoast.cancel();
     });
     agora.engine.muteLocalAudioStream(HomeState.isMuted);
+    agora.muteAudio(HomeState.isMuted);
     Fluttertoast.showToast(
       msg: HomeState.isMuted ? "Microphone off" : "Microphone on",
       gravity: ToastGravity.TOP,
@@ -202,6 +208,7 @@ class LiveState extends State<Live>
       agora.usersVidOff.setAll(0, [HomeState.isVidOff]);
     });
     agora.engine.muteLocalVideoStream(HomeState.isVidOff);
+    agora.muteVideo(HomeState.isVidOff);
   }
 
   void _end() async {
@@ -534,11 +541,13 @@ class LiveState extends State<Live>
 
     if (_timer2 != null &&
         _timer2.isActive &&
-        (agora.messageUsers[0] == "You" || agora.messageUsers[0].isEmpty)) {
+        agora.messageId[0] == FirebaseAuth.instance.currentUser.uid) {
+      agora.messageId.insert(0, FirebaseAuth.instance.currentUser.uid);
       agora.messageUsers.insert(0, "");
       agora.messageTime.insert(0, "");
       agora.messages.insert(0, _textEditingController.text);
     } else {
+      agora.messageId.insert(0, FirebaseAuth.instance.currentUser.uid);
       agora.messageUsers.insert(0, "You");
       agora.messageTime.insert(0, "Now");
       agora.messages.insert(0, _textEditingController.text);
@@ -664,7 +673,7 @@ class LiveState extends State<Live>
                   child: AnimatedOpacity(
                     curve: Curves.easeIn,
                     opacity: _opacity,
-                    duration: Duration(milliseconds: 300),
+                    duration: Duration(milliseconds: 200),
                     child: Container(
                       child: Row(
                         children: [
@@ -696,7 +705,7 @@ class LiveState extends State<Live>
                   bottom: _bottom,
                   left: (MediaQuery.of(context).size.width - 215) / 2,
                   curve: Curves.easeInOut,
-                  duration: Duration(milliseconds: 300),
+                  duration: Duration(milliseconds: 200),
                   child: Column(
                     children: [
                       Row(
@@ -705,7 +714,7 @@ class LiveState extends State<Live>
                           AnimatedContainer(
                             height: 55,
                             width: 55,
-                            duration: Duration(milliseconds: 300),
+                            duration: Duration(milliseconds: 200),
                             decoration: BoxDecoration(
                                 color: HomeState.isMuted
                                     ? Colors.red[800]
@@ -752,7 +761,7 @@ class LiveState extends State<Live>
                           AnimatedContainer(
                             height: 55,
                             width: 55,
-                            duration: Duration(milliseconds: 300),
+                            duration: Duration(milliseconds: 200),
                             decoration: BoxDecoration(
                                 color: HomeState.isVidOff
                                     ? Colors.red[800]

@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IADYO+aSUZjO4pCiWOFBOTkVOFMcK4NTzSBZnekdg8YdHc7T9ukAAAAAEABFAsi62MbMYAEAAQDZxsxg";
+      "0066d4aa2fdccfd43438c4c811d12f16141IAA9bbntA3/NnSxsrHKhNj/9TCJKKMouSl9Ns53SFr3Gtc7T9ukAAAAAEABlU0aLQs3NYAEAAQDqf81g";
   final _user = FirebaseAuth.instance.currentUser;
   RtcEngine engine;
   List<int> userUIDs = [];
@@ -25,6 +25,7 @@ class Agora extends ChangeNotifier {
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
+  List<String> messageId = [];
   List<bool> msgSentReceived = [];
   List<String> usersHere = [];
   FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -100,11 +101,22 @@ class Agora extends ChangeNotifier {
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
               }
-            } else if (snap.id != _user.uid) {
+            } else if (element.type == DocumentChangeType.added &&
+                snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
-              usersMuted.add(true);
-              usersVidOff.add(true);
+              usersMuted.add(map['isMuted']);
+              usersVidOff.add(map['isVidOff']);
+              currentUserIndex = userUIDs.indexOf(
+                  userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+            } else {
+              usersMuted.setAll(
+                  userImages.indexOf(map['image_url']), [map['isMuted']]);
+              usersVidOff.setAll(
+                  userImages.indexOf(map['image_url']), [map['isVidOff']]);
+              if (!map['isMuted'] || !map['isVidOff'])
+                currentUserIndex = userUIDs.indexOf(
+                    userUIDs.elementAt(userImages.indexOf(map['image_url'])));
             }
           });
           notifyListeners();
@@ -123,12 +135,13 @@ class Agora extends ChangeNotifier {
               DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
               if (_timer != null &&
                   _timer.isActive &&
-                  (messageUsers[0] == snap.get('name') ||
-                      messageUsers[0].isEmpty)) {
+                  messageId[0] == snap.id) {
+                messageId.insert(0, snap.id);
                 messageUsers.insert(0, "");
                 messageTime.insert(0, "");
                 messages.insert(0, snap.get('message'));
               } else {
+                messageId.insert(0, snap.id);
                 messageUsers.insert(0, snap.get('name'));
                 messageTime.insert(0, "Now");
                 messages.insert(0, snap.get('message'));
@@ -176,6 +189,7 @@ class Agora extends ChangeNotifier {
                 if (!map['isAccepted'])
                   showDialog(
                       context: context,
+                      barrierDismissible: false,
                       builder: (context) {
                         return AlertDialog(
                           content: Row(
@@ -203,7 +217,7 @@ class Agora extends ChangeNotifier {
                             ],
                           ),
                           contentPadding: EdgeInsets.only(
-                              left: 24, right: 24, top: 10, bottom: 10),
+                              left: 24, right: 24, top: 24, bottom: 10),
                           actions: [
                             TextButton(
                                 onPressed: () {
@@ -288,18 +302,14 @@ class Agora extends ChangeNotifier {
           ),
         );
       },
-      remoteAudioStateChanged: (uid, state, reason, elapsed) {
-        if(state == AudioRemoteState.Decoding)
-          currentUserIndex = userUIDs.indexOf(uid);
-        usersMuted
-            .setAll(userUIDs.indexOf(uid), [state == AudioRemoteState.Stopped]);
+      remoteAudioStats: (stats) {
+        if (stats.uid != userUIDs[0])
+          currentUserIndex = userUIDs.indexOf(stats.uid);
         notifyListeners();
       },
-      remoteVideoStateChanged: (uid, state, reason, elapsed) {
-        if(state == VideoRemoteState.Decoding)
-          currentUserIndex = userUIDs.indexOf(uid);
-        usersVidOff
-            .setAll(userUIDs.indexOf(uid), [state == VideoRemoteState.Stopped]);
+      remoteVideoStats: (stats) {
+        if (stats.uid != userUIDs[0])
+          currentUserIndex = userUIDs.indexOf(stats.uid);
         notifyListeners();
       },
     ));
@@ -308,9 +318,6 @@ class Agora extends ChangeNotifier {
     await engine.enableAudio();
 
     await engine.joinChannel(_token, channel, null, 0);
-
-    await engine.muteLocalVideoStream(HomeState.isVidOff);
-    await engine.muteLocalAudioStream(HomeState.isMuted);
   }
 
   createMeetingInDB() async {
@@ -328,6 +335,8 @@ class Agora extends ChangeNotifier {
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
+      'isMuted': HomeState.isMuted,
+      'isVidOff': HomeState.isVidOff,
     });
   }
 
@@ -415,11 +424,20 @@ class Agora extends ChangeNotifier {
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
               }
-            } else if (snap.id != _user.uid) {
+            } else if (element.type == DocumentChangeType.added &&
+                snap.id != _user.uid) {
               userNames.add(map['name']);
               userImages.add(map['image_url']);
-              usersMuted.add(true);
-              usersVidOff.add(true);
+              usersMuted.add(map['isMuted']);
+              usersVidOff.add(map['isVidOff']);
+            } else {
+              usersMuted.setAll(
+                  userImages.indexOf(map['image_url']), [map['isMuted']]);
+              usersVidOff.setAll(
+                  userImages.indexOf(map['image_url']), [map['isVidOff']]);
+              if (!map['isMuted'] || !map['isVidOff'])
+                currentUserIndex = userUIDs.indexOf(
+                    userUIDs.elementAt(userImages.indexOf(map['image_url'])));
             }
           });
           notifyListeners();
@@ -438,12 +456,13 @@ class Agora extends ChangeNotifier {
               DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
               if (_timer != null &&
                   _timer.isActive &&
-                  (messageUsers[0] == snap.get('name') ||
-                      messageUsers[0].isEmpty)) {
+                  messageId[0] == snap.id) {
+                messageId.insert(0, snap.id);
                 messageUsers.insert(0, "");
                 messageTime.insert(0, "");
                 messages.insert(0, snap.get('message'));
               } else {
+                messageId.insert(0, snap.id);
                 messageUsers.insert(0, snap.get('name'));
                 messageTime.insert(0, "Now");
                 messages.insert(0, snap.get('message'));
@@ -496,6 +515,7 @@ class Agora extends ChangeNotifier {
                   if (!map['isAccepted'])
                     showDialog(
                         context: context,
+                        barrierDismissible: false,
                         builder: (context) {
                           return AlertDialog(
                             content: Row(
@@ -607,18 +627,14 @@ class Agora extends ChangeNotifier {
           ),
         );
       },
-      remoteAudioStateChanged: (uid, state, reason, elapsed) {
-        if(state == AudioRemoteState.Decoding)
-          currentUserIndex = userUIDs.indexOf(uid);
-        usersMuted
-            .setAll(userUIDs.indexOf(uid), [state == AudioRemoteState.Stopped]);
+      remoteAudioStats: (stats) {
+        if (stats.uid != userUIDs[0])
+          currentUserIndex = userUIDs.indexOf(stats.uid);
         notifyListeners();
       },
-      remoteVideoStateChanged: (uid, state, reason, elapsed) {
-        if(state == VideoRemoteState.Decoding)
-          currentUserIndex = userUIDs.indexOf(uid);
-        usersVidOff
-            .setAll(userUIDs.indexOf(uid), [state == VideoRemoteState.Stopped]);
+      remoteVideoStats: (stats) {
+        if (stats.uid != userUIDs[0])
+          currentUserIndex = userUIDs.indexOf(stats.uid);
         notifyListeners();
       },
     ));
@@ -627,9 +643,6 @@ class Agora extends ChangeNotifier {
     await engine.enableAudio();
 
     await engine.joinChannel(_token, channel, null, 0);
-
-    await engine.muteLocalVideoStream(HomeState.isVidOff);
-    await engine.muteLocalAudioStream(HomeState.isMuted);
   }
 
   askToJoin(BuildContext context, String code) async {
@@ -681,6 +694,8 @@ class Agora extends ChangeNotifier {
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
+      'isMuted': HomeState.isMuted,
+      'isVidOff': HomeState.isVidOff,
     }, SetOptions(merge: false));
   }
 
@@ -703,6 +718,24 @@ class Agora extends ChangeNotifier {
         .collection("messages")
         .doc(_user.uid)
         .delete();
+  }
+
+  muteAudio(bool muted) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(_user.uid)
+        .update({'isMuted': muted});
+  }
+
+  muteVideo(bool off) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(_user.uid)
+        .update({'isVidOff': off});
   }
 
   exitMeeting() async {

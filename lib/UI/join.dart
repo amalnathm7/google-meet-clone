@@ -403,31 +403,52 @@ class JoinState extends State<Join> {
                                         padding: const EdgeInsets.only(
                                             left: 10, right: 10),
                                         child: Container(
-                                          width: 500,
-                                          height: 20,
-                                          child: Text(
-                                            agora.usersHere.isEmpty
-                                                ? "You're the first one here."
-                                                : agora.usersHere.length == 1
-                                                    ? agora.usersHere[0] +
-                                                        " is here."
-                                                    : agora.usersHere.length ==
-                                                            2
-                                                        ? agora.usersHere[0] +
-                                                            " and " +
-                                                            agora.usersHere[1] +
-                                                            " are here."
-                                                        : agora.usersHere[0] +
-                                                            " and " +
-                                                            (agora.usersHere
-                                                                        .length -
-                                                                    1)
-                                                                .toString() +
-                                                            " others are here.",
-                                            textAlign: TextAlign.center,
-                                            overflow: TextOverflow.clip,
-                                          ),
-                                        ),
+                                            width: 500,
+                                            height: 20,
+                                            child: agora.usersHere.isEmpty
+                                                ? Text(
+                                                    "You're the first one here.",
+                                                    textAlign: TextAlign.center,
+                                                    overflow: TextOverflow.clip,
+                                                  )
+                                                : Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        "On a call: ",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                      Text(
+                                                        agora.usersHere
+                                                                    .length ==
+                                                                1
+                                                            ? agora.usersHere[0]
+                                                            : agora.usersHere
+                                                                        .length ==
+                                                                    2
+                                                                ? agora.usersHere[
+                                                                        0] +
+                                                                    " and " +
+                                                                    agora.usersHere[
+                                                                        1]
+                                                                : agora.usersHere[
+                                                                        0] +
+                                                                    ", " +
+                                                                    agora.usersHere[
+                                                                        1] +
+                                                                    " and " +
+                                                                    (agora.usersHere.length -
+                                                                            1)
+                                                                        .toString() +
+                                                                    " more.",
+                                                      )
+                                                    ],
+                                                  )),
                                       ),
                                       SizedBox(
                                         height: 10,
