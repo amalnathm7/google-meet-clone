@@ -655,7 +655,7 @@ class LiveState extends State<Live>
                                   ),
                                 ],
                               )
-                            : agora.currentUserIndex == 0
+                            : _pin == 0
                                 ? RtcLocalView.SurfaceView()
                                 : agora.userUIDs.length > _pin &&
                                         agora.userUIDs.length >
