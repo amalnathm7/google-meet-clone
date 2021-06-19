@@ -478,6 +478,7 @@ class Agora extends ChangeNotifier {
                   ),
                 );
               } else {
+                engine.leaveChannel();
                 Navigator.pop(context);
               }
             } else if (element.type == DocumentChangeType.added &&
@@ -506,6 +507,7 @@ class Agora extends ChangeNotifier {
                     userUIDs.elementAt(userImages.indexOf(map['image_url'])));
             } else {
               HomeState.isMuted = map['isMuted'];
+              usersMuted.setAll(0, map['isMuted']);
               engine.muteLocalAudioStream(map['isMuted']);
             }
           });
