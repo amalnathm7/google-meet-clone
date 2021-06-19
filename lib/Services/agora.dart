@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAA9bbntA3/NnSxsrHKhNj/9TCJKKMouSl9Ns53SFr3Gtc7T9ukAAAAAEABlU0aLQs3NYAEAAQDqf81g";
+      "0066d4aa2fdccfd43438c4c811d12f16141IACx6zZjTLmfKpVof0lLGBp2JMq3o/PU35YBtA9VQgj2Oc7T9ukAAAAAEABlU0aL4U7PYAEAAQDiTs9g";
   final _user = FirebaseAuth.instance.currentUser;
   RtcEngine engine;
   List<int> userUIDs = [];
@@ -22,6 +22,7 @@ class Agora extends ChangeNotifier {
   ];
   List<bool> usersMuted = [];
   List<bool> usersVidOff = [];
+  List<bool> usersLocalMuted = [];
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
@@ -85,6 +86,7 @@ class Agora extends ChangeNotifier {
         userUIDs.insert(0, uid);
         usersMuted.insert(0, HomeState.isMuted);
         usersVidOff.insert(0, HomeState.isVidOff);
+        usersLocalMuted.insert(0, false);
 
         Navigator.push(
             context,
@@ -129,6 +131,7 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+                usersLocalMuted.removeAt(index);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -143,6 +146,7 @@ class Agora extends ChangeNotifier {
               userImages.add(map['image_url']);
               usersMuted.add(map['isMuted']);
               usersVidOff.add(map['isVidOff']);
+              usersLocalMuted.add(false);
               currentUserIndex = userUIDs.indexOf(
                   userUIDs.elementAt(userImages.indexOf(map['image_url'])));
 
@@ -423,6 +427,7 @@ class Agora extends ChangeNotifier {
         userUIDs.insert(0, uid);
         usersMuted.insert(0, HomeState.isMuted);
         usersVidOff.insert(0, HomeState.isVidOff);
+        usersLocalMuted.insert(0, false);
         notifyListeners();
 
         Navigator.pushReplacement(
@@ -466,6 +471,7 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+                usersLocalMuted.removeAt(index);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -480,6 +486,7 @@ class Agora extends ChangeNotifier {
               userImages.add(map['image_url']);
               usersMuted.add(map['isMuted']);
               usersVidOff.add(map['isVidOff']);
+              usersLocalMuted.add(false);
               currentUserIndex = userUIDs.indexOf(
                   userUIDs.elementAt(userImages.indexOf(map['image_url'])));
 
@@ -798,6 +805,10 @@ class Agora extends ChangeNotifier {
         .doc(_user.uid)
         .delete();
     terminate();
+  }
+
+  removeUser() async {
+
   }
 
   terminate() {

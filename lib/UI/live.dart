@@ -28,9 +28,10 @@ class LiveState extends State<Live>
 
   double _opacity = 0.0;
   double _bottom = -60.0;
-  bool _capPressed = false;
+  double _position;
   int _currentIndex = 0;
   int _pin = -1;
+  bool _capPressed = false;
   bool offed = false;
   TextEditingController _textEditingController = TextEditingController();
   Timer _timer = Timer(Duration(seconds: 0), null);
@@ -73,6 +74,7 @@ class LiveState extends State<Live>
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (agora.isHost && agora.meetCreated) _showDialog();
+      _position = MediaQuery.of(context).size.width * 2 / 3;
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -93,7 +95,8 @@ class LiveState extends State<Live>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
       if (!HomeState.isVidOff) {
         _video();
         offed = true;
@@ -1038,10 +1041,197 @@ class LiveState extends State<Live>
                                           ),
                                         ],
                                       ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 14),
-                                        child: Text(agora.userNames[index]),
+                                      Stack(
+                                        children: [
+                                          Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 14),
+                                              child:
+                                                  Text(agora.userNames[index]),
+                                            ),
+                                          ),
+                                          index != 0 ? Positioned(
+                                            child: Icon(
+                                              Icons.keyboard_arrow_right,
+                                              color: Colors.grey[700],
+                                            ),
+                                            height: 70,
+                                            right: 0,
+                                          ) : SizedBox(),
+                                          index != 0
+                                              ? Material(
+                                                  color: Colors.transparent,
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        _position = 0;
+                                                      });
+                                                    },
+                                                    splashColor: Colors.white24,
+                                                    child: Ink(
+                                                      height: 70,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              2 /
+                                                              3,
+                                                    ),
+                                                  ),
+                                                )
+                                              : SizedBox(),
+                                          index != 0
+                                              ? AnimatedPositioned(
+                                                  duration: Duration(
+                                                      milliseconds: 200),
+                                                  curve: Curves.easeInOut,
+                                                  height: 70,
+                                                  left: _position,
+                                                  child: Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            2 /
+                                                            3,
+                                                    color: Colors.teal[800],
+                                                    child: Row(
+                                                      children: [
+                                                        Container(
+                                                          height: 70,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              6,
+                                                          child: IconButton(
+                                                              icon: Icon(
+                                                                Icons.close,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                              onPressed: () {
+                                                                setState(() {
+                                                                  _position = MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width *
+                                                                      2 /
+                                                                      3;
+                                                                });
+                                                              }),
+                                                        ),
+                                                        Container(
+                                                          height: 70,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              6,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius: BorderRadius.only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        10),
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        10)),
+                                                          ),
+                                                          child: IconButton(
+                                                            icon: Icon(
+                                                              _pin == index
+                                                                  ? Icons
+                                                                      .push_pin
+                                                                  : Icons
+                                                                      .push_pin_outlined,
+                                                              color: _pin ==
+                                                                      index
+                                                                  ? Colors
+                                                                      .teal[800]
+                                                                  : Colors.grey[
+                                                                      700],
+                                                            ),
+                                                            splashColor:
+                                                                Colors.grey,
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                if (_pin ==
+                                                                    index)
+                                                                  _pin = -1;
+                                                                else
+                                                                  _pin = index;
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          height: 70,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              6,
+                                                          color: Colors.white,
+                                                          child: IconButton(
+                                                            icon: Icon(
+                                                              Icons
+                                                                  .mic_off_outlined,
+                                                              color: Colors
+                                                                  .grey[700],
+                                                            ),
+                                                            splashColor:
+                                                                Colors.grey,
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                agora.usersLocalMuted[
+                                                                        index] =
+                                                                    true;
+                                                              });
+                                                              agora.engine.muteRemoteAudioStream(
+                                                                  agora.userUIDs[
+                                                                      index],
+                                                                  agora.usersLocalMuted[
+                                                                      index]);
+                                                            },
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          height: 70,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              6,
+                                                          color: Colors.white,
+                                                          child: IconButton(
+                                                            icon: Icon(
+                                                              Icons
+                                                                  .remove_circle_outline,
+                                                            ),
+                                                            splashColor:
+                                                                Colors.grey,
+                                                            disabledColor:
+                                                                Colors.grey,
+                                                            color: Colors
+                                                                .grey[700],
+                                                            onPressed:
+                                                                agora.isHost
+                                                                    ? () async {
+                                                                        await agora
+                                                                            .removeUser();
+                                                                      }
+                                                                    : null,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                              : SizedBox(),
+                                        ],
                                       )
                                     ],
                                   ),
