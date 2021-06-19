@@ -28,7 +28,6 @@ class LiveState extends State<Live>
 
   double _opacity = 0.0;
   double _bottom = -60.0;
-  double _position;
   int _currentIndex = 0;
   int _pin = -1;
   bool _capPressed = false;
@@ -73,8 +72,8 @@ class LiveState extends State<Live>
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      agora.position.add(MediaQuery.of(context).size.width * 2 / 3);
       if (agora.isHost && agora.meetCreated) _showDialog();
-      _position = MediaQuery.of(context).size.width * 2 / 3;
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -114,6 +113,7 @@ class LiveState extends State<Live>
       if (agora.currentUserIndex >= agora.userNames.length)
         agora.currentUserIndex = 0;
       if (_currentIndex == 1) agora.msgCount = 0;
+      if(agora.removed) Navigator.pop(context);
     });
   }
 
@@ -246,6 +246,7 @@ class LiveState extends State<Live>
 
   void _speaker() {
     agora.engine.muteAllRemoteAudioStreams(false);
+    agora.engine.setEnableSpeakerphone(true);
     setState(() {
       HomeState.clr1 = Colors.teal[700];
       HomeState.clr2 = Colors.transparent;
@@ -257,6 +258,7 @@ class LiveState extends State<Live>
 
   void _phone() {
     agora.engine.muteAllRemoteAudioStreams(false);
+    agora.engine.setEnableSpeakerphone(false);
     setState(() {
       HomeState.clr2 = Colors.teal[700];
       HomeState.clr1 = Colors.transparent;
@@ -1155,7 +1157,8 @@ class LiveState extends State<Live>
                                                   child: InkWell(
                                                     onTap: () {
                                                       setState(() {
-                                                        _position = 0;
+                                                        agora.position[index] =
+                                                            0;
                                                       });
                                                     },
                                                     splashColor: Colors.white24,
@@ -1177,7 +1180,7 @@ class LiveState extends State<Live>
                                                       milliseconds: 200),
                                                   curve: Curves.easeInOut,
                                                   height: 70,
-                                                  left: _position,
+                                                  left: agora.position[index],
                                                   child: Container(
                                                     width:
                                                         MediaQuery.of(context)
@@ -1203,7 +1206,8 @@ class LiveState extends State<Live>
                                                               ),
                                                               onPressed: () {
                                                                 setState(() {
-                                                                  _position = MediaQuery.of(
+                                                                  agora.position[
+                                                                      index] = MediaQuery.of(
                                                                               context)
                                                                           .size
                                                                           .width *
@@ -1225,10 +1229,10 @@ class LiveState extends State<Live>
                                                             borderRadius: BorderRadius.only(
                                                                 topLeft: Radius
                                                                     .circular(
-                                                                        10),
+                                                                        8),
                                                                 bottomLeft: Radius
                                                                     .circular(
-                                                                        10)),
+                                                                        8)),
                                                           ),
                                                           child: IconButton(
                                                             icon: Icon(

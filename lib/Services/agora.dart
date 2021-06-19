@@ -29,9 +29,9 @@ class Agora extends ChangeNotifier {
   List<String> messageId = [];
   List<bool> msgSentReceived = [];
   List<String> usersHere = [];
+  List<double> position = [];
   FirebaseFirestore _db = FirebaseFirestore.instance;
   String code = "meet";
-  DocumentSnapshot document;
   Timer _timer;
   int currentUserIndex = 0;
   int msgCount = 0;
@@ -40,6 +40,7 @@ class Agora extends ChangeNotifier {
   bool isAlreadyAccepted = false;
   bool cancelled = false;
   bool meetCreated = false;
+  bool removed = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
     isHost = true;
@@ -131,6 +132,8 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+                if(currentUserIndex == index)
+                  currentUserIndex--;
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -146,6 +149,7 @@ class Agora extends ChangeNotifier {
               userImages.add(map['image_url']);
               usersMuted.add(map['isMuted']);
               usersVidOff.add(map['isVidOff']);
+              position.add(MediaQuery.of(context).size.width * 2 / 3);
               currentUserIndex = userUIDs.indexOf(
                   userUIDs.elementAt(userImages.indexOf(map['image_url'])));
 
@@ -377,7 +381,7 @@ class Agora extends ChangeNotifier {
   }
 
   Future<bool> ifMeetingExists(String code) async {
-    document = await _db.collection("meetings").doc(code).get();
+    DocumentSnapshot document = await _db.collection("meetings").doc(code).get();
     if (document.exists) {
       DocumentSnapshot<Map<String, dynamic>> request = await _db
           .collection("meetings")
@@ -470,6 +474,8 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+                if(currentUserIndex == index)
+                  currentUserIndex--;
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -479,7 +485,7 @@ class Agora extends ChangeNotifier {
                 );
               } else {
                 engine.leaveChannel();
-                Navigator.pop(context);
+                removed = true;
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
@@ -488,6 +494,7 @@ class Agora extends ChangeNotifier {
               userImages.add(map['image_url']);
               usersMuted.add(map['isMuted']);
               usersVidOff.add(map['isVidOff']);
+              position.add(MediaQuery.of(context).size.width * 2 / 3);
               currentUserIndex = userUIDs.indexOf(
                   userUIDs.elementAt(userImages.indexOf(map['image_url'])));
 
@@ -507,7 +514,7 @@ class Agora extends ChangeNotifier {
                     userUIDs.elementAt(userImages.indexOf(map['image_url'])));
             } else {
               HomeState.isMuted = map['isMuted'];
-              usersMuted.setAll(0, map['isMuted']);
+              usersMuted.setAll(0, [HomeState.isMuted]);
               engine.muteLocalAudioStream(map['isMuted']);
             }
           });
@@ -835,14 +842,24 @@ class Agora extends ChangeNotifier {
     userUIDs = [];
     userNames = [_user.displayName + ' (You)'];
     userImages = [_user.photoURL];
+    userGUIDs = [_user.uid];
     usersMuted = [];
     usersVidOff = [];
     messages = [];
     messageUsers = [];
     messageTime = [];
+    msgSentReceived = [];
+    usersHere = [];
+    currentUserIndex = 0;
+    msgCount = 0;
+    askingToJoin = false;
+    isHost = false;
+    isAlreadyAccepted = false;
+    cancelled = false;
+    meetCreated = false;
+    removed = false;
     _db.terminate();
     _db = FirebaseFirestore.instance;
-    meetCreated = false;
     HomeState.isVidOff = true;
     notifyListeners();
   }
