@@ -593,6 +593,84 @@ class LiveState extends State<Live>
     await agora.deleteMessage();
   }
 
+  removeUser(int index) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(
+              "Remove " + agora.userNames[index] + " from this video call?",
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                        color: Colors.teal[800],
+                        fontSize: 16,
+                        fontFamily: 'Product Sans'),
+                  )),
+              TextButton(
+                  onPressed: () {
+                    agora.removeUser(index);
+                  },
+                  child: Text(
+                    "Remove",
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.teal[800],
+                        fontFamily: 'Product Sans'),
+                  )),
+            ],
+          );
+        });
+  }
+
+  muteUser(int index) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(
+              "Mute " +
+                  agora.userNames[index] +
+                  " for everyone in the meeting? To protect their privacy, only " +
+                  agora.userNames[index] +
+                  " can unmute themselves.",
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                        color: Colors.teal[800],
+                        fontSize: 16,
+                        fontFamily: 'Product Sans'),
+                  )),
+              TextButton(
+                  onPressed: () {
+                    agora.muteUser(index);
+                  },
+                  child: Text(
+                    "Mute",
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.teal[800],
+                        fontFamily: 'Product Sans'),
+                  )),
+            ],
+          );
+        });
+  }
+
   void _share() async {
     await Share.share("Join my meeting using the code: " +
         agora.code +
@@ -1051,14 +1129,16 @@ class LiveState extends State<Live>
                                                   Text(agora.userNames[index]),
                                             ),
                                           ),
-                                          index != 0 ? Positioned(
-                                            child: Icon(
-                                              Icons.keyboard_arrow_right,
-                                              color: Colors.grey[700],
-                                            ),
-                                            height: 70,
-                                            right: 0,
-                                          ) : SizedBox(),
+                                          index != 0
+                                              ? Positioned(
+                                                  child: Icon(
+                                                    Icons.keyboard_arrow_right,
+                                                    color: Colors.grey[700],
+                                                  ),
+                                                  height: 70,
+                                                  right: 0,
+                                                )
+                                              : SizedBox(),
                                           index != 0
                                               ? Material(
                                                   color: Colors.transparent,
@@ -1095,7 +1175,7 @@ class LiveState extends State<Live>
                                                                 .width *
                                                             2 /
                                                             3,
-                                                    color: Colors.teal[800],
+                                                    color: Colors.teal[700],
                                                     child: Row(
                                                       children: [
                                                         Container(
@@ -1150,7 +1230,7 @@ class LiveState extends State<Live>
                                                               color: _pin ==
                                                                       index
                                                                   ? Colors
-                                                                      .teal[800]
+                                                                      .teal[700]
                                                                   : Colors.grey[
                                                                       700],
                                                             ),
@@ -1184,18 +1264,14 @@ class LiveState extends State<Live>
                                                             ),
                                                             splashColor:
                                                                 Colors.grey,
-                                                            onPressed: () {
-                                                              setState(() {
-                                                                agora.usersLocalMuted[
-                                                                        index] =
-                                                                    true;
-                                                              });
-                                                              agora.engine.muteRemoteAudioStream(
-                                                                  agora.userUIDs[
-                                                                      index],
-                                                                  agora.usersLocalMuted[
-                                                                      index]);
-                                                            },
+                                                            onPressed:
+                                                                agora.usersMuted[
+                                                                        index]
+                                                                    ? null
+                                                                    : () {
+                                                                        muteUser(
+                                                                            index);
+                                                                      },
                                                           ),
                                                         ),
                                                         Container(
@@ -1219,9 +1295,9 @@ class LiveState extends State<Live>
                                                                 .grey[700],
                                                             onPressed:
                                                                 agora.isHost
-                                                                    ? () async {
-                                                                        await agora
-                                                                            .removeUser();
+                                                                    ? () {
+                                                                        removeUser(
+                                                                            index);
                                                                       }
                                                                     : null,
                                                           ),

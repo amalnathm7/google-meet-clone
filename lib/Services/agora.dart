@@ -16,13 +16,13 @@ class Agora extends ChangeNotifier {
   final _user = FirebaseAuth.instance.currentUser;
   RtcEngine engine;
   List<int> userUIDs = [];
+  List<String> userGUIDs = [FirebaseAuth.instance.currentUser.uid];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
   List<String> userNames = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
   List<bool> usersMuted = [];
   List<bool> usersVidOff = [];
-  List<bool> usersLocalMuted = [];
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
@@ -86,7 +86,6 @@ class Agora extends ChangeNotifier {
         userUIDs.insert(0, uid);
         usersMuted.insert(0, HomeState.isMuted);
         usersVidOff.insert(0, HomeState.isVidOff);
-        usersLocalMuted.insert(0, false);
 
         Navigator.push(
             context,
@@ -127,11 +126,11 @@ class Agora extends ChangeNotifier {
             if (element.type == DocumentChangeType.removed) {
               if (map['image_url'] != _user.photoURL) {
                 int index = userImages.indexOf(map['image_url']);
+                userGUIDs.remove(snap.id);
                 userNames.remove(map['name']);
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
-                usersLocalMuted.removeAt(index);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -142,11 +141,11 @@ class Agora extends ChangeNotifier {
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
+              userGUIDs.add(snap.id);
               userNames.add(map['name']);
               userImages.add(map['image_url']);
               usersMuted.add(map['isMuted']);
               usersVidOff.add(map['isVidOff']);
-              usersLocalMuted.add(false);
               currentUserIndex = userUIDs.indexOf(
                   userUIDs.elementAt(userImages.indexOf(map['image_url'])));
 
@@ -164,6 +163,10 @@ class Agora extends ChangeNotifier {
               if (!map['isMuted'] || !map['isVidOff'])
                 currentUserIndex = userUIDs.indexOf(
                     userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+            } else {
+              HomeState.isMuted = map['isMuted'];
+              engine.muteLocalAudioStream(map['isMuted']);
+              notifyListeners();
             }
           });
           notifyListeners();
@@ -427,7 +430,6 @@ class Agora extends ChangeNotifier {
         userUIDs.insert(0, uid);
         usersMuted.insert(0, HomeState.isMuted);
         usersVidOff.insert(0, HomeState.isVidOff);
-        usersLocalMuted.insert(0, false);
         notifyListeners();
 
         Navigator.pushReplacement(
@@ -467,11 +469,11 @@ class Agora extends ChangeNotifier {
             if (element.type == DocumentChangeType.removed) {
               if (map['image_url'] != _user.photoURL) {
                 int index = userImages.indexOf(map['image_url']);
+                userGUIDs.remove(snap.id);
                 userNames.remove(map['name']);
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
-                usersLocalMuted.removeAt(index);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -482,11 +484,11 @@ class Agora extends ChangeNotifier {
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
+              userGUIDs.add(snap.id);
               userNames.add(map['name']);
               userImages.add(map['image_url']);
               usersMuted.add(map['isMuted']);
               usersVidOff.add(map['isVidOff']);
-              usersLocalMuted.add(false);
               currentUserIndex = userUIDs.indexOf(
                   userUIDs.elementAt(userImages.indexOf(map['image_url'])));
 
@@ -807,8 +809,22 @@ class Agora extends ChangeNotifier {
     terminate();
   }
 
-  removeUser() async {
+  removeUser(int index) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(userGUIDs[index])
+        .delete();
+  }
 
+  muteUser(int index) async {
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .collection("users")
+        .doc(userGUIDs[index])
+        .update({'isMuted': true});
   }
 
   terminate() {
