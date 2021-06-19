@@ -163,10 +163,6 @@ class Agora extends ChangeNotifier {
               if (!map['isMuted'] || !map['isVidOff'])
                 currentUserIndex = userUIDs.indexOf(
                     userUIDs.elementAt(userImages.indexOf(map['image_url'])));
-            } else {
-              HomeState.isMuted = map['isMuted'];
-              engine.muteLocalAudioStream(map['isMuted']);
-              notifyListeners();
             }
           });
           notifyListeners();
@@ -467,7 +463,7 @@ class Agora extends ChangeNotifier {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
             if (element.type == DocumentChangeType.removed) {
-              if (map['image_url'] != _user.photoURL) {
+              if (snap.id != _user.uid) {
                 int index = userImages.indexOf(map['image_url']);
                 userGUIDs.remove(snap.id);
                 userNames.remove(map['name']);
@@ -481,6 +477,8 @@ class Agora extends ChangeNotifier {
                     duration: Duration(milliseconds: 1000),
                   ),
                 );
+              } else {
+                Navigator.pop(context);
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
@@ -506,6 +504,9 @@ class Agora extends ChangeNotifier {
               if (!map['isMuted'] || !map['isVidOff'])
                 currentUserIndex = userUIDs.indexOf(
                     userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+            } else {
+              HomeState.isMuted = map['isMuted'];
+              engine.muteLocalAudioStream(map['isMuted']);
             }
           });
           notifyListeners();

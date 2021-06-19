@@ -598,10 +598,14 @@ class LiveState extends State<Live>
         context: context,
         builder: (context) {
           return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             content: Text(
               "Remove " + agora.userNames[index] + " from this video call?",
-              style: TextStyle(color: Colors.grey[700]),
+              style: TextStyle(color: Colors.grey[700], fontSize: 14),
             ),
+            contentPadding:
+                EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 0),
             actions: [
               TextButton(
                   onPressed: () {
@@ -611,17 +615,18 @@ class LiveState extends State<Live>
                     "Cancel",
                     style: TextStyle(
                         color: Colors.teal[800],
-                        fontSize: 16,
+                        fontSize: 14,
                         fontFamily: 'Product Sans'),
                   )),
               TextButton(
-                  onPressed: () {
-                    agora.removeUser(index);
+                  onPressed: () async {
+                    await agora.removeUser(index);
+                    Navigator.pop(context);
                   },
                   child: Text(
                     "Remove",
                     style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.teal[800],
                         fontFamily: 'Product Sans'),
                   )),
@@ -635,14 +640,18 @@ class LiveState extends State<Live>
         context: context,
         builder: (context) {
           return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             content: Text(
               "Mute " +
                   agora.userNames[index] +
                   " for everyone in the meeting? To protect their privacy, only " +
                   agora.userNames[index] +
                   " can unmute themselves.",
-              style: TextStyle(color: Colors.grey[700]),
+              style: TextStyle(color: Colors.grey[700], fontSize: 14),
             ),
+            contentPadding:
+                EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 0),
             actions: [
               TextButton(
                   onPressed: () {
@@ -652,17 +661,18 @@ class LiveState extends State<Live>
                     "Cancel",
                     style: TextStyle(
                         color: Colors.teal[800],
-                        fontSize: 16,
+                        fontSize: 14,
                         fontFamily: 'Product Sans'),
                   )),
               TextButton(
-                  onPressed: () {
-                    agora.muteUser(index);
+                  onPressed: () async {
+                    await agora.muteUser(index);
+                    Navigator.pop(context);
                   },
                   child: Text(
                     "Mute",
                     style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.teal[800],
                         fontFamily: 'Product Sans'),
                   )),
@@ -1136,7 +1146,7 @@ class LiveState extends State<Live>
                                                     color: Colors.grey[700],
                                                   ),
                                                   height: 70,
-                                                  right: 0,
+                                                  right: 8,
                                                 )
                                               : SizedBox(),
                                           index != 0
@@ -1259,19 +1269,20 @@ class LiveState extends State<Live>
                                                             icon: Icon(
                                                               Icons
                                                                   .mic_off_outlined,
-                                                              color: Colors
-                                                                  .grey[700],
                                                             ),
+                                                            color: Colors
+                                                                .grey[700],
                                                             splashColor:
                                                                 Colors.grey,
-                                                            onPressed:
-                                                                agora.usersMuted[
+                                                            onPressed: agora
+                                                                        .isHost &&
+                                                                    !agora.usersMuted[
                                                                         index]
-                                                                    ? null
-                                                                    : () {
-                                                                        muteUser(
-                                                                            index);
-                                                                      },
+                                                                ? () {
+                                                                    muteUser(
+                                                                        index);
+                                                                  }
+                                                                : null,
                                                           ),
                                                         ),
                                                         Container(
