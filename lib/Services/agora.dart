@@ -132,6 +132,7 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+                position.removeAt(index);
                 if(currentUserIndex == index)
                   currentUserIndex--;
 
@@ -474,6 +475,7 @@ class Agora extends ChangeNotifier {
                 userImages.remove(map['image_url']);
                 usersMuted.removeAt(index);
                 usersVidOff.removeAt(index);
+                position.removeAt(index);
                 if(currentUserIndex == index)
                   currentUserIndex--;
 
