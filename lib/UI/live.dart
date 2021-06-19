@@ -113,7 +113,10 @@ class LiveState extends State<Live>
       if (agora.currentUserIndex >= agora.userNames.length)
         agora.currentUserIndex = 0;
       if (_currentIndex == 1) agora.msgCount = 0;
-      if(agora.removed) Navigator.pop(context);
+      if (agora.removed) {
+        Navigator.pop(context);
+        agora.removed = false;
+      }
     });
   }
 
@@ -1157,6 +1160,18 @@ class LiveState extends State<Live>
                                                   child: InkWell(
                                                     onTap: () {
                                                       setState(() {
+                                                        int oldIndex = agora
+                                                            .position
+                                                            .indexOf(0);
+                                                        if (oldIndex != -1)
+                                                          agora.position[
+                                                                  oldIndex] =
+                                                              MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width *
+                                                                  2 /
+                                                                  3;
                                                         agora.position[index] =
                                                             0;
                                                       });

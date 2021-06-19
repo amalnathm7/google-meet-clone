@@ -847,6 +847,7 @@ class Agora extends ChangeNotifier {
     userGUIDs = [_user.uid];
     usersMuted = [];
     usersVidOff = [];
+    position = [];
     messages = [];
     messageUsers = [];
     messageTime = [];
@@ -857,9 +858,7 @@ class Agora extends ChangeNotifier {
     askingToJoin = false;
     isHost = false;
     isAlreadyAccepted = false;
-    cancelled = false;
     meetCreated = false;
-    removed = false;
     _db.terminate();
     _db = FirebaseFirestore.instance;
     HomeState.isVidOff = true;
