@@ -140,6 +140,17 @@ class Agora extends ChangeNotifier {
               users.add(newUser);
               currentUserIndex = users.indexOf(newUser);
 
+              users.sort((a, b) =>
+                  a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+              for (Users value in users) {
+                if(value.googleUID == _user.uid) {
+                  users.remove(value);
+                  users.insert(0, value);
+                  break;
+                }
+              }
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(map['name'] + " has joined"),
@@ -495,6 +506,17 @@ class Agora extends ChangeNotifier {
               );
               users.add(newUser);
               currentUserIndex = users.indexOf(newUser);
+
+              users.sort((a, b) =>
+                  a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+              for (Users value in users) {
+                if(value.googleUID == _user.uid) {
+                  users.remove(value);
+                  users.insert(0, value);
+                  break;
+                }
+              }
 
               if (!usersHere.contains(newUser.name))
                 ScaffoldMessenger.of(context).showSnackBar(
