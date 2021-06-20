@@ -115,7 +115,15 @@ class Agora extends ChangeNotifier {
                   if (users[i].googleUID == snap.id) break;
                 }
                 users.removeAt(i);
-                if (currentUserIndex == i) currentUserIndex--;
+
+                if (users.length > 4) {
+                  List<Users> list = users.sublist(4);
+                  list.sort((a, b) =>
+                      a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+                  users.replaceRange(4, users.length, list.getRange(0, list.length));
+                }
+
+                if (currentUserIndex == i) currentUserIndex = users.length == 1 ? 0 : 1;
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -138,13 +146,14 @@ class Agora extends ChangeNotifier {
                 position: MediaQuery.of(context).size.width * 2 / 3,
               );
               users.add(newUser);
-              currentUserIndex = users.indexOf(newUser);
+
+              currentUserIndex = users.length == 1 ? 0 : 1;
 
               if (users.length > 4) {
-                List list = users.sublist(4);
+                List<Users> list = users.sublist(4);
                 list.sort((a, b) =>
                     a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                users.replaceRange(4, users.length, list.whereType());
+                users.replaceRange(4, users.length, list.getRange(0, list.length));
               }
 
               for (Users value in users) {
@@ -162,15 +171,29 @@ class Agora extends ChangeNotifier {
                 ),
               );
             } else if (snap.id != _user.uid) {
-              int index = 0;
               users.forEach((element) {
                 if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
                   element.isVidOff = map['isVidOff'];
-                  if (!map['isMuted'] || !map['isVidOff'])
-                    currentUserIndex = index;
+                  if (!map['isMuted'] || !map['isVidOff']) {
+                    int index = 0;
+                    for (Users value in users) {
+                      if (value.googleUID == snap.id) {
+                        users.remove(value);
+                        users.insert(index < 4 ? index : 1, value);
+                        if(index < 4) currentUserIndex = index;
+                        break;
+                      }
+                      index++;
+                    }
+                    if (users.length > 4) {
+                      List<Users> list = users.sublist(4);
+                      list.sort((a, b) =>
+                          a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+                      users.replaceRange(4, users.length, list.getRange(0, list.length));
+                    }
+                  }
                 }
-                index++;
               });
             }
             notifyListeners();
@@ -347,26 +370,28 @@ class Agora extends ChangeNotifier {
       },
       remoteAudioStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
-          currentUserIndex = agoraUIDs.indexOf(stats.uid);
-          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          int index = agoraUIDs.indexOf(stats.uid);
+          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
-            List list = users.sublist(4);
+            List<Users> list = users.sublist(4);
             list.sort((a, b) =>
                 a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.whereType());
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
         notifyListeners();
       },
       remoteVideoStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
-          currentUserIndex = agoraUIDs.indexOf(stats.uid);
-          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          int index = agoraUIDs.indexOf(stats.uid);
+          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
-            List list = users.sublist(4);
+            List<Users> list = users.sublist(4);
             list.sort((a, b) =>
                 a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.whereType());
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
         notifyListeners();
@@ -502,7 +527,15 @@ class Agora extends ChangeNotifier {
                   if (users[i].googleUID == snap.id) break;
                 }
                 users.removeAt(i);
-                if (currentUserIndex == i) currentUserIndex--;
+
+                if (currentUserIndex == i) currentUserIndex = users.length == 1 ? 0 : 1;
+
+                if (users.length > 4) {
+                  List<Users> list = users.sublist(4);
+                  list.sort((a, b) =>
+                      a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+                  users.replaceRange(4, users.length, list.getRange(0, list.length));
+                }
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -525,13 +558,14 @@ class Agora extends ChangeNotifier {
                 position: MediaQuery.of(context).size.width * 2 / 3,
               );
               users.add(newUser);
-              currentUserIndex = users.indexOf(newUser);
+
+              currentUserIndex = users.length == 1 ? 0 : 1;
 
               if (users.length > 4) {
-                List list = users.sublist(4);
+                List<Users> list = users.sublist(4);
                 list.sort((a, b) =>
                     a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                users.replaceRange(4, users.length, list.whereType());
+                users.replaceRange(4, users.length, list.getRange(0, list.length));
               }
 
               for (Users value in users) {
@@ -550,15 +584,29 @@ class Agora extends ChangeNotifier {
                   ),
                 );
             } else if (snap.id != _user.uid) {
-              int index = 0;
               users.forEach((element) {
                 if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
                   element.isVidOff = map['isVidOff'];
-                  if (!map['isMuted'] || !map['isVidOff'])
-                    currentUserIndex = index;
+                  if (!map['isMuted'] || !map['isVidOff']) {
+                    int index = 0;
+                    for (Users value in users) {
+                      if (value.googleUID == snap.id) {
+                        users.remove(value);
+                        users.insert(index < 4 ? index : 1, value);
+                        if(index < 4) currentUserIndex = index;
+                        break;
+                      }
+                      index++;
+                    }
+                    if (users.length > 4) {
+                      List<Users> list = users.sublist(4);
+                      list.sort((a, b) =>
+                          a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+                      users.replaceRange(4, users.length, list.getRange(0, list.length));
+                    }
+                  }
                 }
-                index++;
               });
             } else {
               HomeState.isMuted = map['isMuted'];
@@ -745,26 +793,28 @@ class Agora extends ChangeNotifier {
       },
       remoteAudioStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
-          currentUserIndex = agoraUIDs.indexOf(stats.uid);
-          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          int index = agoraUIDs.indexOf(stats.uid);
+          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
-            List list = users.sublist(4);
+            List<Users> list = users.sublist(4);
             list.sort((a, b) =>
                 a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.whereType());
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
         notifyListeners();
       },
       remoteVideoStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
-          currentUserIndex = agoraUIDs.indexOf(stats.uid);
-          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          int index = agoraUIDs.indexOf(stats.uid);
+          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
-            List list = users.sublist(4);
+            List<Users> list = users.sublist(4);
             list.sort((a, b) =>
                 a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.whereType());
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
         notifyListeners();
