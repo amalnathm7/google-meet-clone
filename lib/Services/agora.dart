@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IACx6zZjTLmfKpVof0lLGBp2JMq3o/PU35YBtA9VQgj2Oc7T9ukAAAAAEABlU0aL4U7PYAEAAQDiTs9g";
+      "0066d4aa2fdccfd43438c4c811d12f16141IAAdjhsWtVsect7kqe6u9r3zj4n4hOGKx3T3UZYTcGPl4M7T9ukAAAAAEABFAsi6wMHQYAEAAQC/wdBg";
   String code = "meet";
   final _user = FirebaseAuth.instance.currentUser;
   FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -140,11 +140,15 @@ class Agora extends ChangeNotifier {
               users.add(newUser);
               currentUserIndex = users.indexOf(newUser);
 
-              users.sort((a, b) =>
-                  a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+              if (users.length > 4) {
+                List list = users.sublist(4);
+                list.sort((a, b) =>
+                    a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+                users.replaceRange(4, users.length, list.whereType());
+              }
 
               for (Users value in users) {
-                if(value.googleUID == _user.uid) {
+                if (value.googleUID == _user.uid) {
                   users.remove(value);
                   users.insert(0, value);
                   break;
@@ -342,13 +346,29 @@ class Agora extends ChangeNotifier {
         notifyListeners();
       },
       remoteAudioStats: (stats) {
-        if (stats.uid != agoraUIDs[0])
+        if (stats.uid != agoraUIDs[0]) {
           currentUserIndex = agoraUIDs.indexOf(stats.uid);
+          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          if (users.length > 4) {
+            List list = users.sublist(4);
+            list.sort((a, b) =>
+                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.whereType());
+          }
+        }
         notifyListeners();
       },
       remoteVideoStats: (stats) {
-        if (stats.uid != agoraUIDs[0])
+        if (stats.uid != agoraUIDs[0]) {
           currentUserIndex = agoraUIDs.indexOf(stats.uid);
+          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          if (users.length > 4) {
+            List list = users.sublist(4);
+            list.sort((a, b) =>
+                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.whereType());
+          }
+        }
         notifyListeners();
       },
     ));
@@ -507,11 +527,15 @@ class Agora extends ChangeNotifier {
               users.add(newUser);
               currentUserIndex = users.indexOf(newUser);
 
-              users.sort((a, b) =>
-                  a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+              if (users.length > 4) {
+                List list = users.sublist(4);
+                list.sort((a, b) =>
+                    a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+                users.replaceRange(4, users.length, list.whereType());
+              }
 
               for (Users value in users) {
-                if(value.googleUID == _user.uid) {
+                if (value.googleUID == _user.uid) {
                   users.remove(value);
                   users.insert(0, value);
                   break;
@@ -720,13 +744,29 @@ class Agora extends ChangeNotifier {
         notifyListeners();
       },
       remoteAudioStats: (stats) {
-        if (stats.uid != agoraUIDs[0])
+        if (stats.uid != agoraUIDs[0]) {
           currentUserIndex = agoraUIDs.indexOf(stats.uid);
+          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          if (users.length > 4) {
+            List list = users.sublist(4);
+            list.sort((a, b) =>
+                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.whereType());
+          }
+        }
         notifyListeners();
       },
       remoteVideoStats: (stats) {
-        if (stats.uid != agoraUIDs[0])
+        if (stats.uid != agoraUIDs[0]) {
           currentUserIndex = agoraUIDs.indexOf(stats.uid);
+          users.insert(1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          if (users.length > 4) {
+            List list = users.sublist(4);
+            list.sort((a, b) =>
+                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.whereType());
+          }
+        }
         notifyListeners();
       },
     ));
