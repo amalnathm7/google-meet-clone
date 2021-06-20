@@ -85,7 +85,6 @@ class LiveState extends State<Live>
     _textEditingController.dispose();
     agora.removeListener(_callback);
     agora.exitMeeting();
-    agora.engine.destroy();
     subscription.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -113,9 +112,7 @@ class LiveState extends State<Live>
         agora.currentUserIndex = 0;
       if (_currentIndex == 1) agora.msgCount = 0;
       if (agora.isExiting) {
-        agora.engine.leaveChannel();
         Navigator.pop(context);
-        agora.meetCreated = false;
         agora.isExiting = false;
       }
     });

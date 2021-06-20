@@ -32,11 +32,12 @@ class Agora extends ChangeNotifier {
   bool isHost = false;
   bool isAlreadyAccepted = false;
   bool cancelled = false;
-  bool meetCreated = false;
+  bool meetCreated;
   bool isExiting = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
     isHost = true;
+    meetCreated = false;
 
     //const _chars = 'abcdefghijklmnopqrstuvwxyz';
     //Random _rnd = Random.secure();
@@ -148,7 +149,7 @@ class Agora extends ChangeNotifier {
             } else if (snap.id != _user.uid) {
               int index = 0;
               users.forEach((element) {
-                if (element.image == map['image_url']) {
+                if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
                   element.isVidOff = map['isVidOff'];
                   if (!map['isMuted'] || !map['isVidOff'])
@@ -446,7 +447,7 @@ class Agora extends ChangeNotifier {
                           ", " +
                           usersHere[1] +
                           " and " +
-                          usersHere.length.toString() +
+                          (usersHere.length - 3).toString() +
                           " others have joined."),
               duration: Duration(milliseconds: 1000),
             ),
@@ -505,7 +506,7 @@ class Agora extends ChangeNotifier {
             } else if (snap.id != _user.uid) {
               int index = 0;
               users.forEach((element) {
-                if (element.image == map['image_url']) {
+                if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
                   element.isVidOff = map['isVidOff'];
                   if (!map['isMuted'] || !map['isVidOff'])
@@ -578,7 +579,8 @@ class Agora extends ChangeNotifier {
             await _db.collection("meetings").doc(code).get();
         Map<String, dynamic> map = snap.data();
 
-        if (map['host'] == _user.uid)
+        if (map['host'] == _user.uid) {
+          isHost = true;
           _db
               .collection("meetings")
               .doc(code)
@@ -624,7 +626,7 @@ class Agora extends ChangeNotifier {
                               ],
                             ),
                             contentPadding:
-                                EdgeInsets.only(left: 24, right: 24, top: 24),
+                            EdgeInsets.only(left: 24, right: 24, top: 24),
                             actions: [
                               TextButton(
                                   onPressed: () {
@@ -668,6 +670,7 @@ class Agora extends ChangeNotifier {
               }
             });
           });
+        }
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -854,6 +857,8 @@ class Agora extends ChangeNotifier {
     isAlreadyAccepted = false;
     _db.terminate();
     _db = FirebaseFirestore.instance;
+    engine.leaveChannel();
+    engine.destroy();
     HomeState.isVidOff = true;
     notifyListeners();
   }
