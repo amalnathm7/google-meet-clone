@@ -16,6 +16,7 @@ class Agora extends ChangeNotifier {
   String code = "meet";
   final _user = FirebaseAuth.instance.currentUser;
   FirebaseFirestore _db = FirebaseFirestore.instance;
+  BuildContext context;
   RtcEngine engine;
   List<Users> users = [];
   List<int> agoraUIDs = [];
@@ -35,7 +36,7 @@ class Agora extends ChangeNotifier {
   bool meetCreated;
   bool isExiting = false;
 
-  createChannel(BuildContext context, HomeState homeState) async {
+  createChannel(HomeState homeState) async {
     isHost = true;
     meetCreated = false;
 
@@ -63,11 +64,10 @@ class Agora extends ChangeNotifier {
       }
     });
 
-    await joinCreatedChannel(context, code, homeState);
+    await joinCreatedChannel(code, homeState);
   }
 
-  joinCreatedChannel(
-      BuildContext context, String channel, HomeState homeState) async {
+  joinCreatedChannel(String channel, HomeState homeState) async {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
@@ -405,7 +405,7 @@ class Agora extends ChangeNotifier {
     return false;
   }
 
-  joinExistingChannel(BuildContext context, String channel) async {
+  joinExistingChannel(String channel) async {
     RtcEngineConfig config = RtcEngineConfig(_appId);
     engine = await RtcEngine.createWithConfig(config);
 
@@ -577,10 +577,10 @@ class Agora extends ChangeNotifier {
 
         DocumentSnapshot<Map<String, dynamic>> snap =
             await _db.collection("meetings").doc(code).get();
-        Map<String, dynamic> map = snap.data();
 
-        if (map['host'] == _user.uid) {
+        if (snap.get('host') == _user.uid) {
           isHost = true;
+          notifyListeners();
           _db
               .collection("meetings")
               .doc(code)
@@ -626,7 +626,7 @@ class Agora extends ChangeNotifier {
                               ],
                             ),
                             contentPadding:
-                            EdgeInsets.only(left: 24, right: 24, top: 24),
+                                EdgeInsets.only(left: 24, right: 24, top: 24),
                             actions: [
                               TextButton(
                                   onPressed: () {
@@ -715,7 +715,7 @@ class Agora extends ChangeNotifier {
     await engine.joinChannel(_token, channel, null, 0);
   }
 
-  askToJoin(BuildContext context, String code) async {
+  askToJoin(String code) async {
     await _db
         .collection("meetings")
         .doc(code)
@@ -746,7 +746,7 @@ class Agora extends ChangeNotifier {
         else
           cancelled = false;
         terminate();
-      } else if (event.get('isAccepted')) joinExistingChannel(context, code);
+      } else if (event.get('isAccepted')) joinExistingChannel(code);
     });
   }
 

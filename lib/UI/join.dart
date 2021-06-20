@@ -205,7 +205,7 @@ class JoinState extends State<Join> {
     setState(() {
       agora.askingToJoin = true;
     });
-    await agora.askToJoin(context, code);
+    await agora.askToJoin(code);
   }
 
   void cancel() async {
@@ -217,13 +217,14 @@ class JoinState extends State<Join> {
     setState(() {
       _loading = true;
     });
-    await agora.joinExistingChannel(context, code);
+    await agora.joinExistingChannel(code);
   }
 
   void present() async {}
 
   @override
   Widget build(BuildContext context) {
+    agora.context = context;
     return Opacity(
       opacity: _loading ? 0.5 : 1,
       child: Scaffold(

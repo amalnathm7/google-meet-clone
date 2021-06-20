@@ -88,7 +88,7 @@ class HomeState extends State<Home> {
       _loading = true;
     });
 
-    await _agora.createChannel(context, this);
+    await _agora.createChannel(this);
   }
 
   void stopLoading() {
@@ -275,6 +275,7 @@ class HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    _agora.context = context;
     return Opacity(
       opacity: _loading ? 0.5 : 1,
       child: Scaffold(
@@ -283,7 +284,6 @@ class HomeState extends State<Home> {
         appBar: _sheet
             ? AppBar(
                 backgroundColor: Colors.white,
-                //toolbarHeight: 75,
                 iconTheme: IconThemeData(color: Colors.black54),
                 title: Text(
                   "Your meetings",

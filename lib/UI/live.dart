@@ -693,6 +693,7 @@ class LiveState extends State<Live>
     final viewInsets = EdgeInsets.fromWindowPadding(
         WidgetsBinding.instance.window.viewInsets,
         WidgetsBinding.instance.window.devicePixelRatio);
+    agora.context = context;
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Column(
