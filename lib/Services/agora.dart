@@ -181,7 +181,7 @@ class Agora extends ChangeNotifier {
                       if (value.googleUID == snap.id) {
                         users.remove(value);
                         users.insert(index < 4 ? index : 1, value);
-                        if(index < 4) currentUserIndex = index;
+                        currentUserIndex = index < 4 ? index : 1;
                         break;
                       }
                       index++;
@@ -594,7 +594,7 @@ class Agora extends ChangeNotifier {
                       if (value.googleUID == snap.id) {
                         users.remove(value);
                         users.insert(index < 4 ? index : 1, value);
-                        if(index < 4) currentUserIndex = index;
+                        currentUserIndex = index < 4 ? index : 1;
                         break;
                       }
                       index++;
