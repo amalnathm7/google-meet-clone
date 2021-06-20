@@ -19,14 +19,6 @@ class Agora extends ChangeNotifier {
   RtcEngine engine;
   List<Users> users = [];
   List<int> agoraUIDs = [];
-  /*List<String> googleUID = [FirebaseAuth.instance.currentUser.uid];
-  List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
-  List<String> userNames = [
-    FirebaseAuth.instance.currentUser.displayName + ' (You)'
-  ];
-  List<bool> isMuted = [];
-  List<bool> isVidOff = [];
-  List<double> position = [];*/
   List<String> usersHere = [];
   List<String> messages = [];
   List<String> messageUsers = [];
@@ -103,23 +95,6 @@ class Agora extends ChangeNotifier {
                       agora: this,
                     )));
 
-        if (usersHere.isNotEmpty)
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(usersHere.length == 1
-                  ? usersHere[0] + " has joined."
-                  : usersHere.length == 2
-                      ? usersHere[0] + " and " + usersHere[1] + " have joined."
-                      : usersHere[0] +
-                          ", " +
-                          usersHere[1] +
-                          " and " +
-                          usersHere.length.toString() +
-                          " others have joined."),
-              duration: Duration(milliseconds: 1000),
-            ),
-          );
-
         homeState.stopLoading();
 
         _db
@@ -149,6 +124,7 @@ class Agora extends ChangeNotifier {
                 );
               } else {
                 isExiting = true;
+                notifyListeners();
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
@@ -181,8 +157,8 @@ class Agora extends ChangeNotifier {
                 index++;
               });
             }
+            notifyListeners();
           });
-          notifyListeners();
         });
 
         _db
@@ -459,14 +435,12 @@ class Agora extends ChangeNotifier {
                       agora: this,
                     )));
 
-        usersHere.remove(_user.displayName);
-
-        if (usersHere.isNotEmpty)
+        if (usersHere.length > 1) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(usersHere.length == 1
+              content: Text(usersHere.length == 2
                   ? usersHere[0] + " has joined."
-                  : usersHere.length == 2
+                  : usersHere.length == 3
                       ? usersHere[0] + " and " + usersHere[1] + " have joined."
                       : usersHere[0] +
                           ", " +
@@ -477,6 +451,7 @@ class Agora extends ChangeNotifier {
               duration: Duration(milliseconds: 1000),
             ),
           );
+        }
 
         _db
             .collection("meetings")
@@ -505,6 +480,7 @@ class Agora extends ChangeNotifier {
                 );
               } else {
                 isExiting = true;
+                notifyListeners();
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
@@ -519,12 +495,13 @@ class Agora extends ChangeNotifier {
               users.add(newUser);
               currentUserIndex = users.indexOf(newUser);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(map['name'] + " has joined"),
-                  duration: Duration(milliseconds: 1000),
-                ),
-              );
+              if (!usersHere.contains(newUser.name))
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(map['name'] + " has joined"),
+                    duration: Duration(milliseconds: 1000),
+                  ),
+                );
             } else if (snap.id != _user.uid) {
               int index = 0;
               users.forEach((element) {
@@ -541,8 +518,8 @@ class Agora extends ChangeNotifier {
               users[0].isMuted = HomeState.isMuted;
               engine.muteLocalAudioStream(map['isMuted']);
             }
+            notifyListeners();
           });
-          notifyListeners();
         });
 
         _db
@@ -875,7 +852,6 @@ class Agora extends ChangeNotifier {
     askingToJoin = false;
     isHost = false;
     isAlreadyAccepted = false;
-    meetCreated = false;
     _db.terminate();
     _db = FirebaseFirestore.instance;
     HomeState.isVidOff = true;

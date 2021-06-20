@@ -107,14 +107,15 @@ class LiveState extends State<Live>
   }
 
   void _callback() {
-    setState(() async {
+    setState(() {
       if (_pin >= agora.users.length) _pin = -1;
       if (agora.currentUserIndex >= agora.users.length)
         agora.currentUserIndex = 0;
       if (_currentIndex == 1) agora.msgCount = 0;
       if (agora.isExiting) {
-        await agora.engine.leaveChannel();
+        agora.engine.leaveChannel();
         Navigator.pop(context);
+        agora.meetCreated = false;
         agora.isExiting = false;
       }
     });
@@ -1008,6 +1009,8 @@ class LiveState extends State<Live>
                               itemCount: agora.users.length,
                               itemBuilder: (context, index) {
                                 return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     index == 4
                                         ? Padding(
@@ -1018,6 +1021,9 @@ class LiveState extends State<Live>
                                                   (agora.users.length - 4)
                                                       .toString() +
                                                   ")",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ))
                                         : SizedBox(),
                                     Container(

@@ -443,7 +443,7 @@ class JoinState extends State<Join> {
                                                                         1] +
                                                                     " and " +
                                                                     (agora.usersHere.length -
-                                                                            1)
+                                                                            2)
                                                                         .toString() +
                                                                     " more.",
                                                       )
