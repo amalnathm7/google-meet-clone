@@ -13,34 +13,35 @@ class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _token =
       "0066d4aa2fdccfd43438c4c811d12f16141IACx6zZjTLmfKpVof0lLGBp2JMq3o/PU35YBtA9VQgj2Oc7T9ukAAAAAEABlU0aL4U7PYAEAAQDiTs9g";
+  String code = "meet";
   final _user = FirebaseAuth.instance.currentUser;
+  FirebaseFirestore _db = FirebaseFirestore.instance;
   RtcEngine engine;
-  List<int> userUIDs = [];
-  List<String> userGUIDs = [FirebaseAuth.instance.currentUser.uid];
+  List<Users> users = [];
+  List<int> agoraUIDs = [];
+  /*List<String> googleUID = [FirebaseAuth.instance.currentUser.uid];
   List<String> userImages = [FirebaseAuth.instance.currentUser.photoURL];
   List<String> userNames = [
     FirebaseAuth.instance.currentUser.displayName + ' (You)'
   ];
-  List<bool> usersMuted = [];
-  List<bool> usersVidOff = [];
+  List<bool> isMuted = [];
+  List<bool> isVidOff = [];
+  List<double> position = [];*/
+  List<String> usersHere = [];
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
   List<String> messageId = [];
   List<bool> msgSentReceived = [];
-  List<String> usersHere = [];
-  List<double> position = [];
-  FirebaseFirestore _db = FirebaseFirestore.instance;
-  String code = "meet";
   Timer _timer;
-  int currentUserIndex = 0;
   int msgCount = 0;
+  int currentUserIndex = 0;
   bool askingToJoin = false;
   bool isHost = false;
   bool isAlreadyAccepted = false;
   bool cancelled = false;
   bool meetCreated = false;
-  bool removed = false;
+  bool isExiting = false;
 
   createChannel(BuildContext context, HomeState homeState) async {
     isHost = true;
@@ -84,9 +85,16 @@ class Agora extends ChangeNotifier {
 
         await createMeetingInDB();
 
-        userUIDs.insert(0, uid);
-        usersMuted.insert(0, HomeState.isMuted);
-        usersVidOff.insert(0, HomeState.isVidOff);
+        agoraUIDs.add(uid);
+
+        users.add(Users(
+          googleUID: _user.uid,
+          name: _user.displayName + ' (You)',
+          image: _user.photoURL,
+          isMuted: HomeState.isMuted,
+          isVidOff: HomeState.isVidOff,
+          position: MediaQuery.of(context).size.width * 2 / 3,
+        ));
 
         Navigator.push(
             context,
@@ -125,16 +133,13 @@ class Agora extends ChangeNotifier {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
             if (element.type == DocumentChangeType.removed) {
-              if (map['image_url'] != _user.photoURL) {
-                int index = userImages.indexOf(map['image_url']);
-                userGUIDs.remove(snap.id);
-                userNames.remove(map['name']);
-                userImages.remove(map['image_url']);
-                usersMuted.removeAt(index);
-                usersVidOff.removeAt(index);
-                position.removeAt(index);
-                if(currentUserIndex == index)
-                  currentUserIndex--;
+              if (snap.id != _user.uid) {
+                int i = 0;
+                for (; i < users.length; i++) {
+                  if (users[i].googleUID == snap.id) break;
+                }
+                users.removeAt(i);
+                if (currentUserIndex == i) currentUserIndex--;
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -142,17 +147,21 @@ class Agora extends ChangeNotifier {
                     duration: Duration(milliseconds: 1000),
                   ),
                 );
+              } else {
+                isExiting = true;
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
-              userGUIDs.add(snap.id);
-              userNames.add(map['name']);
-              userImages.add(map['image_url']);
-              usersMuted.add(map['isMuted']);
-              usersVidOff.add(map['isVidOff']);
-              position.add(MediaQuery.of(context).size.width * 2 / 3);
-              currentUserIndex = userUIDs.indexOf(
-                  userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+              Users newUser = Users(
+                googleUID: snap.id,
+                name: map['name'],
+                image: map['image_url'],
+                isMuted: map['isMuted'],
+                isVidOff: map['isVidOff'],
+                position: MediaQuery.of(context).size.width * 2 / 3,
+              );
+              users.add(newUser);
+              currentUserIndex = users.indexOf(newUser);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -161,13 +170,16 @@ class Agora extends ChangeNotifier {
                 ),
               );
             } else if (snap.id != _user.uid) {
-              usersMuted.setAll(
-                  userImages.indexOf(map['image_url']), [map['isMuted']]);
-              usersVidOff.setAll(
-                  userImages.indexOf(map['image_url']), [map['isVidOff']]);
-              if (!map['isMuted'] || !map['isVidOff'])
-                currentUserIndex = userUIDs.indexOf(
-                    userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+              int index = 0;
+              users.forEach((element) {
+                if (element.image == map['image_url']) {
+                  element.isMuted = map['isMuted'];
+                  element.isVidOff = map['isVidOff'];
+                  if (!map['isMuted'] || !map['isVidOff'])
+                    currentUserIndex = index;
+                }
+                index++;
+              });
             }
           });
           notifyListeners();
@@ -332,23 +344,23 @@ class Agora extends ChangeNotifier {
         homeState.stopLoading();
       },
       userJoined: (uid, elapsed) async {
-        if (!userUIDs.contains(uid)) {
-          userUIDs.add(uid);
+        if (!agoraUIDs.contains(uid)) {
+          agoraUIDs.add(uid);
           notifyListeners();
         }
       },
       userOffline: (int uid, UserOfflineReason reason) {
-        userUIDs.remove(uid);
+        agoraUIDs.remove(uid);
         notifyListeners();
       },
       remoteAudioStats: (stats) {
-        if (stats.uid != userUIDs[0])
-          currentUserIndex = userUIDs.indexOf(stats.uid);
+        if (stats.uid != agoraUIDs[0])
+          currentUserIndex = agoraUIDs.indexOf(stats.uid);
         notifyListeners();
       },
       remoteVideoStats: (stats) {
-        if (stats.uid != userUIDs[0])
-          currentUserIndex = userUIDs.indexOf(stats.uid);
+        if (stats.uid != agoraUIDs[0])
+          currentUserIndex = agoraUIDs.indexOf(stats.uid);
         notifyListeners();
       },
     ));
@@ -382,7 +394,8 @@ class Agora extends ChangeNotifier {
   }
 
   Future<bool> ifMeetingExists(String code) async {
-    DocumentSnapshot document = await _db.collection("meetings").doc(code).get();
+    DocumentSnapshot document =
+        await _db.collection("meetings").doc(code).get();
     if (document.exists) {
       DocumentSnapshot<Map<String, dynamic>> request = await _db
           .collection("meetings")
@@ -428,9 +441,15 @@ class Agora extends ChangeNotifier {
 
         await joinMeetingInDB(channel);
 
-        userUIDs.insert(0, uid);
-        usersMuted.insert(0, HomeState.isMuted);
-        usersVidOff.insert(0, HomeState.isVidOff);
+        agoraUIDs.insert(0, uid);
+        users.add(Users(
+          googleUID: _user.uid,
+          name: _user.displayName + ' (You)',
+          image: _user.photoURL,
+          isMuted: HomeState.isMuted,
+          isVidOff: HomeState.isVidOff,
+          position: MediaQuery.of(context).size.width * 2 / 3,
+        ));
         notifyListeners();
 
         Navigator.pushReplacement(
@@ -439,6 +458,8 @@ class Agora extends ChangeNotifier {
                 builder: (context) => Live(
                       agora: this,
                     )));
+
+        usersHere.remove(_user.displayName);
 
         if (usersHere.isNotEmpty)
           ScaffoldMessenger.of(context).showSnackBar(
@@ -469,15 +490,12 @@ class Agora extends ChangeNotifier {
             Map<String, dynamic> map = snap.data();
             if (element.type == DocumentChangeType.removed) {
               if (snap.id != _user.uid) {
-                int index = userImages.indexOf(map['image_url']);
-                userGUIDs.remove(snap.id);
-                userNames.remove(map['name']);
-                userImages.remove(map['image_url']);
-                usersMuted.removeAt(index);
-                usersVidOff.removeAt(index);
-                position.removeAt(index);
-                if(currentUserIndex == index)
-                  currentUserIndex--;
+                int i = 0;
+                for (; i < users.length; i++) {
+                  if (users[i].googleUID == snap.id) break;
+                }
+                users.removeAt(i);
+                if (currentUserIndex == i) currentUserIndex--;
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -486,19 +504,20 @@ class Agora extends ChangeNotifier {
                   ),
                 );
               } else {
-                engine.leaveChannel();
-                removed = true;
+                isExiting = true;
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
-              userGUIDs.add(snap.id);
-              userNames.add(map['name']);
-              userImages.add(map['image_url']);
-              usersMuted.add(map['isMuted']);
-              usersVidOff.add(map['isVidOff']);
-              position.add(MediaQuery.of(context).size.width * 2 / 3);
-              currentUserIndex = userUIDs.indexOf(
-                  userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+              Users newUser = Users(
+                googleUID: snap.id,
+                name: map['name'],
+                image: map['image_url'],
+                isMuted: map['isMuted'],
+                isVidOff: map['isVidOff'],
+                position: MediaQuery.of(context).size.width * 2 / 3,
+              );
+              users.add(newUser);
+              currentUserIndex = users.indexOf(newUser);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -507,16 +526,19 @@ class Agora extends ChangeNotifier {
                 ),
               );
             } else if (snap.id != _user.uid) {
-              usersMuted.setAll(
-                  userImages.indexOf(map['image_url']), [map['isMuted']]);
-              usersVidOff.setAll(
-                  userImages.indexOf(map['image_url']), [map['isVidOff']]);
-              if (!map['isMuted'] || !map['isVidOff'])
-                currentUserIndex = userUIDs.indexOf(
-                    userUIDs.elementAt(userImages.indexOf(map['image_url'])));
+              int index = 0;
+              users.forEach((element) {
+                if (element.image == map['image_url']) {
+                  element.isMuted = map['isMuted'];
+                  element.isVidOff = map['isVidOff'];
+                  if (!map['isMuted'] || !map['isVidOff'])
+                    currentUserIndex = index;
+                }
+                index++;
+              });
             } else {
               HomeState.isMuted = map['isMuted'];
-              usersMuted.setAll(0, [HomeState.isMuted]);
+              users[0].isMuted = HomeState.isMuted;
               engine.muteLocalAudioStream(map['isMuted']);
             }
           });
@@ -686,23 +708,23 @@ class Agora extends ChangeNotifier {
             state == ConnectionStateType.Failed) exitMeeting();
       },
       userJoined: (uid, elapsed) async {
-        if (!userUIDs.contains(uid)) {
-          userUIDs.add(uid);
+        if (!agoraUIDs.contains(uid)) {
+          agoraUIDs.add(uid);
           notifyListeners();
         }
       },
       userOffline: (int uid, UserOfflineReason reason) {
-        userUIDs.remove(uid.toString());
+        agoraUIDs.remove(uid.toString());
         notifyListeners();
       },
       remoteAudioStats: (stats) {
-        if (stats.uid != userUIDs[0])
-          currentUserIndex = userUIDs.indexOf(stats.uid);
+        if (stats.uid != agoraUIDs[0])
+          currentUserIndex = agoraUIDs.indexOf(stats.uid);
         notifyListeners();
       },
       remoteVideoStats: (stats) {
-        if (stats.uid != userUIDs[0])
-          currentUserIndex = userUIDs.indexOf(stats.uid);
+        if (stats.uid != agoraUIDs[0])
+          currentUserIndex = agoraUIDs.indexOf(stats.uid);
         notifyListeners();
       },
     ));
@@ -826,7 +848,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(userGUIDs[index])
+        .doc(users[index].googleUID)
         .delete();
   }
 
@@ -835,24 +857,19 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(userGUIDs[index])
+        .doc(users[index].googleUID)
         .update({'isMuted': true});
   }
 
   terminate() {
     _timer?.cancel();
-    userUIDs = [];
-    userNames = [_user.displayName + ' (You)'];
-    userImages = [_user.photoURL];
-    userGUIDs = [_user.uid];
-    usersMuted = [];
-    usersVidOff = [];
-    position = [];
-    messages = [];
-    messageUsers = [];
-    messageTime = [];
-    msgSentReceived = [];
-    usersHere = [];
+    agoraUIDs.clear();
+    users.clear();
+    messages.clear();
+    messageUsers.clear();
+    messageTime.clear();
+    msgSentReceived.clear();
+    usersHere.clear();
     currentUserIndex = 0;
     msgCount = 0;
     askingToJoin = false;
@@ -864,4 +881,20 @@ class Agora extends ChangeNotifier {
     HomeState.isVidOff = true;
     notifyListeners();
   }
+}
+
+class Users {
+  Users(
+      {this.googleUID,
+      this.name,
+      this.image,
+      this.position,
+      this.isMuted,
+      this.isVidOff});
+  String googleUID;
+  String image;
+  String name;
+  bool isMuted;
+  bool isVidOff;
+  double position;
 }
