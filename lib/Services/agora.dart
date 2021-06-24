@@ -25,19 +25,19 @@ class Agora extends ChangeNotifier {
   List<String> messageTime = [];
   List<String> messageId = [];
   List<bool> msgSentReceived = [];
-  Timer _timer;
+  Timer _timer, _delay;
   int msgCount = 0;
   int currentUserIndex = 0;
   bool askingToJoin = false;
   bool isHost = false;
   bool isAlreadyAccepted = false;
   bool cancelled = false;
-  bool meetCreated;
   bool isExiting = false;
+  bool meetCreated = false;
 
   createChannel(HomeState homeState) async {
     isHost = true;
-    meetCreated = false;
+    meetCreated = true;
 
     /*const _chars = 'abcdefghijklmnopqrstuvwxyz';
     Random _rnd = Random.secure();
@@ -54,8 +54,7 @@ class Agora extends ChangeNotifier {
     _token =
         "0066d4aa2fdccfd43438c4c811d12f16141IAB/ADVTvjqkA40JwvPWgT5AwQQoqo1NQngIEo1ymAYFTM7T9ukAAAAAEACqPfBqfPbVYAEAAQAkqdVg";
 
-    Future.delayed(Duration(seconds: 10), () {
-      if (!meetCreated) {
+    _delay = Timer(Duration(seconds: 10), () {
         homeState.stopLoading();
         engine.leaveChannel();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +64,6 @@ class Agora extends ChangeNotifier {
             duration: Duration(milliseconds: 2000),
           ),
         );
-      }
     });
 
     await joinCreatedChannel(code, homeState);
@@ -77,6 +75,8 @@ class Agora extends ChangeNotifier {
 
     engine.setEventHandler(RtcEngineEventHandler(
       joinChannelSuccess: (channel, uid, elapsed) async {
+        _delay.cancel();
+
         await engine.muteLocalAudioStream(HomeState.isMuted);
         await engine.muteLocalVideoStream(HomeState.isVidOff);
 
@@ -435,8 +435,6 @@ class Agora extends ChangeNotifier {
       'isMuted': HomeState.isMuted,
       'isVidOff': HomeState.isVidOff,
     });
-
-    meetCreated = true;
   }
 
   Future<bool> ifMeetingExists(String code) async {
@@ -995,6 +993,7 @@ class Agora extends ChangeNotifier {
     askingToJoin = false;
     isHost = false;
     isAlreadyAccepted = false;
+    meetCreated = false;
     _db.terminate();
     _db = FirebaseFirestore.instance;
     engine.leaveChannel();
