@@ -40,15 +40,15 @@ class Agora extends ChangeNotifier {
     isHost = true;
     meetCreated = false;
 
-    //const _chars = 'abcdefghijklmnopqrstuvwxyz';
-    //Random _rnd = Random.secure();
-    /*code = String.fromCharCodes(Iterable.generate(
+    const _chars = 'abcdefghijklmnopqrstuvwxyz';
+    Random _rnd = Random.secure();
+    code = String.fromCharCodes(Iterable.generate(
         10, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
     code = code.substring(0, 3) +
         '-' +
         code.substring(3, 7) +
         '-' +
-        code.substring(7, 10);*/
+        code.substring(7, 10);
 
     Future.delayed(Duration(seconds: 10), () {
       if (!meetCreated) {
@@ -120,10 +120,12 @@ class Agora extends ChangeNotifier {
                   List<Users> list = users.sublist(4);
                   list.sort((a, b) =>
                       a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                  users.replaceRange(4, users.length, list.getRange(0, list.length));
+                  users.replaceRange(
+                      4, users.length, list.getRange(0, list.length));
                 }
 
-                if (currentUserIndex == i) currentUserIndex = users.length == 1 ? 0 : 1;
+                if (currentUserIndex == i)
+                  currentUserIndex = users.length == 1 ? 0 : 1;
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -153,7 +155,8 @@ class Agora extends ChangeNotifier {
                 List<Users> list = users.sublist(4);
                 list.sort((a, b) =>
                     a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                users.replaceRange(4, users.length, list.getRange(0, list.length));
+                users.replaceRange(
+                    4, users.length, list.getRange(0, list.length));
               }
 
               for (Users value in users) {
@@ -190,7 +193,8 @@ class Agora extends ChangeNotifier {
                       List<Users> list = users.sublist(4);
                       list.sort((a, b) =>
                           a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                      users.replaceRange(4, users.length, list.getRange(0, list.length));
+                      users.replaceRange(
+                          4, users.length, list.getRange(0, list.length));
                     }
                   }
                 }
@@ -371,12 +375,13 @@ class Agora extends ChangeNotifier {
       remoteAudioStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
           int index = agoraUIDs.indexOf(stats.uid);
-          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          users.insert(index < 4 ? index : 1,
+              users.removeAt(agoraUIDs.indexOf(stats.uid)));
           currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
-            list.sort((a, b) =>
-                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
             users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
@@ -385,12 +390,13 @@ class Agora extends ChangeNotifier {
       remoteVideoStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
           int index = agoraUIDs.indexOf(stats.uid);
-          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          users.insert(index < 4 ? index : 1,
+              users.removeAt(agoraUIDs.indexOf(stats.uid)));
           currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
-            list.sort((a, b) =>
-                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
             users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
@@ -405,11 +411,10 @@ class Agora extends ChangeNotifier {
   }
 
   createMeetingInDB() async {
-    await _db.collection("meetings").doc(code).set({
-      'host': _user.uid,
-      'token':
-          "0066d4aa2fdccfd43438c4c811d12f16141IABAanD8QludZe0NlduEoYUHG39o6s4m9wq+t5zskrcddM7T9ukAAAAAEAAg7xFxTeW4YAEAAQD1l7hg"
-    });
+    await _db
+        .collection("meetings")
+        .doc(code)
+        .set({'host': _user.uid, 'token': _token});
 
     await _db
         .collection("meetings")
@@ -528,13 +533,15 @@ class Agora extends ChangeNotifier {
                 }
                 users.removeAt(i);
 
-                if (currentUserIndex == i) currentUserIndex = users.length == 1 ? 0 : 1;
+                if (currentUserIndex == i)
+                  currentUserIndex = users.length == 1 ? 0 : 1;
 
                 if (users.length > 4) {
                   List<Users> list = users.sublist(4);
                   list.sort((a, b) =>
                       a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                  users.replaceRange(4, users.length, list.getRange(0, list.length));
+                  users.replaceRange(
+                      4, users.length, list.getRange(0, list.length));
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -565,7 +572,8 @@ class Agora extends ChangeNotifier {
                 List<Users> list = users.sublist(4);
                 list.sort((a, b) =>
                     a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                users.replaceRange(4, users.length, list.getRange(0, list.length));
+                users.replaceRange(
+                    4, users.length, list.getRange(0, list.length));
               }
 
               for (Users value in users) {
@@ -603,7 +611,8 @@ class Agora extends ChangeNotifier {
                       List<Users> list = users.sublist(4);
                       list.sort((a, b) =>
                           a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                      users.replaceRange(4, users.length, list.getRange(0, list.length));
+                      users.replaceRange(
+                          4, users.length, list.getRange(0, list.length));
                     }
                   }
                 }
@@ -794,12 +803,13 @@ class Agora extends ChangeNotifier {
       remoteAudioStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
           int index = agoraUIDs.indexOf(stats.uid);
-          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          users.insert(index < 4 ? index : 1,
+              users.removeAt(agoraUIDs.indexOf(stats.uid)));
           currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
-            list.sort((a, b) =>
-                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
             users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
@@ -808,12 +818,13 @@ class Agora extends ChangeNotifier {
       remoteVideoStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
           int index = agoraUIDs.indexOf(stats.uid);
-          users.insert(index < 4 ? index : 1, users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          users.insert(index < 4 ? index : 1,
+              users.removeAt(agoraUIDs.indexOf(stats.uid)));
           currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
-            list.sort((a, b) =>
-                a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
             users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
         }
