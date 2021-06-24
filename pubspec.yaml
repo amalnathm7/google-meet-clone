@@ -41,6 +41,7 @@ dependencies:
   agora_rtc_engine: ^3.3.3
   share_plus: ^2.1.2
   connectivity_plus: ^1.0.3
+  http: ^0.13.3
 
 # Do not upgrade Agora since it doesn't work properly in higher versions (>3.3.3)
 

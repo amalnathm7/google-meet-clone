@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
+import 'package:http/http.dart' as http;
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +13,7 @@ import 'package:intl/intl.dart';
 
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
+  final _appCertificate = "f4b51772421c4f4d86b6a497b59cd99d";
   final _user = FirebaseAuth.instance.currentUser;
   String _token;
   String code;
@@ -39,7 +42,7 @@ class Agora extends ChangeNotifier {
     isHost = true;
     meetCreated = true;
 
-    /*const _chars = 'abcdefghijklmnopqrstuvwxyz';
+    const _chars = 'abcdefghijklmnopqrstuvwxyz';
     Random _rnd = Random.secure();
     code = String.fromCharCodes(Iterable.generate(
         10, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
@@ -47,23 +50,42 @@ class Agora extends ChangeNotifier {
         '-' +
         code.substring(3, 7) +
         '-' +
-        code.substring(7, 10);*/
+        code.substring(7, 10);
 
-    code = "meet";
+    final response = await http.post(
+        Uri.parse("https://agora-app-server.herokuapp.com/getToken/"),
+        body: {
+          "uid": "0",
+          "appID": _appId,
+          "appCertificate": _appCertificate,
+          "channelName": code,
+        });
 
-    _token =
-        "0066d4aa2fdccfd43438c4c811d12f16141IAB/ADVTvjqkA40JwvPWgT5AwQQoqo1NQngIEo1ymAYFTM7T9ukAAAAAEACqPfBqfPbVYAEAAQAkqdVg";
+    if (response.statusCode == 200) {
+      _token = response.body;
+      _token = jsonDecode(_token)['token'];
+    } else {
+      homeState.stopLoading();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Failed to create meeting. Please try again."),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
+      return;
+    }
 
     _delay = Timer(Duration(seconds: 10), () {
-        homeState.stopLoading();
-        engine.leaveChannel();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                "Failed to create meeting. Please check your Internet connection and try again."),
-            duration: Duration(milliseconds: 2000),
-          ),
-        );
+      homeState.stopLoading();
+      engine.leaveChannel();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Failed to create meeting. Please check your Internet connection and try again."),
+          duration: Duration(milliseconds: 2000),
+        ),
+      );
     });
 
     await joinCreatedChannel(code, homeState);
