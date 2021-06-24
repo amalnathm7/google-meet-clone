@@ -607,14 +607,18 @@ class HomeState extends State<Home> {
               _snack = false;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 setState(() {
-                  if (state.extent > MediaQuery.of(context).size.height / 1.25) {
+                  if (state.extent >
+                      MediaQuery.of(context).size.height / 1.25) {
                     _sheet = true;
-                  } else if (state.extent > MediaQuery.of(context).size.height / 1.5) {
+                  } else if (state.extent >
+                      MediaQuery.of(context).size.height / 1.5) {
                     _opacity = 0;
-                   _sheet = false;
-                  } else if (state.extent > MediaQuery.of(context).size.height / 2){
+                    _sheet = false;
+                  } else if (state.extent >
+                      MediaQuery.of(context).size.height / 2) {
                     _opacity = 0.5;
-                  } else if (state.extent > MediaQuery.of(context).size.height / 2.5){
+                  } else if (state.extent >
+                      MediaQuery.of(context).size.height / 2.5) {
                     _opacity = 0.75;
                   } else {
                     _opacity = 1;
