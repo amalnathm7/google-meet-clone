@@ -754,7 +754,7 @@ class LiveState extends State<Live>
                                   ),
                                 ],
                               )
-                            : _pin == 0
+                            : agora.users.length == 1 || _pin == 0
                                 ? RtcLocalView.SurfaceView()
                                 : agora.agoraUIDs.length > _pin &&
                                         agora.agoraUIDs.length >
@@ -1231,8 +1231,8 @@ class LiveState extends State<Live>
                                                           milliseconds: 200),
                                                       curve: Curves.easeInOut,
                                                       height: 70,
-                                                      left:
-                                                          agora.users[index].position,
+                                                      left: agora.users[index]
+                                                          .position,
                                                       child: Container(
                                                         width: MediaQuery.of(
                                                                     context)
@@ -1260,8 +1260,10 @@ class LiveState extends State<Live>
                                                                       () {
                                                                     setState(
                                                                         () {
-                                                                      agora.users[
-                                                                          index].position = MediaQuery.of(context)
+                                                                      agora
+                                                                          .users[
+                                                                              index]
+                                                                          .position = MediaQuery.of(context)
                                                                               .size
                                                                               .width *
                                                                           2 /
@@ -1336,8 +1338,9 @@ class LiveState extends State<Live>
                                                                     Colors.grey,
                                                                 onPressed: agora
                                                                             .isHost &&
-                                                                        !agora.users[
-                                                                            index].isMuted
+                                                                        !agora
+                                                                            .users[index]
+                                                                            .isMuted
                                                                     ? () {
                                                                         muteUser(
                                                                             index);

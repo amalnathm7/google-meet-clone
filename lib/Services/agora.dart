@@ -671,15 +671,20 @@ class Agora extends ChangeNotifier {
                 _timer = Timer(Duration(seconds: 45), () {});
 
                 Timer.periodic(Duration(minutes: 1), (timer) {
-                  if (i == 31) {
-                    messageTime.setAll(messageTime.length - length, [time]);
+                  if(messageTime.isEmpty)
                     timer.cancel();
-                  } else {
-                    messageTime.setAll(
-                        messageTime.length - length, [(i).toString() + " min"]);
-                    i++;
+                  else {
+                    if (i == 31) {
+                      messageTime.setAll(messageTime.length - length, [time]);
+                      timer.cancel();
+                    } else {
+                      messageTime.setAll(
+                          messageTime.length - length,
+                          [(i).toString() + " min"]);
+                      i++;
+                    }
+                    notifyListeners();
                   }
-                  notifyListeners();
                 });
               }
             }
