@@ -21,23 +21,38 @@ class MeetingCodeState extends State<MeetingCode> {
     setState(() {
       _loading = true;
     });
-    if (await agora.ifMeetingExists(_controller.text))
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Join(
-                    code: _controller.text,
-                    agora: agora,
-                  )));
-    else {
+    try {
+      var code = _controller.text.replaceAll("-", "");
+      code = code.substring(0, 3) +
+          '-' +
+          code.substring(3, 7) +
+          '-' +
+          code.substring(7, 10);
+      if (await agora.ifMeetingExists(code))
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    Join(
+                      code: code,
+                      agora: agora,
+                    )));
+      else {
+        setState(() {
+          _validate = false;
+          _ifCodeEntered = false;
+        });
+      }
       setState(() {
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _loading = false;
         _validate = false;
         _ifCodeEntered = false;
       });
     }
-    setState(() {
-      _loading = false;
-    });
   }
 
   void present() {}
