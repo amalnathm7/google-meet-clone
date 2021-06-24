@@ -11,10 +11,9 @@ import 'package:intl/intl.dart';
 
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
-  final _token =
-      "0066d4aa2fdccfd43438c4c811d12f16141IAAdjhsWtVsect7kqe6u9r3zj4n4hOGKx3T3UZYTcGPl4M7T9ukAAAAAEABFAsi6wMHQYAEAAQC/wdBg";
-  String code = "meet";
   final _user = FirebaseAuth.instance.currentUser;
+  String _token;
+  String code;
   FirebaseFirestore _db = FirebaseFirestore.instance;
   BuildContext context;
   RtcEngine engine;
@@ -40,7 +39,7 @@ class Agora extends ChangeNotifier {
     isHost = true;
     meetCreated = false;
 
-    const _chars = 'abcdefghijklmnopqrstuvwxyz';
+    /*const _chars = 'abcdefghijklmnopqrstuvwxyz';
     Random _rnd = Random.secure();
     code = String.fromCharCodes(Iterable.generate(
         10, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
@@ -48,7 +47,11 @@ class Agora extends ChangeNotifier {
         '-' +
         code.substring(3, 7) +
         '-' +
-        code.substring(7, 10);
+        code.substring(7, 10);*/
+
+    code = "meet";
+
+    _token = "0066d4aa2fdccfd43438c4c811d12f16141IAB/ADVTvjqkA40JwvPWgT5AwQQoqo1NQngIEo1ymAYFTM7T9ukAAAAAEACqPfBqfPbVYAEAAQAkqdVg";
 
     Future.delayed(Duration(seconds: 10), () {
       if (!meetCreated) {
@@ -434,6 +437,9 @@ class Agora extends ChangeNotifier {
   Future<bool> ifMeetingExists(String code) async {
     DocumentSnapshot document =
         await _db.collection("meetings").doc(code).get();
+
+    _token = await document.get('token');
+
     if (document.exists) {
       DocumentSnapshot<Map<String, dynamic>> request = await _db
           .collection("meetings")
