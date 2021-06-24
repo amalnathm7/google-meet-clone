@@ -605,7 +605,7 @@ class HomeState extends State<Home> {
                   ),
                 );
               _snack = false;
-              WidgetsBinding.instance.addPostFrameCallback((_){
+              WidgetsBinding.instance.addPostFrameCallback((_) {
                 setState(() {
                   if (state.extent > MediaQuery.of(context).size.height / 1.5) {
                     _sheet = true;
