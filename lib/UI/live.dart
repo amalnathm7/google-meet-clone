@@ -1458,7 +1458,7 @@ class LiveState extends State<Live>
                                               SizedBox(
                                                 height: 3,
                                               ),
-                                              Text(
+                                              SelectableText(
                                                 agora.messages[index],
                                                 style: TextStyle(
                                                     color:
