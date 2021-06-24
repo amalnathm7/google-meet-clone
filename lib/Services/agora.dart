@@ -438,18 +438,20 @@ class Agora extends ChangeNotifier {
     DocumentSnapshot document =
         await _db.collection("meetings").doc(code).get();
 
-    _token = await document.get('token');
-
     if (document.exists) {
+      _token = await document.get('token');
+
       DocumentSnapshot<Map<String, dynamic>> request = await _db
           .collection("meetings")
           .doc(code)
           .collection("requests")
           .doc(_user.uid)
           .get();
+
       if (document.get('host') == _user.uid ||
           (request.exists && request.get('isAccepted'))) {
         isAlreadyAccepted = true;
+
         _db
             .collection("meetings")
             .doc(code)
