@@ -423,6 +423,7 @@ class LiveState extends State<Live>
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(height: 8),
               ListTile(
                 onTap: _switchCamera,
                 horizontalTitleGap: 3,
