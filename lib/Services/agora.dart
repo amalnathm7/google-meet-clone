@@ -51,7 +51,8 @@ class Agora extends ChangeNotifier {
 
     code = "meet";
 
-    _token = "0066d4aa2fdccfd43438c4c811d12f16141IAB/ADVTvjqkA40JwvPWgT5AwQQoqo1NQngIEo1ymAYFTM7T9ukAAAAAEACqPfBqfPbVYAEAAQAkqdVg";
+    _token =
+        "0066d4aa2fdccfd43438c4c811d12f16141IAB/ADVTvjqkA40JwvPWgT5AwQQoqo1NQngIEo1ymAYFTM7T9ukAAAAAEACqPfBqfPbVYAEAAQAkqdVg";
 
     Future.delayed(Duration(seconds: 10), () {
       if (!meetCreated) {
@@ -244,15 +245,14 @@ class Agora extends ChangeNotifier {
                 _timer = Timer(Duration(seconds: 45), () {});
 
                 Timer.periodic(Duration(minutes: 1), (timer) {
-                  if(messageTime.isEmpty)
+                  if (messageTime.isEmpty)
                     timer.cancel();
                   else {
                     if (i == 31) {
                       messageTime.setAll(messageTime.length - length, [time]);
                       timer.cancel();
                     } else {
-                      messageTime.setAll(
-                          messageTime.length - length,
+                      messageTime.setAll(messageTime.length - length,
                           [(i).toString() + " min"]);
                       i++;
                     }
@@ -676,15 +676,14 @@ class Agora extends ChangeNotifier {
                 _timer = Timer(Duration(seconds: 45), () {});
 
                 Timer.periodic(Duration(minutes: 1), (timer) {
-                  if(messageTime.isEmpty)
+                  if (messageTime.isEmpty)
                     timer.cancel();
                   else {
                     if (i == 31) {
                       messageTime.setAll(messageTime.length - length, [time]);
                       timer.cancel();
                     } else {
-                      messageTime.setAll(
-                          messageTime.length - length,
+                      messageTime.setAll(messageTime.length - length,
                           [(i).toString() + " min"]);
                       i++;
                     }
@@ -1000,8 +999,6 @@ class Agora extends ChangeNotifier {
     _db = FirebaseFirestore.instance;
     engine.leaveChannel();
     engine.destroy();
-    HomeState.isVidOff = true;
-    notifyListeners();
   }
 }
 

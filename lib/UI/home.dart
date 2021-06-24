@@ -59,11 +59,6 @@ class HomeState extends State<Home> {
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void mic() {
     setState(() {
       isMuted = !isMuted;
