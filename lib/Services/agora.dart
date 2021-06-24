@@ -407,6 +407,8 @@ class Agora extends ChangeNotifier {
           int index = agoraUIDs.indexOf(stats.uid);
           users.insert(index < 4 ? index : 1,
               users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          agoraUIDs.remove(stats.uid);
+          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
           currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
@@ -423,6 +425,8 @@ class Agora extends ChangeNotifier {
           users.insert(index < 4 ? index : 1,
               users.removeAt(agoraUIDs.indexOf(stats.uid)));
           currentUserIndex = index < 4 ? index : 1;
+          agoraUIDs.remove(stats.uid);
+          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
             list.sort(
@@ -840,8 +844,11 @@ class Agora extends ChangeNotifier {
       remoteAudioStats: (stats) {
         if (stats.uid != agoraUIDs[0]) {
           int index = agoraUIDs.indexOf(stats.uid);
+          print(agoraUIDs.indexOf(stats.uid));
           users.insert(index < 4 ? index : 1,
               users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          agoraUIDs.remove(stats.uid);
+          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
           currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
@@ -857,6 +864,8 @@ class Agora extends ChangeNotifier {
           int index = agoraUIDs.indexOf(stats.uid);
           users.insert(index < 4 ? index : 1,
               users.removeAt(agoraUIDs.indexOf(stats.uid)));
+          agoraUIDs.remove(stats.uid);
+          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
           currentUserIndex = index < 4 ? index : 1;
           if (users.length > 4) {
             List<Users> list = users.sublist(4);
