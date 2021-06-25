@@ -51,11 +51,13 @@ class HomeState extends State<Home> {
       else
         setState(() {
           isHeadphoneConnected = false;
-          _agora.engine.setEnableSpeakerphone(true);
           soundIcon = Icons.volume_up_outlined;
           clr1 = Colors.teal[700];
           clr2 = Colors.transparent;
           clr3 = Colors.transparent;
+          try {
+            _agora.engine.setEnableSpeakerphone(true);
+          } catch (e) {}
         });
     });
   }
