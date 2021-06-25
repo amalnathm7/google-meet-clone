@@ -38,10 +38,14 @@ class LiveState extends State<Live>
   TabController _tabController;
   Agora agora;
   StreamSubscription<ConnectivityResult> subscription;
+  var _view;
 
   @override
   void initState() {
     super.initState();
+    _view = RtcRemoteView.SurfaceView(
+      uid: agora.users[_pin != -1 ? _pin : agora.currentUserIndex].agoraUID,
+    );
     agora.addListener(_callback);
     _singleTap();
     _tabController = TabController(length: 3, vsync: this);
@@ -112,12 +116,15 @@ class LiveState extends State<Live>
     setState(() {
       if (_pin >= agora.users.length) _pin = -1;
       if (agora.currentUserIndex >= agora.users.length)
-        agora.currentUserIndex = 0;
+        agora.currentUserIndex = agora.users.length > 1 ? 1 : 0;
       if (_currentIndex == 1) agora.msgCount = 0;
       if (agora.isExiting) {
         Navigator.pop(context);
         agora.isExiting = false;
       }
+      _view = RtcRemoteView.SurfaceView(
+        uid: agora.users[_pin != -1 ? _pin : agora.currentUserIndex].agoraUID,
+      );
     });
   }
 
@@ -763,13 +770,7 @@ class LiveState extends State<Live>
                                 : agora.users.length > _pin &&
                                         agora.users.length >
                                             agora.currentUserIndex
-                                    ? RtcRemoteView.SurfaceView(
-                                        uid: agora
-                                            .users[_pin != -1
-                                                ? _pin
-                                                : agora.currentUserIndex]
-                                            .agoraUID,
-                                      )
+                                    ? _view
                                     : SizedBox()
                         : SizedBox()),
                 Positioned(
