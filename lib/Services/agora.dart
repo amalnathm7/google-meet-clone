@@ -416,7 +416,7 @@ class Agora extends ChangeNotifier {
         if (users.length > 4) {
           List<Users> list = users.sublist(4);
           list.sort(
-                  (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
           users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
@@ -829,7 +829,7 @@ class Agora extends ChangeNotifier {
         if (users.length > 4) {
           List<Users> list = users.sublist(4);
           list.sort(
-                  (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
           users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
@@ -845,7 +845,7 @@ class Agora extends ChangeNotifier {
         if (users.length > 4) {
           List<Users> list = users.sublist(4);
           list.sort(
-                  (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
           users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
