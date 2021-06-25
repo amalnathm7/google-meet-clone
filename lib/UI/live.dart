@@ -103,7 +103,7 @@ class LiveState extends State<Live>
         _video();
         offed = false;
       }
-      _singleTap();
+      if (_opacity == 0) _singleTap();
     }
     super.didChangeAppLifecycleState(state);
   }
@@ -267,7 +267,7 @@ class LiveState extends State<Live>
       HomeState.clr3 = Colors.transparent;
       HomeState.soundIcon = HomeState.isHeadphoneConnected
           ? Icons.headset_outlined
-          : Icons.volume_up_outlined;
+          : Icons.phone_in_talk;
     });
     Navigator.pop(context);
   }
