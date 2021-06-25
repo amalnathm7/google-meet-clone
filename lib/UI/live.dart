@@ -99,7 +99,10 @@ class LiveState extends State<Live>
         offed = true;
       }
     } else if (state == AppLifecycleState.resumed) {
-      if (offed) _video();
+      if (offed) {
+        _video();
+        offed = false;
+      }
       _singleTap();
     }
     super.didChangeAppLifecycleState(state);
