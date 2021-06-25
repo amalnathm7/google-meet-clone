@@ -21,7 +21,6 @@ class Agora extends ChangeNotifier {
   BuildContext context;
   RtcEngine engine;
   List<Users> users = [];
-  List<int> agoraUIDs = [];
   List<String> usersHere = [];
   List<String> messages = [];
   List<String> messageUsers = [];
@@ -68,8 +67,7 @@ class Agora extends ChangeNotifier {
       homeState.stopLoading();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              "Failed to create meeting. Please try again."),
+          content: Text("Failed to create meeting. Please try again."),
           duration: Duration(milliseconds: 2000),
         ),
       );
@@ -102,12 +100,11 @@ class Agora extends ChangeNotifier {
         await engine.muteLocalAudioStream(HomeState.isMuted);
         await engine.muteLocalVideoStream(HomeState.isVidOff);
 
-        await createMeetingInDB();
-
-        agoraUIDs.add(uid);
+        await createMeetingInDB(uid);
 
         users.add(Users(
           googleUID: _user.uid,
+          agoraUID: uid,
           name: _user.displayName + ' (You)',
           image: _user.photoURL,
           isMuted: HomeState.isMuted,
@@ -165,15 +162,15 @@ class Agora extends ChangeNotifier {
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
-              Users newUser = Users(
+              users.add(Users(
                 googleUID: snap.id,
+                agoraUID: map['uid'],
                 name: map['name'],
                 image: map['image_url'],
                 isMuted: map['isMuted'],
                 isVidOff: map['isVidOff'],
                 position: MediaQuery.of(context).size.width * 2 / 3,
-              );
-              users.add(newUser);
+              ));
 
               currentUserIndex = users.length == 1 ? 0 : 1;
 
@@ -392,47 +389,35 @@ class Agora extends ChangeNotifier {
         );
         homeState.stopLoading();
       },
-      userJoined: (uid, elapsed) async {
-        if (!agoraUIDs.contains(uid)) {
-          agoraUIDs.add(uid);
-          notifyListeners();
-        }
-      },
-      userOffline: (int uid, UserOfflineReason reason) {
-        agoraUIDs.remove(uid);
-        notifyListeners();
-      },
       remoteAudioStats: (stats) {
-        if (stats.uid != agoraUIDs[0]) {
-          int index = agoraUIDs.indexOf(stats.uid);
-          users.insert(index < 4 ? index : 1,
-              users.removeAt(agoraUIDs.indexOf(stats.uid)));
-          agoraUIDs.remove(stats.uid);
-          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
-          currentUserIndex = index < 4 ? index : 1;
-          if (users.length > 4) {
-            List<Users> list = users.sublist(4);
-            list.sort(
-                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.getRange(0, list.length));
-          }
+        int index = 0;
+        for (Users element in users) {
+          if (element.agoraUID == stats.uid) break;
+          index++;
+        }
+        users.insert(index < 4 ? index : 1, users.removeAt(index));
+        currentUserIndex = index < 4 ? index : 1;
+        if (users.length > 4) {
+          List<Users> list = users.sublist(4);
+          list.sort(
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
       },
       remoteVideoStats: (stats) {
-        if (stats.uid != agoraUIDs[0]) {
-          int index = agoraUIDs.indexOf(stats.uid);
-          users.insert(index < 4 ? index : 1,
-              users.removeAt(agoraUIDs.indexOf(stats.uid)));
-          agoraUIDs.remove(stats.uid);
-          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
-          currentUserIndex = index < 4 ? index : 1;
-          if (users.length > 4) {
-            List<Users> list = users.sublist(4);
-            list.sort(
-                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.getRange(0, list.length));
-          }
+        int index = 0;
+        for (Users element in users) {
+          if (element.agoraUID == stats.uid) break;
+          index++;
+        }
+        users.insert(index < 4 ? index : 1, users.removeAt(index));
+        currentUserIndex = index < 4 ? index : 1;
+        if (users.length > 4) {
+          List<Users> list = users.sublist(4);
+          list.sort(
+                  (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
       },
@@ -444,7 +429,7 @@ class Agora extends ChangeNotifier {
     await engine.joinChannel(_token, channel, null, 0);
   }
 
-  createMeetingInDB() async {
+  createMeetingInDB(int uid) async {
     await _db
         .collection("meetings")
         .doc(code)
@@ -458,6 +443,7 @@ class Agora extends ChangeNotifier {
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
+      'uid': uid,
       'isMuted': HomeState.isMuted,
       'isVidOff': HomeState.isVidOff,
     });
@@ -514,11 +500,11 @@ class Agora extends ChangeNotifier {
 
         this.code = channel;
 
-        await joinMeetingInDB(channel);
+        await joinMeetingInDB(channel, uid);
 
-        agoraUIDs.insert(0, uid);
         users.add(Users(
           googleUID: _user.uid,
+          agoraUID: uid,
           name: _user.displayName + ' (You)',
           image: _user.photoURL,
           isMuted: HomeState.isMuted,
@@ -595,6 +581,7 @@ class Agora extends ChangeNotifier {
                 snap.id != _user.uid) {
               Users newUser = Users(
                 googleUID: snap.id,
+                agoraUID: map['uid'],
                 name: map['name'],
                 image: map['image_url'],
                 isMuted: map['isMuted'],
@@ -831,48 +818,35 @@ class Agora extends ChangeNotifier {
         if (state == ConnectionStateType.Disconnected ||
             state == ConnectionStateType.Failed) exitMeeting();
       },
-      userJoined: (uid, elapsed) async {
-        if (!agoraUIDs.contains(uid)) {
-          agoraUIDs.add(uid);
-          notifyListeners();
-        }
-      },
-      userOffline: (int uid, UserOfflineReason reason) {
-        agoraUIDs.remove(uid.toString());
-        notifyListeners();
-      },
       remoteAudioStats: (stats) {
-        if (stats.uid != agoraUIDs[0]) {
-          int index = agoraUIDs.indexOf(stats.uid);
-          print(agoraUIDs.indexOf(stats.uid));
-          users.insert(index < 4 ? index : 1,
-              users.removeAt(agoraUIDs.indexOf(stats.uid)));
-          agoraUIDs.remove(stats.uid);
-          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
-          currentUserIndex = index < 4 ? index : 1;
-          if (users.length > 4) {
-            List<Users> list = users.sublist(4);
-            list.sort(
-                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.getRange(0, list.length));
-          }
+        int index = 0;
+        for (Users element in users) {
+          if (element.agoraUID == stats.uid) break;
+          index++;
+        }
+        users.insert(index < 4 ? index : 1, users.removeAt(index));
+        currentUserIndex = index < 4 ? index : 1;
+        if (users.length > 4) {
+          List<Users> list = users.sublist(4);
+          list.sort(
+                  (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
       },
       remoteVideoStats: (stats) {
-        if (stats.uid != agoraUIDs[0]) {
-          int index = agoraUIDs.indexOf(stats.uid);
-          users.insert(index < 4 ? index : 1,
-              users.removeAt(agoraUIDs.indexOf(stats.uid)));
-          agoraUIDs.remove(stats.uid);
-          agoraUIDs.insert(index < 4 ? index : 1, stats.uid);
-          currentUserIndex = index < 4 ? index : 1;
-          if (users.length > 4) {
-            List<Users> list = users.sublist(4);
-            list.sort(
-                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.getRange(0, list.length));
-          }
+        int index = 0;
+        for (Users element in users) {
+          if (element.agoraUID == stats.uid) break;
+          index++;
+        }
+        users.insert(index < 4 ? index : 1, users.removeAt(index));
+        currentUserIndex = index < 4 ? index : 1;
+        if (users.length > 4) {
+          List<Users> list = users.sublist(4);
+          list.sort(
+                  (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
       },
@@ -929,7 +903,7 @@ class Agora extends ChangeNotifier {
         .delete();
   }
 
-  joinMeetingInDB(String code) async {
+  joinMeetingInDB(String code, int uid) async {
     await _db
         .collection("meetings")
         .doc(code)
@@ -938,6 +912,7 @@ class Agora extends ChangeNotifier {
         .set({
       'name': _user.displayName,
       'image_url': _user.photoURL,
+      'uid': uid,
       'isMuted': HomeState.isMuted,
       'isVidOff': HomeState.isVidOff,
     }, SetOptions(merge: false));
@@ -1012,7 +987,6 @@ class Agora extends ChangeNotifier {
 
   terminate() {
     _timer?.cancel();
-    agoraUIDs.clear();
     users.clear();
     messages.clear();
     messageUsers.clear();
@@ -1035,12 +1009,14 @@ class Agora extends ChangeNotifier {
 class Users {
   Users(
       {this.googleUID,
+      this.agoraUID,
       this.name,
       this.image,
       this.position,
       this.isMuted,
       this.isVidOff});
   String googleUID;
+  int agoraUID;
   String image;
   String name;
   bool isMuted;
