@@ -760,13 +760,15 @@ class LiveState extends State<Live>
                               )
                             : agora.users.length == 1 || _pin == 0
                                 ? RtcLocalView.SurfaceView()
-                                : agora.agoraUIDs.length > _pin &&
-                                        agora.agoraUIDs.length >
+                                : agora.users.length > _pin &&
+                                        agora.users.length >
                                             agora.currentUserIndex
                                     ? RtcRemoteView.SurfaceView(
-                                        uid: agora.agoraUIDs[_pin != -1
-                                            ? _pin
-                                            : agora.currentUserIndex],
+                                        uid: agora
+                                            .users[_pin != -1
+                                                ? _pin
+                                                : agora.currentUserIndex]
+                                            .agoraUID,
                                       )
                                     : SizedBox()
                         : SizedBox()),
