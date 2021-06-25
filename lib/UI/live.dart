@@ -1,5 +1,4 @@
-import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
-import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:agora_rtc_engine/rtc_local_view.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -38,14 +37,10 @@ class LiveState extends State<Live>
   TabController _tabController;
   Agora agora;
   StreamSubscription<ConnectivityResult> subscription;
-  var _view;
 
   @override
   void initState() {
     super.initState();
-    _view = RtcRemoteView.SurfaceView(
-      uid: agora.users[_pin != -1 ? _pin : agora.currentUserIndex].agoraUID,
-    );
     agora.addListener(_callback);
     _singleTap();
     _tabController = TabController(length: 3, vsync: this);
@@ -122,9 +117,6 @@ class LiveState extends State<Live>
         Navigator.pop(context);
         agora.isExiting = false;
       }
-      _view = RtcRemoteView.SurfaceView(
-        uid: agora.users[_pin != -1 ? _pin : agora.currentUserIndex].agoraUID,
-      );
     });
   }
 
@@ -766,11 +758,15 @@ class LiveState extends State<Live>
                                 ],
                               )
                             : agora.users.length == 1 || _pin == 0
-                                ? RtcLocalView.SurfaceView()
+                                ? SurfaceView()
                                 : agora.users.length > _pin &&
                                         agora.users.length >
                                             agora.currentUserIndex
-                                    ? _view
+                                    ? agora
+                                        .users[_pin != -1
+                                            ? _pin
+                                            : agora.currentUserIndex]
+                                        .view
                                     : SizedBox()
                         : SizedBox()),
                 Positioned(

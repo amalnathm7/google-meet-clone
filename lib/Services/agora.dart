@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
+import 'package:agora_rtc_engine/rtc_remote_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -110,6 +111,9 @@ class Agora extends ChangeNotifier {
           isMuted: HomeState.isMuted,
           isVidOff: HomeState.isVidOff,
           position: MediaQuery.of(context).size.width * 2 / 3,
+          view: SurfaceView(
+            uid: uid,
+          ),
         ));
 
         Navigator.push(
@@ -163,14 +167,16 @@ class Agora extends ChangeNotifier {
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != _user.uid) {
               users.add(Users(
-                googleUID: snap.id,
-                agoraUID: map['uid'],
-                name: map['name'],
-                image: map['image_url'],
-                isMuted: map['isMuted'],
-                isVidOff: map['isVidOff'],
-                position: MediaQuery.of(context).size.width * 2 / 3,
-              ));
+                  googleUID: snap.id,
+                  agoraUID: map['uid'],
+                  name: map['name'],
+                  image: map['image_url'],
+                  isMuted: map['isMuted'],
+                  isVidOff: map['isVidOff'],
+                  position: MediaQuery.of(context).size.width * 2 / 3,
+                  view: SurfaceView(
+                    uid: map['uid'],
+                  )));
 
               currentUserIndex = users.length == 1 ? 0 : 1;
 
@@ -201,6 +207,8 @@ class Agora extends ChangeNotifier {
                 if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
                   element.isVidOff = map['isVidOff'];
+                  element.agoraUID = map['uid'];
+                  element.view = SurfaceView(uid: map['uid']);
                   if (!map['isMuted'] || !map['isVidOff']) {
                     int index = 0;
                     for (Users value in users) {
@@ -510,6 +518,9 @@ class Agora extends ChangeNotifier {
           isMuted: HomeState.isMuted,
           isVidOff: HomeState.isVidOff,
           position: MediaQuery.of(context).size.width * 2 / 3,
+          view: SurfaceView(
+            uid: uid,
+          ),
         ));
         notifyListeners();
 
@@ -587,6 +598,9 @@ class Agora extends ChangeNotifier {
                 isMuted: map['isMuted'],
                 isVidOff: map['isVidOff'],
                 position: MediaQuery.of(context).size.width * 2 / 3,
+                view: SurfaceView(
+                  uid: map['uid'],
+                ),
               );
               users.add(newUser);
 
@@ -620,6 +634,8 @@ class Agora extends ChangeNotifier {
                 if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
                   element.isVidOff = map['isVidOff'];
+                  element.agoraUID = map['uid'];
+                  element.view = SurfaceView(uid: map['uid']);
                   if (!map['isMuted'] || !map['isVidOff']) {
                     int index = 0;
                     for (Users value in users) {
@@ -1014,7 +1030,8 @@ class Users {
       this.image,
       this.position,
       this.isMuted,
-      this.isVidOff});
+      this.isVidOff,
+      this.view});
   String googleUID;
   int agoraUID;
   String image;
@@ -1022,4 +1039,5 @@ class Users {
   bool isMuted;
   bool isVidOff;
   double position;
+  SurfaceView view;
 }
