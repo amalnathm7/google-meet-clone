@@ -15,7 +15,7 @@ import 'package:intl/intl.dart';
 class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _appCertificate = "f4b51772421c4f4d86b6a497b59cd99d";
-  final _user = FirebaseAuth.instance.currentUser;
+  final user = FirebaseAuth.instance.currentUser;
   String _token;
   String code;
   FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -104,10 +104,10 @@ class Agora extends ChangeNotifier {
         await createMeetingInDB(uid);
 
         users.add(Users(
-          googleUID: _user.uid,
+          googleUID: user.uid,
           agoraUID: uid,
-          name: _user.displayName + ' (You)',
-          image: _user.photoURL,
+          name: user.displayName + ' (You)',
+          image: user.photoURL,
           isMuted: HomeState.isMuted,
           isVidOff: HomeState.isVidOff,
           position: MediaQuery.of(context).size.width * 2 / 3,
@@ -136,7 +136,7 @@ class Agora extends ChangeNotifier {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
             if (element.type == DocumentChangeType.removed) {
-              if (snap.id != _user.uid) {
+              if (snap.id != user.uid) {
                 int i = 0;
                 for (; i < users.length; i++) {
                   if (users[i].googleUID == snap.id) break;
@@ -165,7 +165,7 @@ class Agora extends ChangeNotifier {
                 notifyListeners();
               }
             } else if (element.type == DocumentChangeType.added &&
-                snap.id != _user.uid) {
+                snap.id != user.uid) {
               users.add(Users(
                   googleUID: snap.id,
                   agoraUID: map['uid'],
@@ -189,7 +189,7 @@ class Agora extends ChangeNotifier {
               }
 
               for (Users value in users) {
-                if (value.googleUID == _user.uid) {
+                if (value.googleUID == user.uid) {
                   users.remove(value);
                   users.insert(0, value);
                   break;
@@ -202,7 +202,7 @@ class Agora extends ChangeNotifier {
                   duration: Duration(milliseconds: 1000),
                 ),
               );
-            } else if (snap.id != _user.uid) {
+            } else if (snap.id != user.uid) {
               users.forEach((element) {
                 if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
@@ -244,7 +244,7 @@ class Agora extends ChangeNotifier {
           List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
           list.forEach((element) {
             if (element.type == DocumentChangeType.added &&
-                element.doc.id != _user.uid) {
+                element.doc.id != user.uid) {
               DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
               if (_timer != null &&
                   _timer.isActive &&
@@ -441,16 +441,16 @@ class Agora extends ChangeNotifier {
     await _db
         .collection("meetings")
         .doc(code)
-        .set({'host': _user.uid, 'token': _token});
+        .set({'host': user.uid, 'token': _token});
 
     await _db
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(user.uid)
         .set({
-      'name': _user.displayName,
-      'image_url': _user.photoURL,
+      'name': user.displayName,
+      'image_url': user.photoURL,
       'uid': uid,
       'isMuted': HomeState.isMuted,
       'isVidOff': HomeState.isVidOff,
@@ -468,10 +468,10 @@ class Agora extends ChangeNotifier {
           .collection("meetings")
           .doc(code)
           .collection("requests")
-          .doc(_user.uid)
+          .doc(user.uid)
           .get();
 
-      if (document.get('host') == _user.uid ||
+      if (document.get('host') == user.uid ||
           (request.exists && request.get('isAccepted'))) {
         isAlreadyAccepted = true;
 
@@ -511,10 +511,10 @@ class Agora extends ChangeNotifier {
         await joinMeetingInDB(channel, uid);
 
         users.add(Users(
-          googleUID: _user.uid,
+          googleUID: user.uid,
           agoraUID: uid,
-          name: _user.displayName + ' (You)',
-          image: _user.photoURL,
+          name: user.displayName + ' (You)',
+          image: user.photoURL,
           isMuted: HomeState.isMuted,
           isVidOff: HomeState.isVidOff,
           position: MediaQuery.of(context).size.width * 2 / 3,
@@ -560,7 +560,7 @@ class Agora extends ChangeNotifier {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             Map<String, dynamic> map = snap.data();
             if (element.type == DocumentChangeType.removed) {
-              if (snap.id != _user.uid) {
+              if (snap.id != user.uid) {
                 int i = 0;
                 for (; i < users.length; i++) {
                   if (users[i].googleUID == snap.id) break;
@@ -589,7 +589,7 @@ class Agora extends ChangeNotifier {
                 notifyListeners();
               }
             } else if (element.type == DocumentChangeType.added &&
-                snap.id != _user.uid) {
+                snap.id != user.uid) {
               Users newUser = Users(
                 googleUID: snap.id,
                 agoraUID: map['uid'],
@@ -615,7 +615,7 @@ class Agora extends ChangeNotifier {
               }
 
               for (Users value in users) {
-                if (value.googleUID == _user.uid) {
+                if (value.googleUID == user.uid) {
                   users.remove(value);
                   users.insert(0, value);
                   break;
@@ -629,7 +629,7 @@ class Agora extends ChangeNotifier {
                     duration: Duration(milliseconds: 1000),
                   ),
                 );
-            } else if (snap.id != _user.uid) {
+            } else if (snap.id != user.uid) {
               users.forEach((element) {
                 if (element.googleUID == snap.id) {
                   element.isMuted = map['isMuted'];
@@ -675,7 +675,7 @@ class Agora extends ChangeNotifier {
           List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
           list.forEach((element) {
             if (element.type == DocumentChangeType.added &&
-                element.doc.id != _user.uid) {
+                element.doc.id != user.uid) {
               DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
               if (_timer != null &&
                   _timer.isActive &&
@@ -725,7 +725,7 @@ class Agora extends ChangeNotifier {
         DocumentSnapshot<Map<String, dynamic>> snap =
             await _db.collection("meetings").doc(code).get();
 
-        if (snap.get('host') == _user.uid) {
+        if (snap.get('host') == user.uid) {
           isHost = true;
           notifyListeners();
           _db
@@ -879,18 +879,18 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection('requests')
-        .doc(_user.uid)
+        .doc(user.uid)
         .set({
       'isAccepted': false,
-      'name': _user.displayName,
-      'image_url': _user.photoURL
+      'name': user.displayName,
+      'image_url': user.photoURL
     });
 
     _db
         .collection("meetings")
         .doc(code)
         .collection('requests')
-        .doc(_user.uid)
+        .doc(user.uid)
         .snapshots()
         .listen((event) {
       if (!event.exists) {
@@ -915,7 +915,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection('requests')
-        .doc(_user.uid)
+        .doc(user.uid)
         .delete();
   }
 
@@ -924,10 +924,10 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(user.uid)
         .set({
-      'name': _user.displayName,
-      'image_url': _user.photoURL,
+      'name': user.displayName,
+      'image_url': user.photoURL,
       'uid': uid,
       'isMuted': HomeState.isMuted,
       'isVidOff': HomeState.isVidOff,
@@ -939,9 +939,9 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("messages")
-        .doc(_user.uid)
+        .doc(user.uid)
         .set({
-      'name': _user.displayName,
+      'name': user.displayName,
       'message': msg,
     }, SetOptions(merge: false));
   }
@@ -951,7 +951,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("messages")
-        .doc(_user.uid)
+        .doc(user.uid)
         .delete();
   }
 
@@ -960,7 +960,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(user.uid)
         .update({'isMuted': muted});
   }
 
@@ -969,7 +969,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(user.uid)
         .update({'isVidOff': off});
   }
 
@@ -978,7 +978,7 @@ class Agora extends ChangeNotifier {
         .collection("meetings")
         .doc(code)
         .collection("users")
-        .doc(_user.uid)
+        .doc(user.uid)
         .delete();
     terminate();
   }

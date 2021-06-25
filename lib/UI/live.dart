@@ -28,7 +28,7 @@ class LiveState extends State<Live>
   double _opacity = 0.0;
   double _bottom = -60.0;
   int _currentIndex = 0;
-  int _pin = -1;
+  Users _pinnedUser;
   bool _capPressed = false;
   bool offed = false;
   TextEditingController _textEditingController = TextEditingController();
@@ -109,7 +109,7 @@ class LiveState extends State<Live>
 
   void _callback() {
     setState(() {
-      if (_pin >= agora.users.length) _pin = -1;
+      if (!agora.users.contains(_pinnedUser)) _pinnedUser = null;
       if (agora.currentUserIndex >= agora.users.length)
         agora.currentUserIndex = agora.users.length > 1 ? 1 : 0;
       if (_currentIndex == 1) agora.msgCount = 0;
@@ -714,60 +714,58 @@ class LiveState extends State<Live>
                                 viewInsets.bottom) *
                             .45,
                     width: MediaQuery.of(context).size.width,
-                    child: agora.users.length > _pin &&
-                            agora.users.length > agora.currentUserIndex
-                        ? agora
-                                .users[
-                                    _pin != -1 ? _pin : agora.currentUserIndex]
-                                .isVidOff
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    height: 50,
-                                  ),
-                                  ClipRRect(
-                                    child: Image.network(
-                                      agora
-                                          .users[_pin != -1
-                                              ? _pin
-                                              : agora.currentUserIndex]
-                                          .image,
-                                      height: 80,
-                                    ),
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  AnimatedOpacity(
-                                    opacity: 1 - _opacity,
-                                    duration: Duration(milliseconds: 300),
-                                    child: Text(
-                                      agora
-                                          .users[_pin != -1
-                                              ? _pin
-                                              : agora.currentUserIndex]
-                                          .name,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
+                    child: agora.users.length > agora.currentUserIndex
+                        ? _pinnedUser != null
+                            ? _pinnedUser.isVidOff
+                            : agora.users[agora.currentUserIndex].isVidOff
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        height: 50,
                                       ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : agora.users.length == 1 || _pin == 0
-                                ? SurfaceView()
-                                : agora.users.length > _pin &&
-                                        agora.users.length >
+                                      ClipRRect(
+                                        child: Image.network(
+                                          _pinnedUser != null
+                                              ? _pinnedUser.image
+                                              : agora
+                                                  .users[agora.currentUserIndex]
+                                                  .image,
+                                          height: 80,
+                                        ),
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      AnimatedOpacity(
+                                        opacity: 1 - _opacity,
+                                        duration: Duration(milliseconds: 300),
+                                        child: Text(
+                                          _pinnedUser != null
+                                              ? _pinnedUser.name
+                                              : agora
+                                                  .users[agora.currentUserIndex]
+                                                  .name,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : agora.users.length == 1 ||
+                                        _pinnedUser.googleUID == agora.user.uid
+                                    ? SurfaceView()
+                                    : agora.users.length >
                                             agora.currentUserIndex
-                                    ? agora
-                                        .users[_pin != -1
-                                            ? _pin
-                                            : agora.currentUserIndex]
-                                        .view
-                                    : SizedBox()
+                                        ? _pinnedUser != null
+                                            ? _pinnedUser.view
+                                            : agora
+                                                .users[agora.currentUserIndex]
+                                                .view
+                                        : SizedBox()
                         : SizedBox()),
                 Positioned(
                   top: 40,
@@ -1061,8 +1059,8 @@ class LiveState extends State<Live>
                                                 ),
                                               ),
                                               Opacity(
-                                                  opacity: _pin != -1
-                                                      ? _pin == index
+                                                  opacity: _pinnedUser != null
+                                                      ? _pinnedUser == agora.users[index]
                                                           ? 0.7
                                                           : 0
                                                       : agora.currentUserIndex ==
@@ -1086,7 +1084,7 @@ class LiveState extends State<Live>
                                                           30) /
                                                       2,
                                                   child: Icon(
-                                                    _pin == index
+                                                    _pinnedUser == agora.users[index]
                                                         ? Icons.push_pin
                                                         : null,
                                                     color: Colors.white,
@@ -1118,8 +1116,11 @@ class LiveState extends State<Live>
                                                                 .users[index]
                                                                 .isMuted
                                                             ? Colors.white
-                                                            : _pin != -1
-                                                                ? _pin == index
+                                                            : _pinnedUser !=
+                                                                    null
+                                                                ? _pinnedUser ==
+                                                                        agora.users[
+                                                                            index]
                                                                     ? Colors
                                                                         .tealAccent
                                                                     : Colors
@@ -1151,10 +1152,14 @@ class LiveState extends State<Live>
                                                 child: InkWell(
                                                   onTap: () {
                                                     setState(() {
-                                                      if (_pin == index)
-                                                        _pin = -1;
+                                                      if (_pinnedUser
+                                                              .googleUID ==
+                                                          agora.users[index]
+                                                              .googleUID)
+                                                        _pinnedUser = null;
                                                       else
-                                                        _pin = index;
+                                                        _pinnedUser =
+                                                            agora.users[index];
                                                     });
                                                   },
                                                   splashColor: Colors.white24,
@@ -1295,13 +1300,16 @@ class LiveState extends State<Live>
                                                               ),
                                                               child: IconButton(
                                                                 icon: Icon(
-                                                                  _pin == index
+                                                                  _pinnedUser ==
+                                                                          agora.users[
+                                                                              index]
                                                                       ? Icons
                                                                           .push_pin
                                                                       : Icons
                                                                           .push_pin_outlined,
-                                                                  color: _pin ==
-                                                                          index
+                                                                  color: _pinnedUser ==
+                                                                          agora.users[
+                                                                              index]
                                                                       ? Colors.teal[
                                                                           700]
                                                                       : Colors.grey[
@@ -1311,12 +1319,15 @@ class LiveState extends State<Live>
                                                                     Colors.grey,
                                                                 onPressed: () {
                                                                   setState(() {
-                                                                    if (_pin ==
-                                                                        index)
-                                                                      _pin = -1;
+                                                                    if (_pinnedUser ==
+                                                                        agora.users[
+                                                                            index])
+                                                                      _pinnedUser =
+                                                                          null;
                                                                     else
-                                                                      _pin =
-                                                                          index;
+                                                                      _pinnedUser =
+                                                                          agora.users[
+                                                                              index];
                                                                   });
                                                                 },
                                                               ),
