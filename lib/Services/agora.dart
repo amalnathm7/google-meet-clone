@@ -495,7 +495,7 @@ class Agora extends ChangeNotifier {
             DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
             if (element.type == DocumentChangeType.removed)
               usersHere.remove(snap.get('name'));
-            else
+            else if (element.type == DocumentChangeType.added)
               usersHere.add(snap.get('name'));
             notifyListeners();
           });
