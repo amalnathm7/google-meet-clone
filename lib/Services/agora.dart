@@ -182,12 +182,16 @@ class Agora extends ChangeNotifier {
                   ));
               users.add(newUser);
 
-              Timer(Duration(seconds: 30), () {
-                newUser?.joinedNow = false;
-                notifyListeners();
-              });
+              if(users.length == 2)
+                currentUserIndex = 1;
 
-              currentUserIndex = users.length == 1 ? 0 : 1;
+              if(!usersHere.contains(newUser.name)) {
+                usersHere.add(newUser.name);
+                Timer(Duration(seconds: 30), () {
+                  newUser?.joinedNow = false;
+                  notifyListeners();
+                });
+              }
 
               if (users.length > 4) {
                 List<Users> list = users.sublist(4);
@@ -644,7 +648,8 @@ class Agora extends ChangeNotifier {
                   ));
               users.add(newUser);
 
-              currentUserIndex = users.length == 1 ? 0 : 1;
+              if(users.length == 2)
+                currentUserIndex = 1;
 
               if (users.length > 4) {
                 List<Users> list = users.sublist(4);
@@ -663,6 +668,7 @@ class Agora extends ChangeNotifier {
               }
 
               if (!usersHere.contains(newUser.name)) {
+                usersHere.add(newUser.name);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(map['name'] + " has joined"),
@@ -891,7 +897,10 @@ class Agora extends ChangeNotifier {
           if (response.statusCode == 200) {
             _token = response.body;
             _token = jsonDecode(_token)['token'];
-            await _db.collection("meetings").doc(code).update({'token': _token});
+            await _db
+                .collection("meetings")
+                .doc(code)
+                .update({'token': _token});
             engine.renewToken(_token);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
