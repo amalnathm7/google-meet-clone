@@ -419,13 +419,12 @@ class Agora extends ChangeNotifier {
         if (response.statusCode == 200) {
           _token = response.body;
           _token = jsonDecode(_token)['token'];
+          await _db.collection("meetings").doc(code).update({'token': _token});
           engine.renewToken(_token);
-          _db.collection("meetings").doc(code).update({'token': _token});
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                  "This meeting will end soon due to token renewal failure."),
+              content: Text("This meeting may end soon."),
               duration: Duration(milliseconds: 2000),
             ),
           );
@@ -886,8 +885,8 @@ class Agora extends ChangeNotifier {
       tokenPrivilegeWillExpire: (token) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                "Meeting code will expire soon. If the host is absent, the meeting may end."),
+            content: Text("Meeting code will expire soon. "
+                "If the host is absent, the meeting may end."),
             duration: Duration(milliseconds: 2000),
           ),
         );
