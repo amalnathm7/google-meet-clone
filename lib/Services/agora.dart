@@ -16,9 +16,10 @@ class Agora extends ChangeNotifier {
   final _appId = "6d4aa2fdccfd43438c4c811d12f16141";
   final _appCertificate = "f4b51772421c4f4d86b6a497b59cd99d";
   final user = FirebaseAuth.instance.currentUser;
+  FirebaseFirestore _db = FirebaseFirestore.instance;
+  StreamSubscription _usersHereListener;
   String _token;
   String code;
-  FirebaseFirestore _db = FirebaseFirestore.instance;
   BuildContext context;
   RtcEngine engine;
   List<Users> users = [];
@@ -111,6 +112,7 @@ class Agora extends ChangeNotifier {
           isMuted: HomeState.isMuted,
           isVidOff: HomeState.isVidOff,
           position: MediaQuery.of(context).size.width * 2 / 3,
+          joinedNow: false,
           view: SurfaceView(
             uid: uid,
           ),
@@ -166,7 +168,7 @@ class Agora extends ChangeNotifier {
               }
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != user.uid) {
-              users.add(Users(
+              Users newUser = Users(
                   googleUID: snap.id,
                   agoraUID: map['uid'],
                   name: map['name'],
@@ -174,9 +176,16 @@ class Agora extends ChangeNotifier {
                   isMuted: map['isMuted'],
                   isVidOff: map['isVidOff'],
                   position: MediaQuery.of(context).size.width * 2 / 3,
+                  joinedNow: true,
                   view: SurfaceView(
                     uid: map['uid'],
-                  )));
+                  ));
+              users.add(newUser);
+
+              Timer(Duration(seconds: 30), () {
+                newUser?.joinedNow = false;
+                notifyListeners();
+              });
 
               currentUserIndex = users.length == 1 ? 0 : 1;
 
@@ -475,7 +484,7 @@ class Agora extends ChangeNotifier {
           (request.exists && request.get('isAccepted'))) {
         isAlreadyAccepted = true;
 
-        _db
+        _usersHereListener = _db
             .collection("meetings")
             .doc(code)
             .collection("users")
@@ -518,11 +527,11 @@ class Agora extends ChangeNotifier {
           isMuted: HomeState.isMuted,
           isVidOff: HomeState.isVidOff,
           position: MediaQuery.of(context).size.width * 2 / 3,
+          joinedNow: false,
           view: SurfaceView(
             uid: uid,
           ),
         ));
-        notifyListeners();
 
         Navigator.pushReplacement(
             context,
@@ -591,17 +600,17 @@ class Agora extends ChangeNotifier {
             } else if (element.type == DocumentChangeType.added &&
                 snap.id != user.uid) {
               Users newUser = Users(
-                googleUID: snap.id,
-                agoraUID: map['uid'],
-                name: map['name'],
-                image: map['image_url'],
-                isMuted: map['isMuted'],
-                isVidOff: map['isVidOff'],
-                position: MediaQuery.of(context).size.width * 2 / 3,
-                view: SurfaceView(
-                  uid: map['uid'],
-                ),
-              );
+                  googleUID: snap.id,
+                  agoraUID: map['uid'],
+                  name: map['name'],
+                  image: map['image_url'],
+                  isMuted: map['isMuted'],
+                  isVidOff: map['isVidOff'],
+                  position: MediaQuery.of(context).size.width * 2 / 3,
+                  joinedNow: true,
+                  view: SurfaceView(
+                    uid: map['uid'],
+                  ));
               users.add(newUser);
 
               currentUserIndex = users.length == 1 ? 0 : 1;
@@ -622,13 +631,20 @@ class Agora extends ChangeNotifier {
                 }
               }
 
-              if (!usersHere.contains(newUser.name))
+              if (!usersHere.contains(newUser.name)) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(map['name'] + " has joined"),
                     duration: Duration(milliseconds: 1000),
                   ),
                 );
+                Timer(Duration(seconds: 30), () {
+                  newUser?.joinedNow = false;
+                  notifyListeners();
+                });
+              } else {
+                newUser.joinedNow = false;
+              }
             } else if (snap.id != user.uid) {
               users.forEach((element) {
                 if (element.googleUID == snap.id) {
@@ -818,6 +834,8 @@ class Agora extends ChangeNotifier {
             });
           });
         }
+
+        _usersHereListener.cancel();
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1031,13 +1049,14 @@ class Users {
       this.position,
       this.isMuted,
       this.isVidOff,
-      this.view});
+      this.view, this.joinedNow});
   String googleUID;
   int agoraUID;
   String image;
   String name;
   bool isMuted;
   bool isVidOff;
+  bool joinedNow;
   double position;
   SurfaceView view;
 }

@@ -1025,6 +1025,9 @@ class LiveState extends State<Live>
                                     Container(
                                       width: MediaQuery.of(context).size.width,
                                       height: 70,
+                                      color: agora.users[index].joinedNow
+                                          ? Colors.teal[50]
+                                          : Colors.transparent,
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment:
@@ -1188,11 +1191,46 @@ class LiveState extends State<Live>
                                               ),
                                               index != 0
                                                   ? Positioned(
-                                                      child: Icon(
-                                                        Icons
-                                                            .keyboard_arrow_right,
-                                                        color: Colors.grey[700],
-                                                      ),
+                                                      child: agora.users[index]
+                                                              .joinedNow
+                                                          ? Center(
+                                                              child: Container(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .teal[700],
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            30),
+                                                              ),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8.0,
+                                                                        top:
+                                                                            2.0,
+                                                                        bottom:
+                                                                            2.0),
+                                                                child: Text(
+                                                                  "NEW",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                  fontWeight: FontWeight.w600),
+                                                                ),
+                                                              ),
+                                                            ))
+                                                          : Icon(
+                                                              Icons
+                                                                  .keyboard_arrow_right,
+                                                              color: Colors
+                                                                  .grey[700],
+                                                            ),
                                                       height: 70,
                                                       right: 8,
                                                     )
