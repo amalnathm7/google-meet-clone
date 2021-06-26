@@ -406,6 +406,31 @@ class Agora extends ChangeNotifier {
         );
         homeState.stopLoading();
       },
+      tokenPrivilegeWillExpire: (token) async {
+        final response = await http.post(
+            Uri.parse("https://agora-app-server.herokuapp.com/getToken/"),
+            body: {
+              "uid": "0",
+              "appID": _appId,
+              "appCertificate": _appCertificate,
+              "channelName": code,
+            });
+
+        if (response.statusCode == 200) {
+          _token = response.body;
+          _token = jsonDecode(_token)['token'];
+          engine.renewToken(_token);
+          _db.collection("meetings").doc(code).update({'token': _token});
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  "This meeting will end soon due to token renewal failure."),
+              duration: Duration(milliseconds: 2000),
+            ),
+          );
+        }
+      },
       remoteAudioStats: (stats) {
         int index = 0;
         for (Users element in users) {
@@ -557,6 +582,13 @@ class Agora extends ChangeNotifier {
             ),
           );
         }
+
+        _db.collection("meetings").doc(code).snapshots().listen((event) {
+          if (event.get('token') != _token) {
+            _token = event.get('token');
+            engine.renewToken(_token);
+          }
+        });
 
         _db
             .collection("meetings")
@@ -834,7 +866,6 @@ class Agora extends ChangeNotifier {
             });
           });
         }
-
         _usersHereListener.cancel();
       },
       error: (errorCode) {
@@ -851,6 +882,15 @@ class Agora extends ChangeNotifier {
       connectionStateChanged: (state, reason) {
         if (state == ConnectionStateType.Disconnected ||
             state == ConnectionStateType.Failed) exitMeeting();
+      },
+      tokenPrivilegeWillExpire: (token) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                "Meeting code will expire soon. If the host is absent, the meeting may end."),
+            duration: Duration(milliseconds: 2000),
+          ),
+        );
       },
       remoteAudioStats: (stats) {
         int index = 0;
@@ -1049,7 +1089,8 @@ class Users {
       this.position,
       this.isMuted,
       this.isVidOff,
-      this.view, this.joinedNow});
+      this.view,
+      this.joinedNow});
   String googleUID;
   int agoraUID;
   String image;
