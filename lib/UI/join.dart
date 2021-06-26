@@ -348,7 +348,7 @@ class JoinState extends State<Join> {
                 ),
                 Container(
                   color: Colors.white,
-                  height: agora.isAlreadyAccepted ? 180 : 160,
+                  height: agora.isAlreadyAccepted || agora.isHost ? 180 : 160,
                   width: MediaQuery.of(context).size.width,
                   child: agora.askingToJoin
                       ? Column(
@@ -397,7 +397,7 @@ class JoinState extends State<Join> {
                                     color: Colors.black, fontSize: 18),
                               ),
                             ),
-                            agora.isAlreadyAccepted
+                            agora.isAlreadyAccepted || agora.isHost
                                 ? Column(
                                     children: [
                                       Padding(

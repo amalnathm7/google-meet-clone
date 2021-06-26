@@ -504,10 +504,10 @@ class Agora extends ChangeNotifier {
           .doc(user.uid)
           .get();
 
-      if (document.get('host') == user.uid ||
-          (request.exists && request.get('isAccepted'))) {
-        isAlreadyAccepted = true;
+      if (document.get('host') == user.uid) isHost = true;
+      if (request.exists && request.get('isAccepted')) isAlreadyAccepted = true;
 
+      if (isHost || isAlreadyAccepted) {
         _usersHereListener = _db
             .collection("meetings")
             .doc(code)
@@ -769,12 +769,7 @@ class Agora extends ChangeNotifier {
           });
         });
 
-        DocumentSnapshot<Map<String, dynamic>> snap =
-            await _db.collection("meetings").doc(code).get();
-
-        if (snap.get('host') == user.uid) {
-          isHost = true;
-          notifyListeners();
+        if (isHost) {
           _db
               .collection("meetings")
               .doc(code)
@@ -882,14 +877,38 @@ class Agora extends ChangeNotifier {
         if (state == ConnectionStateType.Disconnected ||
             state == ConnectionStateType.Failed) exitMeeting();
       },
-      tokenPrivilegeWillExpire: (token) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Meeting code will expire soon. "
-                "If the host is absent, the meeting may end."),
-            duration: Duration(milliseconds: 2000),
-          ),
-        );
+      tokenPrivilegeWillExpire: (token) async {
+        if (isHost) {
+          final response = await http.post(
+              Uri.parse("https://agora-app-server.herokuapp.com/getToken/"),
+              body: {
+                "uid": "0",
+                "appID": _appId,
+                "appCertificate": _appCertificate,
+                "channelName": code,
+              });
+
+          if (response.statusCode == 200) {
+            _token = response.body;
+            _token = jsonDecode(_token)['token'];
+            await _db.collection("meetings").doc(code).update({'token': _token});
+            engine.renewToken(_token);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("This meeting may end soon."),
+                duration: Duration(milliseconds: 2000),
+              ),
+            );
+          }
+        } else
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Meeting code will expire soon. "
+                  "If the host is absent, the meeting may end."),
+              duration: Duration(milliseconds: 2000),
+            ),
+          );
       },
       remoteAudioStats: (stats) {
         int index = 0;
