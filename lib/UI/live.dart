@@ -1214,45 +1214,45 @@ class LiveState extends State<Live>
                                                     ),
                                                   ],
                                                 )
-                                              :
-                                                Stack(
+                                              : Stack(
                                                   children: [
                                                     Container(
-                                                        width: MediaQuery.of(context)
+                                                        width: MediaQuery.of(
+                                                                    context)
                                                                 .size
                                                                 .width /
                                                             3,
-                                                        child:
-                                                            agora.users[index].view),
+                                                        child: index == 0 ? SurfaceView() : agora
+                                                            .users[index].view),
                                                     Material(
                                                       color: Colors.transparent,
                                                       child: InkWell(
                                                         onTap: () {
                                                           setState(() {
                                                             if (_pinnedUser !=
-                                                                null &&
+                                                                    null &&
                                                                 _pinnedUser
-                                                                    .googleUID ==
+                                                                        .googleUID ==
                                                                     agora
                                                                         .users[
-                                                                    index]
+                                                                            index]
                                                                         .googleUID)
                                                               _pinnedUser =
-                                                              null;
+                                                                  null;
                                                             else
                                                               _pinnedUser =
-                                                              agora.users[
-                                                              index];
+                                                                  agora.users[
+                                                                      index];
                                                           });
                                                         },
                                                         splashColor:
-                                                        Colors.white24,
+                                                            Colors.white24,
                                                         child: Ink(
                                                           height: 70,
                                                           width: MediaQuery.of(
-                                                              context)
-                                                              .size
-                                                              .width /
+                                                                      context)
+                                                                  .size
+                                                                  .width /
                                                               3,
                                                         ),
                                                       ),
