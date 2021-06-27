@@ -394,11 +394,6 @@ class Agora extends ChangeNotifier {
           }
         });
       });
-    }, connectionLost: () {
-      exitMeeting();
-    }, connectionStateChanged: (state, reason) {
-      if (state == ConnectionStateType.Disconnected ||
-          state == ConnectionStateType.Failed) exitMeeting();
     }, error: (errorCode) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -664,12 +659,14 @@ class Agora extends ChangeNotifier {
           );
         }
 
-        _db.collection("meetings").doc(code).snapshots().listen((event) {
-          if (event.get('token') != _token) {
-            _token = event.get('token');
-            engine.renewToken(_token);
-          }
-        });
+        if (!isHost) {
+          _db.collection("meetings").doc(code).snapshots().listen((event) {
+            if (event.get('token') != _token) {
+              _token = event.get('token');
+              engine.renewToken(_token);
+            }
+          });
+        }
 
         _db
             .collection("meetings")
@@ -957,13 +954,6 @@ class Agora extends ChangeNotifier {
           ),
         );
         notifyListeners();
-      },
-      connectionLost: () {
-        exitMeeting();
-      },
-      connectionStateChanged: (state, reason) {
-        if (state == ConnectionStateType.Disconnected ||
-            state == ConnectionStateType.Failed) exitMeeting();
       },
       tokenPrivilegeWillExpire: (token) async {
         if (isHost) {
