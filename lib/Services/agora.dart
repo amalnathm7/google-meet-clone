@@ -24,6 +24,7 @@ class Agora extends ChangeNotifier {
   RtcEngine engine;
   List<Users> users = [];
   List<String> usersHere = [];
+  List<String> newUsers = [];
   List<String> messages = [];
   List<String> messageUsers = [];
   List<String> messageTime = [];
@@ -182,15 +183,17 @@ class Agora extends ChangeNotifier {
                   ));
               users.add(newUser);
 
-              if(users.length == 2)
-                currentUserIndex = 1;
+              if (users.length == 2) currentUserIndex = 1;
 
-              if(!usersHere.contains(newUser.name)) {
-                usersHere.add(newUser.name);
+              if (!newUsers.contains(newUser.name) &&
+                  !usersHere.contains(newUser.name)) {
+                newUsers.add(newUser.name);
                 Timer(Duration(seconds: 30), () {
                   newUser?.joinedNow = false;
                   notifyListeners();
                 });
+              } else {
+                newUser.joinedNow = false;
               }
 
               if (users.length > 4) {
@@ -434,20 +437,64 @@ class Agora extends ChangeNotifier {
           );
         }
       },
+      remoteAudioStateChanged: (uid, state, reason, elapsed) {
+        for (Users element in users) {
+          if (element.agoraUID == uid) {
+            if (state == AudioRemoteState.Stopped &&
+                reason == AudioRemoteStateReason.RemoteMuted) {
+              element.isMuted = true;
+              notifyListeners();
+            }
+            break;
+          }
+        }
+      },
+      remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        for (Users element in users) {
+          if (element.agoraUID == uid) {
+            if (state == VideoRemoteState.Stopped &&
+                reason == VideoRemoteStateReason.RemoteMuted) {
+              element.isVidOff = true;
+              notifyListeners();
+            }
+            break;
+          }
+        }
+      },
       remoteAudioStats: (stats) {
         int index = 0;
         for (Users element in users) {
           if (element.agoraUID == stats.uid) break;
           index++;
         }
-        users.insert(index < 4 ? index : 1, users.removeAt(index));
-        currentUserIndex = index < 4 ? index : 1;
-        if (users.length > 4) {
-          List<Users> list = users.sublist(4);
-          list.sort(
-              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-          users.replaceRange(4, users.length, list.getRange(0, list.length));
+        if (index >= 4) {
+          users.insert(1, users.removeAt(index));
+          currentUserIndex = 1;
+          if (users.length > 4) {
+            List<Users> list = users.sublist(4);
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
+          }
         }
+
+        if (stats.receivedBitrate < 5) {
+          users[index].pitch1 = 5;
+          users[index].pitch2 = 5;
+        } else if (stats.receivedBitrate < 7.5) {
+          users[index].pitch1 = stats.receivedBitrate.toDouble();
+          users[index].pitch2 = 5;
+        } else if (stats.receivedBitrate > 16) {
+          users[index].pitch1 = 18;
+          users[index].pitch2 = 18;
+        } else if (stats.receivedBitrate > 14) {
+          users[index].pitch1 = 18;
+          users[index].pitch2 = users[index].pitch1 / 1.5;
+        } else {
+          users[index].pitch1 = stats.receivedBitrate.toDouble();
+          users[index].pitch2 = users[index].pitch1 / 1.5;
+        }
+
         notifyListeners();
       },
       remoteVideoStats: (stats) {
@@ -456,13 +503,34 @@ class Agora extends ChangeNotifier {
           if (element.agoraUID == stats.uid) break;
           index++;
         }
-        users.insert(index < 4 ? index : 1, users.removeAt(index));
-        currentUserIndex = index < 4 ? index : 1;
-        if (users.length > 4) {
-          List<Users> list = users.sublist(4);
-          list.sort(
-              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-          users.replaceRange(4, users.length, list.getRange(0, list.length));
+        if (index >= 4) {
+          users.insert(1, users.removeAt(index));
+          currentUserIndex = 1;
+          if (users.length > 4) {
+            List<Users> list = users.sublist(4);
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
+          }
+          notifyListeners();
+        }
+      },
+      localAudioStats: (stats) {
+        if (stats.sentBitrate < 5) {
+          users[0].pitch1 = 5;
+          users[0].pitch2 = 5;
+        } else if (stats.sentBitrate < 7.5) {
+          users[0].pitch1 = stats.sentBitrate.toDouble();
+          users[0].pitch2 = 5;
+        } else if (stats.sentBitrate > 16) {
+          users[0].pitch1 = 18;
+          users[0].pitch2 = 18;
+        } else if (stats.sentBitrate > 14) {
+          users[0].pitch1 = 18;
+          users[0].pitch2 = users[0].pitch1 / 1.5;
+        } else {
+          users[0].pitch1 = stats.sentBitrate.toDouble();
+          users[0].pitch2 = users[0].pitch1 / 1.5;
         }
         notifyListeners();
       },
@@ -561,6 +629,19 @@ class Agora extends ChangeNotifier {
           ),
         ));
 
+        if (askingToJoin) {
+          QuerySnapshot<Map<String, dynamic>> snapshot = await _db
+              .collection("meetings")
+              .doc(code)
+              .collection("users")
+              .get();
+          List<QueryDocumentSnapshot<Map<String, dynamic>>> list =
+              snapshot.docs;
+          list.forEach((element) {
+            usersHere.add(element.get('name'));
+          });
+        }
+
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -648,8 +729,7 @@ class Agora extends ChangeNotifier {
                   ));
               users.add(newUser);
 
-              if(users.length == 2)
-                currentUserIndex = 1;
+              if (users.length == 2) currentUserIndex = 1;
 
               if (users.length > 4) {
                 List<Users> list = users.sublist(4);
@@ -667,20 +747,24 @@ class Agora extends ChangeNotifier {
                 }
               }
 
-              if (!usersHere.contains(newUser.name)) {
-                usersHere.add(newUser.name);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(map['name'] + " has joined"),
-                    duration: Duration(milliseconds: 1000),
-                  ),
-                );
+              if (!newUsers.contains(newUser.name) &&
+                  !usersHere.contains(newUser.name)) {
+                newUsers.add(newUser.name);
                 Timer(Duration(seconds: 30), () {
                   newUser?.joinedNow = false;
                   notifyListeners();
                 });
               } else {
                 newUser.joinedNow = false;
+              }
+
+              if (!usersHere.contains(newUser.name)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(map['name'] + " has joined"),
+                    duration: Duration(milliseconds: 1000),
+                  ),
+                );
               }
             } else if (snap.id != user.uid) {
               users.forEach((element) {
@@ -919,20 +1003,64 @@ class Agora extends ChangeNotifier {
             ),
           );
       },
+      remoteAudioStateChanged: (uid, state, reason, elapsed) {
+        for (Users element in users) {
+          if (element.agoraUID == uid) {
+            if (state == AudioRemoteState.Stopped &&
+                reason == AudioRemoteStateReason.RemoteMuted) {
+              element.isMuted = true;
+              notifyListeners();
+            }
+            break;
+          }
+        }
+      },
+      remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        for (Users element in users) {
+          if (element.agoraUID == uid) {
+            if (state == VideoRemoteState.Stopped &&
+                reason == VideoRemoteStateReason.RemoteMuted) {
+              element.isVidOff = true;
+              notifyListeners();
+            }
+            break;
+          }
+        }
+      },
       remoteAudioStats: (stats) {
         int index = 0;
         for (Users element in users) {
           if (element.agoraUID == stats.uid) break;
           index++;
         }
-        users.insert(index < 4 ? index : 1, users.removeAt(index));
-        currentUserIndex = index < 4 ? index : 1;
-        if (users.length > 4) {
-          List<Users> list = users.sublist(4);
-          list.sort(
-              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-          users.replaceRange(4, users.length, list.getRange(0, list.length));
+        if (index >= 4) {
+          users.insert(1, users.removeAt(index));
+          currentUserIndex = 1;
+          if (users.length > 4) {
+            List<Users> list = users.sublist(4);
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
+          }
         }
+
+        if (stats.receivedBitrate < 5) {
+          users[index].pitch1 = 5;
+          users[index].pitch2 = 5;
+        } else if (stats.receivedBitrate < 7.5) {
+          users[index].pitch1 = stats.receivedBitrate.toDouble();
+          users[index].pitch2 = 5;
+        } else if (stats.receivedBitrate > 16) {
+          users[index].pitch1 = 18;
+          users[index].pitch2 = 18;
+        } else if (stats.receivedBitrate > 14) {
+          users[index].pitch1 = 18;
+          users[index].pitch2 = users[index].pitch1 / 1.5;
+        } else {
+          users[index].pitch1 = stats.receivedBitrate.toDouble();
+          users[index].pitch2 = users[index].pitch1 / 1.5;
+        }
+
         notifyListeners();
       },
       remoteVideoStats: (stats) {
@@ -941,13 +1069,34 @@ class Agora extends ChangeNotifier {
           if (element.agoraUID == stats.uid) break;
           index++;
         }
-        users.insert(index < 4 ? index : 1, users.removeAt(index));
-        currentUserIndex = index < 4 ? index : 1;
-        if (users.length > 4) {
-          List<Users> list = users.sublist(4);
-          list.sort(
-              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-          users.replaceRange(4, users.length, list.getRange(0, list.length));
+        if (index >= 4) {
+          users.insert(1, users.removeAt(index));
+          currentUserIndex = 1;
+          if (users.length > 4) {
+            List<Users> list = users.sublist(4);
+            list.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            users.replaceRange(4, users.length, list.getRange(0, list.length));
+          }
+          notifyListeners();
+        }
+      },
+      localAudioStats: (stats) {
+        if (stats.sentBitrate < 5) {
+          users[0].pitch1 = 5;
+          users[0].pitch2 = 5;
+        } else if (stats.sentBitrate < 7.5) {
+          users[0].pitch1 = stats.sentBitrate.toDouble();
+          users[0].pitch2 = 5;
+        } else if (stats.sentBitrate > 16) {
+          users[0].pitch1 = 18;
+          users[0].pitch2 = 18;
+        } else if (stats.sentBitrate > 14) {
+          users[0].pitch1 = 18;
+          users[0].pitch2 = users[0].pitch1 / 1.5;
+        } else {
+          users[0].pitch1 = stats.sentBitrate.toDouble();
+          users[0].pitch2 = users[0].pitch1 / 1.5;
         }
         notifyListeners();
       },
@@ -1117,7 +1266,9 @@ class Users {
       this.isMuted,
       this.isVidOff,
       this.view,
-      this.joinedNow});
+      this.joinedNow,
+      this.pitch1 = 5,
+      this.pitch2 = 5});
   String googleUID;
   int agoraUID;
   String image;
@@ -1126,5 +1277,7 @@ class Users {
   bool isVidOff;
   bool joinedNow;
   double position;
+  double pitch1;
+  double pitch2;
   SurfaceView view;
 }

@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.amalmeenu.gmeet">
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
         android:label="Gmeet"
         android:icon="@mipmap/ic_launcher">
