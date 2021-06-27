@@ -60,13 +60,17 @@ class LiveState extends State<Live>
         .onConnectivityChanged
         .listen((ConnectivityResult result) {
       if (result == ConnectivityResult.none) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("No Internet connection"),
-            duration: Duration(milliseconds: 1000),
-          ),
-        );
+        Future.delayed(Duration(seconds: 10), () async {
+          if(await Connectivity().checkConnectivity() == ConnectivityResult.none) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("No Internet connection"),
+                duration: Duration(milliseconds: 1000),
+              ),
+            );
+          }
+        });
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
