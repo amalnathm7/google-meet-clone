@@ -1141,10 +1141,7 @@ class LiveState extends State<Live>
                                                       bottom: 8,
                                                       child: Row(
                                                         children: [
-                                                          AnimatedContainer(
-                                                            duration: Duration(milliseconds: 500),
-                                                            width: 5,
-                                                            height: agora.users[index].pitch2,
+                                                          Container(
                                                             decoration: BoxDecoration(
                                                                 color: _pinnedUser != null
                                                                     ? _pinnedUser == agora.users[index]
@@ -1154,14 +1151,21 @@ class LiveState extends State<Live>
                                                                         ? Colors.tealAccent
                                                                         : Colors.teal,
                                                                 borderRadius: BorderRadius.circular(10)),
+                                                            child:
+                                                                AnimatedContainer(
+                                                              duration: Duration(
+                                                                  milliseconds:
+                                                                      500),
+                                                              width: 5,
+                                                              height: agora
+                                                                  .users[index]
+                                                                  .volume2,
+                                                            ),
                                                           ),
                                                           SizedBox(
                                                             width: 2,
                                                           ),
-                                                          AnimatedContainer(
-                                                            duration: Duration(milliseconds: 500),
-                                                            width: 5,
-                                                            height: agora.users[index].pitch1,
+                                                          Container(
                                                             decoration: BoxDecoration(
                                                                 color: _pinnedUser != null
                                                                     ? _pinnedUser == agora.users[index]
@@ -1171,14 +1175,21 @@ class LiveState extends State<Live>
                                                                         ? Colors.tealAccent
                                                                         : Colors.teal,
                                                                 borderRadius: BorderRadius.circular(10)),
+                                                            child:
+                                                                AnimatedContainer(
+                                                              duration: Duration(
+                                                                  milliseconds:
+                                                                      500),
+                                                              width: 5,
+                                                              height: agora
+                                                                  .users[index]
+                                                                  .volume1,
+                                                            ),
                                                           ),
                                                           SizedBox(
                                                             width: 2,
                                                           ),
-                                                          AnimatedContainer(
-                                                            duration: Duration(milliseconds: 500),
-                                                            width: 5,
-                                                            height: agora.users[index].pitch2,
+                                                          Container(
                                                             decoration: BoxDecoration(
                                                                 color: _pinnedUser != null
                                                                     ? _pinnedUser == agora.users[index]
@@ -1188,6 +1199,16 @@ class LiveState extends State<Live>
                                                                         ? Colors.tealAccent
                                                                         : Colors.teal,
                                                                 borderRadius: BorderRadius.circular(10)),
+                                                            child:
+                                                                AnimatedContainer(
+                                                              duration: Duration(
+                                                                  milliseconds:
+                                                                      500),
+                                                              width: 5,
+                                                              height: agora
+                                                                  .users[index]
+                                                                  .volume2,
+                                                            ),
                                                           )
                                                         ],
                                                       ),

@@ -34,7 +34,9 @@ class JoinState extends State<Join> {
   }
 
   void _callback() {
-    setState(() {});
+    setState(() {
+      _loading = false;
+    });
   }
 
   void camera() async {

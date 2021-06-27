@@ -97,104 +97,54 @@ class Agora extends ChangeNotifier {
     engine = await RtcEngine.createWithConfig(config);
 
     engine.setEventHandler(RtcEngineEventHandler(
-      joinChannelSuccess: (channel, uid, elapsed) async {
-        _delay.cancel();
+        joinChannelSuccess: (channel, uid, elapsed) async {
+      _delay.cancel();
 
-        await engine.muteLocalAudioStream(HomeState.isMuted);
-        await engine.muteLocalVideoStream(HomeState.isVidOff);
+      await engine.muteLocalAudioStream(HomeState.isMuted);
+      await engine.muteLocalVideoStream(HomeState.isVidOff);
 
-        await createMeetingInDB(uid);
+      await createMeetingInDB(uid);
 
-        users.add(Users(
-          googleUID: user.uid,
-          agoraUID: uid,
-          name: user.displayName + ' (You)',
-          image: user.photoURL,
-          isMuted: HomeState.isMuted,
-          isVidOff: HomeState.isVidOff,
-          position: MediaQuery.of(context).size.width * 2 / 3,
-          joinedNow: false,
-          view: SurfaceView(
-            uid: uid,
-          ),
-        ));
+      users.add(Users(
+        googleUID: user.uid,
+        agoraUID: uid,
+        name: user.displayName + ' (You)',
+        image: user.photoURL,
+        isMuted: HomeState.isMuted,
+        isVidOff: HomeState.isVidOff,
+        position: MediaQuery.of(context).size.width * 2 / 3,
+        joinedNow: false,
+        view: SurfaceView(
+          uid: uid,
+        ),
+      ));
 
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Live(
-                      agora: this,
-                    )));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Live(
+                    agora: this,
+                  )));
 
-        homeState.stopLoading();
+      homeState.stopLoading();
 
-        _db
-            .collection("meetings")
-            .doc(code)
-            .collection("users")
-            .snapshots()
-            .listen((event) {
-          List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-          list.forEach((element) {
-            DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
-            Map<String, dynamic> map = snap.data();
-            if (element.type == DocumentChangeType.removed) {
-              if (snap.id != user.uid) {
-                int i = 0;
-                for (; i < users.length; i++) {
-                  if (users[i].googleUID == snap.id) break;
-                }
-                users.removeAt(i);
-
-                if (users.length > 4) {
-                  List<Users> list = users.sublist(4);
-                  list.sort((a, b) =>
-                      a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                  users.replaceRange(
-                      4, users.length, list.getRange(0, list.length));
-                }
-
-                if (currentUserIndex == i)
-                  currentUserIndex = users.length == 1 ? 0 : 1;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(map['name'] + " has left"),
-                    duration: Duration(milliseconds: 1000),
-                  ),
-                );
-              } else {
-                isExiting = true;
-                notifyListeners();
+      _db
+          .collection("meetings")
+          .doc(code)
+          .collection("users")
+          .snapshots()
+          .listen((event) {
+        List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+        list.forEach((element) {
+          DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
+          Map<String, dynamic> map = snap.data();
+          if (element.type == DocumentChangeType.removed) {
+            if (snap.id != user.uid) {
+              int i = 0;
+              for (; i < users.length; i++) {
+                if (users[i].googleUID == snap.id) break;
               }
-            } else if (element.type == DocumentChangeType.added &&
-                snap.id != user.uid) {
-              Users newUser = Users(
-                  googleUID: snap.id,
-                  agoraUID: map['uid'],
-                  name: map['name'],
-                  image: map['image_url'],
-                  isMuted: map['isMuted'],
-                  isVidOff: map['isVidOff'],
-                  position: MediaQuery.of(context).size.width * 2 / 3,
-                  joinedNow: true,
-                  view: SurfaceView(
-                    uid: map['uid'],
-                  ));
-              users.add(newUser);
-
-              if (users.length == 2) currentUserIndex = 1;
-
-              if (!newUsers.contains(newUser.name) &&
-                  !usersHere.contains(newUser.name)) {
-                newUsers.add(newUser.name);
-                Timer(Duration(seconds: 30), () {
-                  newUser?.joinedNow = false;
-                  notifyListeners();
-                });
-              } else {
-                newUser.joinedNow = false;
-              }
+              users.removeAt(i);
 
               if (users.length > 4) {
                 List<Users> list = users.sublist(4);
@@ -204,340 +154,387 @@ class Agora extends ChangeNotifier {
                     4, users.length, list.getRange(0, list.length));
               }
 
-              for (Users value in users) {
-                if (value.googleUID == user.uid) {
-                  users.remove(value);
-                  users.insert(0, value);
-                  break;
-                }
-              }
+              if (currentUserIndex == i)
+                currentUserIndex = users.length == 1 ? 0 : 1;
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(map['name'] + " has joined"),
+                  content: Text(map['name'] + " has left"),
                   duration: Duration(milliseconds: 1000),
                 ),
               );
-            } else if (snap.id != user.uid) {
-              users.forEach((element) {
-                if (element.googleUID == snap.id) {
-                  element.isMuted = map['isMuted'];
-                  element.isVidOff = map['isVidOff'];
-                  element.agoraUID = map['uid'];
-                  element.view = SurfaceView(uid: map['uid']);
-                  if (!map['isMuted'] || !map['isVidOff']) {
-                    int index = 0;
-                    for (Users value in users) {
-                      if (value.googleUID == snap.id) {
-                        users.remove(value);
-                        users.insert(index < 4 ? index : 1, value);
-                        currentUserIndex = index < 4 ? index : 1;
-                        break;
-                      }
-                      index++;
+            } else {
+              isExiting = true;
+              notifyListeners();
+            }
+          } else if (element.type == DocumentChangeType.added &&
+              snap.id != user.uid) {
+            Users newUser = Users(
+                googleUID: snap.id,
+                agoraUID: map['uid'],
+                name: map['name'],
+                image: map['image_url'],
+                isMuted: map['isMuted'],
+                isVidOff: map['isVidOff'],
+                position: MediaQuery.of(context).size.width * 2 / 3,
+                joinedNow: true,
+                view: SurfaceView(
+                  uid: map['uid'],
+                ));
+            users.add(newUser);
+
+            if (users.length == 2) currentUserIndex = 1;
+
+            if (!newUsers.contains(newUser.name) &&
+                !usersHere.contains(newUser.name)) {
+              newUsers.add(newUser.name);
+              Timer(Duration(seconds: 30), () {
+                newUser?.joinedNow = false;
+                notifyListeners();
+              });
+            } else {
+              newUser.joinedNow = false;
+            }
+
+            if (users.length > 4) {
+              List<Users> list = users.sublist(4);
+              list.sort((a, b) =>
+                  a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+              users.replaceRange(
+                  4, users.length, list.getRange(0, list.length));
+            }
+
+            for (Users value in users) {
+              if (value.googleUID == user.uid) {
+                users.remove(value);
+                users.insert(0, value);
+                break;
+              }
+            }
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(map['name'] + " has joined"),
+                duration: Duration(milliseconds: 1000),
+              ),
+            );
+          } else if (snap.id != user.uid) {
+            users.forEach((element) {
+              if (element.googleUID == snap.id) {
+                element.isMuted = map['isMuted'];
+                element.isVidOff = map['isVidOff'];
+                element.agoraUID = map['uid'];
+                element.view = SurfaceView(uid: map['uid']);
+                if (!map['isMuted'] || !map['isVidOff']) {
+                  int index = 0;
+                  for (Users value in users) {
+                    if (value.googleUID == snap.id) {
+                      users.remove(value);
+                      users.insert(index < 4 ? index : 1, value);
+                      currentUserIndex = index < 4 ? index : 1;
+                      break;
                     }
-                    if (users.length > 4) {
-                      List<Users> list = users.sublist(4);
-                      list.sort((a, b) =>
-                          a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-                      users.replaceRange(
-                          4, users.length, list.getRange(0, list.length));
-                    }
+                    index++;
                   }
+                  if (users.length > 4) {
+                    List<Users> list = users.sublist(4);
+                    list.sort((a, b) =>
+                        a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+                    users.replaceRange(
+                        4, users.length, list.getRange(0, list.length));
+                  }
+                }
+              }
+            });
+          }
+          notifyListeners();
+        });
+      });
+
+      _db
+          .collection("meetings")
+          .doc(code)
+          .collection("messages")
+          .snapshots()
+          .listen((event) {
+        List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+        list.forEach((element) {
+          if (element.type == DocumentChangeType.added &&
+              element.doc.id != user.uid) {
+            DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
+            if (_timer != null && _timer.isActive && messageId[0] == snap.id) {
+              messageId.insert(0, snap.id);
+              messageUsers.insert(0, "");
+              messageTime.insert(0, "");
+              messages.insert(0, snap.get('message'));
+            } else {
+              messageId.insert(0, snap.id);
+              messageUsers.insert(0, snap.get('name'));
+              messageTime.insert(0, "Now");
+              messages.insert(0, snap.get('message'));
+            }
+
+            msgCount++;
+            msgSentReceived.insert(0, true);
+            notifyListeners();
+
+            if (messageTime[0].isNotEmpty) {
+              var length = messageTime.length;
+              var time = DateFormat('hh:mm a').format(DateTime.now());
+              int i = 1;
+
+              _timer = Timer(Duration(seconds: 45), () {});
+
+              Timer.periodic(Duration(minutes: 1), (timer) {
+                if (messageTime.isEmpty)
+                  timer.cancel();
+                else {
+                  if (i == 31) {
+                    messageTime.setAll(messageTime.length - length, [time]);
+                    timer.cancel();
+                  } else {
+                    messageTime.setAll(
+                        messageTime.length - length, [(i).toString() + " min"]);
+                    i++;
+                  }
+                  notifyListeners();
                 }
               });
             }
-            notifyListeners();
-          });
+          }
         });
+      });
 
-        _db
-            .collection("meetings")
-            .doc(code)
-            .collection("messages")
-            .snapshots()
-            .listen((event) {
-          List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-          list.forEach((element) {
-            if (element.type == DocumentChangeType.added &&
-                element.doc.id != user.uid) {
-              DocumentSnapshot<Map<String, dynamic>> snap = element.doc;
-              if (_timer != null &&
-                  _timer.isActive &&
-                  messageId[0] == snap.id) {
-                messageId.insert(0, snap.id);
-                messageUsers.insert(0, "");
-                messageTime.insert(0, "");
-                messages.insert(0, snap.get('message'));
-              } else {
-                messageId.insert(0, snap.id);
-                messageUsers.insert(0, snap.get('name'));
-                messageTime.insert(0, "Now");
-                messages.insert(0, snap.get('message'));
-              }
-
-              msgCount++;
-              msgSentReceived.insert(0, true);
-              notifyListeners();
-
-              if (messageTime[0].isNotEmpty) {
-                var length = messageTime.length;
-                var time = DateFormat('hh:mm a').format(DateTime.now());
-                int i = 1;
-
-                _timer = Timer(Duration(seconds: 45), () {});
-
-                Timer.periodic(Duration(minutes: 1), (timer) {
-                  if (messageTime.isEmpty)
-                    timer.cancel();
-                  else {
-                    if (i == 31) {
-                      messageTime.setAll(messageTime.length - length, [time]);
-                      timer.cancel();
-                    } else {
-                      messageTime.setAll(messageTime.length - length,
-                          [(i).toString() + " min"]);
-                      i++;
-                    }
-                    notifyListeners();
-                  }
-                });
-              }
-            }
-          });
-        });
-
-        _db
-            .collection("meetings")
-            .doc(code)
-            .collection("requests")
-            .snapshots()
-            .listen((event) {
-          List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
-          list.forEach((element) {
-            DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
-            if (snapshot.exists) {
-              if (element.type != DocumentChangeType.removed) {
-                Map<String, dynamic> map = snapshot.data();
-                if (!map['isAccepted'])
-                  showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) {
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          content: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(30),
-                                child: Container(
-                                    height: 40,
-                                    width: 40,
-                                    child: Image.network(map['image_url'])),
+      _db
+          .collection("meetings")
+          .doc(code)
+          .collection("requests")
+          .snapshots()
+          .listen((event) {
+        List<DocumentChange<Map<String, dynamic>>> list = event.docChanges;
+        list.forEach((element) {
+          DocumentSnapshot<Map<String, dynamic>> snapshot = element.doc;
+          if (snapshot.exists) {
+            if (element.type != DocumentChangeType.removed) {
+              Map<String, dynamic> map = snapshot.data();
+              if (!map['isAccepted'])
+                showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        content: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  child: Image.network(map['image_url'])),
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Container(
+                              width: 200,
+                              child: Text(
+                                "Someone called " +
+                                    map['name'] +
+                                    " wants to join this meeting",
+                                style: TextStyle(fontSize: 16),
+                                overflow: TextOverflow.clip,
                               ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Container(
-                                width: 200,
-                                child: Text(
-                                  "Someone called " +
-                                      map['name'] +
-                                      " wants to join this meeting",
-                                  style: TextStyle(fontSize: 16),
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ),
-                            ],
-                          ),
-                          contentPadding:
-                              EdgeInsets.only(left: 24, right: 24, top: 24),
-                          actions: [
-                            TextButton(
-                                onPressed: () {
-                                  _db
-                                      .collection("meetings")
-                                      .doc(code)
-                                      .collection("requests")
-                                      .doc(snapshot.id)
-                                      .delete();
-                                },
-                                child: Text(
-                                  "Deny entry",
-                                  style: TextStyle(
-                                      color: Colors.teal[800],
-                                      fontSize: 16,
-                                      fontFamily: 'Product Sans'),
-                                )),
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  _db
-                                      .collection("meetings")
-                                      .doc(code)
-                                      .collection("requests")
-                                      .doc(snapshot.id)
-                                      .set({'isAccepted': true});
-                                },
-                                child: Text(
-                                  "Admit",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.teal[800],
-                                      fontFamily: 'Product Sans'),
-                                )),
+                            ),
                           ],
-                        );
-                      });
-              } else {
-                Navigator.pop(context);
-              }
+                        ),
+                        contentPadding:
+                            EdgeInsets.only(left: 24, right: 24, top: 24),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                _db
+                                    .collection("meetings")
+                                    .doc(code)
+                                    .collection("requests")
+                                    .doc(snapshot.id)
+                                    .delete();
+                              },
+                              child: Text(
+                                "Deny entry",
+                                style: TextStyle(
+                                    color: Colors.teal[800],
+                                    fontSize: 16,
+                                    fontFamily: 'Product Sans'),
+                              )),
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                _db
+                                    .collection("meetings")
+                                    .doc(code)
+                                    .collection("requests")
+                                    .doc(snapshot.id)
+                                    .set({'isAccepted': true});
+                              },
+                              child: Text(
+                                "Admit",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.teal[800],
+                                    fontFamily: 'Product Sans'),
+                              )),
+                        ],
+                      );
+                    });
+            } else {
+              Navigator.pop(context);
             }
-          });
+          }
         });
-      },
-      connectionLost: () {
-        exitMeeting();
-      },
-      connectionStateChanged: (state, reason) {
-        if (state == ConnectionStateType.Disconnected ||
-            state == ConnectionStateType.Failed) exitMeeting();
-      },
-      error: (errorCode) {
+      });
+    }, connectionLost: () {
+      exitMeeting();
+    }, connectionStateChanged: (state, reason) {
+      if (state == ConnectionStateType.Disconnected ||
+          state == ConnectionStateType.Failed) exitMeeting();
+    }, error: (errorCode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error : $errorCode"),
+          duration: Duration(milliseconds: 1000),
+        ),
+      );
+      homeState.stopLoading();
+    }, tokenPrivilegeWillExpire: (token) async {
+      final response = await http.post(
+          Uri.parse("https://agora-app-server.herokuapp.com/getToken/"),
+          body: {
+            "uid": "0",
+            "appID": _appId,
+            "appCertificate": _appCertificate,
+            "channelName": code,
+          });
+
+      if (response.statusCode == 200) {
+        _token = response.body;
+        _token = jsonDecode(_token)['token'];
+        await _db.collection("meetings").doc(code).update({'token': _token});
+        engine.renewToken(_token);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error : $errorCode"),
-            duration: Duration(milliseconds: 1000),
+            content: Text("This meeting may end soon."),
+            duration: Duration(milliseconds: 2000),
           ),
         );
-        homeState.stopLoading();
-      },
-      tokenPrivilegeWillExpire: (token) async {
-        final response = await http.post(
-            Uri.parse("https://agora-app-server.herokuapp.com/getToken/"),
-            body: {
-              "uid": "0",
-              "appID": _appId,
-              "appCertificate": _appCertificate,
-              "channelName": code,
-            });
-
-        if (response.statusCode == 200) {
-          _token = response.body;
-          _token = jsonDecode(_token)['token'];
-          await _db.collection("meetings").doc(code).update({'token': _token});
-          engine.renewToken(_token);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("This meeting may end soon."),
-              duration: Duration(milliseconds: 2000),
-            ),
-          );
-        }
-      },
-      remoteAudioStateChanged: (uid, state, reason, elapsed) {
-        for (Users element in users) {
-          if (element.agoraUID == uid) {
-            if (state == AudioRemoteState.Stopped &&
-                reason == AudioRemoteStateReason.RemoteMuted) {
-              element.isMuted = true;
-              notifyListeners();
-            }
-            break;
+      }
+    }, remoteAudioStateChanged: (uid, state, reason, elapsed) {
+      for (Users element in users) {
+        if (element.agoraUID == uid) {
+          if (state == AudioRemoteState.Stopped &&
+              reason == AudioRemoteStateReason.RemoteMuted) {
+            element.isMuted = true;
+            notifyListeners();
           }
+          break;
         }
-      },
-      remoteVideoStateChanged: (uid, state, reason, elapsed) {
-        for (Users element in users) {
-          if (element.agoraUID == uid) {
-            if (state == VideoRemoteState.Stopped &&
-                reason == VideoRemoteStateReason.RemoteMuted) {
-              element.isVidOff = true;
-              notifyListeners();
-            }
-            break;
+      }
+    }, remoteVideoStateChanged: (uid, state, reason, elapsed) {
+      for (Users element in users) {
+        if (element.agoraUID == uid) {
+          if (state == VideoRemoteState.Stopped &&
+              reason == VideoRemoteStateReason.RemoteMuted) {
+            element.isVidOff = true;
+            notifyListeners();
           }
+          break;
         }
-      },
-      remoteAudioStats: (stats) {
-        int index = 0;
-        for (Users element in users) {
-          if (element.agoraUID == stats.uid) break;
-          index++;
-        }
-        if (index >= 4) {
-          users.insert(1, users.removeAt(index));
-          currentUserIndex = 1;
-          if (users.length > 4) {
-            List<Users> list = users.sublist(4);
-            list.sort(
-                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.getRange(0, list.length));
-          }
-        }
-
-        if (stats.receivedBitrate < 5) {
-          users[index].pitch1 = 5;
-          users[index].pitch2 = 5;
-        } else if (stats.receivedBitrate < 7.5) {
-          users[index].pitch1 = stats.receivedBitrate.toDouble();
-          users[index].pitch2 = 5;
-        } else if (stats.receivedBitrate > 16) {
-          users[index].pitch1 = 18;
-          users[index].pitch2 = 18;
-        } else if (stats.receivedBitrate > 14) {
-          users[index].pitch1 = 18;
-          users[index].pitch2 = users[index].pitch1 / 1.5;
-        } else {
-          users[index].pitch1 = stats.receivedBitrate.toDouble();
-          users[index].pitch2 = users[index].pitch1 / 1.5;
-        }
-
-        notifyListeners();
-      },
-      remoteVideoStats: (stats) {
-        int index = 0;
-        for (Users element in users) {
-          if (element.agoraUID == stats.uid) break;
-          index++;
-        }
-        if (index >= 4) {
-          users.insert(1, users.removeAt(index));
-          currentUserIndex = 1;
-          if (users.length > 4) {
-            List<Users> list = users.sublist(4);
-            list.sort(
-                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-            users.replaceRange(4, users.length, list.getRange(0, list.length));
-          }
+      }
+    }, remoteAudioStats: (stats) {
+      int index = 0;
+      for (Users element in users) {
+        if (element.agoraUID == stats.uid) break;
+        index++;
+      }
+      if (index >= 4) {
+        users.insert(1, users.removeAt(index));
+        currentUserIndex = 1;
+        if (users.length > 4) {
+          List<Users> list = users.sublist(4);
+          list.sort(
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          users.replaceRange(4, users.length, list.getRange(0, list.length));
           notifyListeners();
         }
-      },
-      localAudioStats: (stats) {
-        if (stats.sentBitrate < 5) {
-          users[0].pitch1 = 5;
-          users[0].pitch2 = 5;
-        } else if (stats.sentBitrate < 7.5) {
-          users[0].pitch1 = stats.sentBitrate.toDouble();
-          users[0].pitch2 = 5;
-        } else if (stats.sentBitrate > 16) {
-          users[0].pitch1 = 18;
-          users[0].pitch2 = 18;
-        } else if (stats.sentBitrate > 14) {
-          users[0].pitch1 = 18;
-          users[0].pitch2 = users[0].pitch1 / 1.5;
-        } else {
-          users[0].pitch1 = stats.sentBitrate.toDouble();
-          users[0].pitch2 = users[0].pitch1 / 1.5;
+      }
+    }, remoteVideoStats: (stats) {
+      int index = 0;
+      for (Users element in users) {
+        if (element.agoraUID == stats.uid) break;
+        index++;
+      }
+      if (index >= 4) {
+        users.insert(1, users.removeAt(index));
+        currentUserIndex = 1;
+        if (users.length > 4) {
+          List<Users> list = users.sublist(4);
+          list.sort(
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          users.replaceRange(4, users.length, list.getRange(0, list.length));
         }
         notifyListeners();
-      },
-    ));
+      }
+    }, audioVolumeIndication: (speakers, totalVolume) {
+      speakers.forEach((element) {
+        for (Users user in users) {
+          if (user.agoraUID == element.uid) {
+            if (element.volume < 50) {
+              user.volume1 = 5;
+              user.volume2 = 5;
+            } else if (element.volume < 75) {
+              user.volume1 = element.volume / 10;
+              user.volume2 = 5;
+            } else if (element.volume > 180) {
+              user.volume1 = 18;
+              user.volume2 = 18;
+            } else if (element.volume > 120) {
+              user.volume1 = 18;
+              user.volume2 = element.volume / 15;
+            } else {
+              user.volume1 = element.volume / 10;
+              user.volume2 = element.volume / 15;
+            }
+            notifyListeners();
+            break;
+          }
+        }
+      });
+      if (speakers.isNotEmpty) {
+        if (speakers[0].volume < 50) {
+          users[0].volume1 = 5;
+          users[0].volume2 = 5;
+        } else if (speakers[0].volume < 75) {
+          users[0].volume1 = speakers[0].volume / 10;
+          users[0].volume2 = 5;
+        } else if (speakers[0].volume > 180) {
+          users[0].volume1 = 18;
+          users[0].volume2 = 18;
+        } else if (speakers[0].volume > 120) {
+          users[0].volume1 = 18;
+          users[0].volume2 = speakers[0].volume / 15;
+        } else {
+          users[0].volume1 = speakers[0].volume / 10;
+          users[0].volume2 = speakers[0].volume / 15;
+        }
+        notifyListeners();
+      }
+    }));
 
     await engine.enableVideo();
     await engine.enableAudio();
+    await engine.enableAudioVolumeIndication(200, 3, true);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
@@ -950,7 +947,7 @@ class Agora extends ChangeNotifier {
             });
           });
         }
-        _usersHereListener.cancel();
+        _usersHereListener?.cancel();
       },
       error: (errorCode) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -959,6 +956,7 @@ class Agora extends ChangeNotifier {
             duration: Duration(milliseconds: 1000),
           ),
         );
+        notifyListeners();
       },
       connectionLost: () {
         exitMeeting();
@@ -1042,26 +1040,8 @@ class Agora extends ChangeNotifier {
                 (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
             users.replaceRange(4, users.length, list.getRange(0, list.length));
           }
+          notifyListeners();
         }
-
-        if (stats.receivedBitrate < 5) {
-          users[index].pitch1 = 5;
-          users[index].pitch2 = 5;
-        } else if (stats.receivedBitrate < 7.5) {
-          users[index].pitch1 = stats.receivedBitrate.toDouble();
-          users[index].pitch2 = 5;
-        } else if (stats.receivedBitrate > 16) {
-          users[index].pitch1 = 18;
-          users[index].pitch2 = 18;
-        } else if (stats.receivedBitrate > 14) {
-          users[index].pitch1 = 18;
-          users[index].pitch2 = users[index].pitch1 / 1.5;
-        } else {
-          users[index].pitch1 = stats.receivedBitrate.toDouble();
-          users[index].pitch2 = users[index].pitch1 / 1.5;
-        }
-
-        notifyListeners();
       },
       remoteVideoStats: (stats) {
         int index = 0;
@@ -1081,29 +1061,56 @@ class Agora extends ChangeNotifier {
           notifyListeners();
         }
       },
-      localAudioStats: (stats) {
-        if (stats.sentBitrate < 5) {
-          users[0].pitch1 = 5;
-          users[0].pitch2 = 5;
-        } else if (stats.sentBitrate < 7.5) {
-          users[0].pitch1 = stats.sentBitrate.toDouble();
-          users[0].pitch2 = 5;
-        } else if (stats.sentBitrate > 16) {
-          users[0].pitch1 = 18;
-          users[0].pitch2 = 18;
-        } else if (stats.sentBitrate > 14) {
-          users[0].pitch1 = 18;
-          users[0].pitch2 = users[0].pitch1 / 1.5;
-        } else {
-          users[0].pitch1 = stats.sentBitrate.toDouble();
-          users[0].pitch2 = users[0].pitch1 / 1.5;
-        }
-        notifyListeners();
+      audioVolumeIndication: (speakers, totalVolume) {
+        speakers.forEach((element) {
+          for (Users user in users) {
+            if (user.agoraUID == element.uid) {
+              if (element.volume < 50) {
+                user.volume1 = 5;
+                user.volume2 = 5;
+              } else if (element.volume < 75) {
+                user.volume1 = element.volume / 10;
+                user.volume2 = 5;
+              } else if (element.volume > 180) {
+                user.volume1 = 18;
+                user.volume2 = 18;
+              } else if (element.volume > 120) {
+                user.volume1 = 18;
+                user.volume2 = element.volume / 15;
+              } else {
+                user.volume1 = element.volume / 10;
+                user.volume2 = element.volume / 15;
+              }
+              notifyListeners();
+              break;
+            }
+          }
+          if (speakers.isNotEmpty) {
+            if (speakers[0].volume < 50) {
+              users[0].volume1 = 5;
+              users[0].volume2 = 5;
+            } else if (speakers[0].volume < 75) {
+              users[0].volume1 = speakers[0].volume / 10;
+              users[0].volume2 = 5;
+            } else if (speakers[0].volume > 180) {
+              users[0].volume1 = 18;
+              users[0].volume2 = 18;
+            } else if (speakers[0].volume > 120) {
+              users[0].volume1 = 18;
+              users[0].volume2 = speakers[0].volume / 15;
+            } else {
+              users[0].volume1 = speakers[0].volume / 10;
+              users[0].volume2 = speakers[0].volume / 15;
+            }
+            notifyListeners();
+          }
+        });
       },
     ));
 
     await engine.enableVideo();
     await engine.enableAudio();
+    await engine.enableAudioVolumeIndication(200, 3, true);
 
     await engine.joinChannel(_token, channel, null, 0);
   }
@@ -1267,8 +1274,8 @@ class Users {
       this.isVidOff,
       this.view,
       this.joinedNow,
-      this.pitch1 = 5,
-      this.pitch2 = 5});
+      this.volume1 = 5,
+      this.volume2 = 5});
   String googleUID;
   int agoraUID;
   String image;
@@ -1277,7 +1284,7 @@ class Users {
   bool isVidOff;
   bool joinedNow;
   double position;
-  double pitch1;
-  double pitch2;
+  double volume1;
+  double volume2;
   SurfaceView view;
 }
