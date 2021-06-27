@@ -61,7 +61,8 @@ class LiveState extends State<Live>
         .listen((ConnectivityResult result) {
       if (result == ConnectivityResult.none) {
         Future.delayed(Duration(seconds: 10), () async {
-          if(await Connectivity().checkConnectivity() == ConnectivityResult.none) {
+          if (await Connectivity().checkConnectivity() ==
+              ConnectivityResult.none) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
