@@ -420,7 +420,7 @@ class Agora extends ChangeNotifier {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("This meeting may end soon."),
+            content: Text("This meeting may end soon"),
             duration: Duration(milliseconds: 2000),
           ),
         );
@@ -645,15 +645,15 @@ class Agora extends ChangeNotifier {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(usersHere.length == 2
-                  ? usersHere[0] + " has joined."
+                  ? usersHere[0] + " has joined"
                   : usersHere.length == 3
-                      ? usersHere[0] + " and " + usersHere[1] + " have joined."
+                      ? usersHere[0] + " and " + usersHere[1] + " have joined"
                       : usersHere[0] +
                           ", " +
                           usersHere[1] +
                           " and " +
                           (usersHere.length - 3).toString() +
-                          " others have joined."),
+                          " others have joined"),
               duration: Duration(milliseconds: 1000),
             ),
           );
@@ -977,7 +977,7 @@ class Agora extends ChangeNotifier {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("This meeting may end soon."),
+                content: Text("This meeting may end soon"),
                 duration: Duration(milliseconds: 2000),
               ),
             );
@@ -986,7 +986,7 @@ class Agora extends ChangeNotifier {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Meeting code will expire soon. "
-                  "If the host is absent, the meeting may end."),
+                  "If the host is absent, this meeting may end."),
               duration: Duration(milliseconds: 2000),
             ),
           );
