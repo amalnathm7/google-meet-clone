@@ -690,7 +690,7 @@ class LiveState extends State<Live>
   }
 
   void _share() async {
-    await Share.share("Join my meeting using the code: \n" + agora.code);
+    await Share.share(agora.code);
   }
 
   @override
@@ -760,12 +760,13 @@ class LiveState extends State<Live>
                                     (_pinnedUser != null &&
                                         _pinnedUser.googleUID == agora.user.uid)
                                 ? SurfaceView()
-                                : agora.users.length > agora.currentUserIndex
-                                    ? _pinnedUser != null
-                                        ? _pinnedUser.view
-                                        : agora
+                                : _pinnedUser != null
+                                    ? _pinnedUser.view
+                                    : agora.users.length >
+                                            agora.currentUserIndex
+                                        ? agora
                                             .users[agora.currentUserIndex].view
-                                    : SizedBox()
+                                        : SizedBox()
                         : SizedBox()),
                 Positioned(
                   top: 40,
@@ -1148,13 +1149,15 @@ class LiveState extends State<Live>
                                                         children: [
                                                           Container(
                                                             decoration: BoxDecoration(
-                                                                color: _pinnedUser != null
-                                                                    ? _pinnedUser == agora.users[index]
-                                                                        ? Colors.tealAccent
-                                                                        : Colors.teal
-                                                                    : agora.currentUserIndex == index
-                                                                        ? Colors.tealAccent
-                                                                        : Colors.teal,
+                                                                color: agora.users[index].isVidOff
+                                                                    ? _pinnedUser != null
+                                                                        ? _pinnedUser == agora.users[index]
+                                                                            ? Colors.tealAccent
+                                                                            : Colors.teal
+                                                                        : agora.currentUserIndex == index
+                                                                            ? Colors.tealAccent
+                                                                            : Colors.teal
+                                                                    : Colors.tealAccent,
                                                                 borderRadius: BorderRadius.circular(10)),
                                                             child:
                                                                 AnimatedContainer(
@@ -1172,13 +1175,15 @@ class LiveState extends State<Live>
                                                           ),
                                                           Container(
                                                             decoration: BoxDecoration(
-                                                                color: _pinnedUser != null
-                                                                    ? _pinnedUser == agora.users[index]
-                                                                        ? Colors.tealAccent
-                                                                        : Colors.teal
-                                                                    : agora.currentUserIndex == index
-                                                                        ? Colors.tealAccent
-                                                                        : Colors.teal,
+                                                                color: agora.users[index].isVidOff
+                                                                    ? _pinnedUser != null
+                                                                        ? _pinnedUser == agora.users[index]
+                                                                            ? Colors.tealAccent
+                                                                            : Colors.teal
+                                                                        : agora.currentUserIndex == index
+                                                                            ? Colors.tealAccent
+                                                                            : Colors.teal
+                                                                    : Colors.tealAccent,
                                                                 borderRadius: BorderRadius.circular(10)),
                                                             child:
                                                                 AnimatedContainer(
@@ -1196,13 +1201,15 @@ class LiveState extends State<Live>
                                                           ),
                                                           Container(
                                                             decoration: BoxDecoration(
-                                                                color: _pinnedUser != null
-                                                                    ? _pinnedUser == agora.users[index]
-                                                                        ? Colors.tealAccent
-                                                                        : Colors.teal
-                                                                    : agora.currentUserIndex == index
-                                                                        ? Colors.tealAccent
-                                                                        : Colors.teal,
+                                                                color: agora.users[index].isVidOff
+                                                                    ? _pinnedUser != null
+                                                                        ? _pinnedUser == agora.users[index]
+                                                                            ? Colors.tealAccent
+                                                                            : Colors.teal
+                                                                        : agora.currentUserIndex == index
+                                                                            ? Colors.tealAccent
+                                                                            : Colors.teal
+                                                                    : Colors.tealAccent,
                                                                 borderRadius: BorderRadius.circular(10)),
                                                             child:
                                                                 AnimatedContainer(

@@ -485,21 +485,21 @@ class Agora extends ChangeNotifier {
       speakers.forEach((element) {
         for (Users user in users) {
           if (user.agoraUID == element.uid) {
-            if (element.volume < 50) {
+            if (element.volume < 40) {
               user.volume1 = 5;
               user.volume2 = 5;
-            } else if (element.volume < 75) {
-              user.volume1 = element.volume / 10;
+            } else if (element.volume < 60) {
+              user.volume1 = element.volume / 8;
               user.volume2 = 5;
-            } else if (element.volume > 180) {
+            } else if (element.volume > 216) {
               user.volume1 = 18;
               user.volume2 = 18;
-            } else if (element.volume > 120) {
+            } else if (element.volume > 144) {
               user.volume1 = 18;
-              user.volume2 = element.volume / 15;
+              user.volume2 = element.volume / 12;
             } else {
-              user.volume1 = element.volume / 10;
-              user.volume2 = element.volume / 15;
+              user.volume1 = element.volume / 8;
+              user.volume2 = element.volume / 12;
             }
             notifyListeners();
             break;
@@ -507,21 +507,21 @@ class Agora extends ChangeNotifier {
         }
       });
       if (speakers.isNotEmpty) {
-        if (speakers[0].volume < 50) {
+        if (speakers[0].volume < 40) {
           users[0].volume1 = 5;
           users[0].volume2 = 5;
-        } else if (speakers[0].volume < 75) {
-          users[0].volume1 = speakers[0].volume / 10;
+        } else if (speakers[0].volume < 60) {
+          users[0].volume1 = speakers[0].volume / 8;
           users[0].volume2 = 5;
-        } else if (speakers[0].volume > 180) {
+        } else if (speakers[0].volume > 216) {
           users[0].volume1 = 18;
           users[0].volume2 = 18;
-        } else if (speakers[0].volume > 120) {
+        } else if (speakers[0].volume > 144) {
           users[0].volume1 = 18;
-          users[0].volume2 = speakers[0].volume / 15;
+          users[0].volume2 = speakers[0].volume / 12;
         } else {
-          users[0].volume1 = speakers[0].volume / 10;
-          users[0].volume2 = speakers[0].volume / 15;
+          users[0].volume1 = speakers[0].volume / 8;
+          users[0].volume2 = speakers[0].volume / 12;
         }
         notifyListeners();
       }
@@ -1055,46 +1055,46 @@ class Agora extends ChangeNotifier {
         speakers.forEach((element) {
           for (Users user in users) {
             if (user.agoraUID == element.uid) {
-              if (element.volume < 50) {
+              if (element.volume < 40) {
                 user.volume1 = 5;
                 user.volume2 = 5;
-              } else if (element.volume < 75) {
-                user.volume1 = element.volume / 10;
+              } else if (element.volume < 60) {
+                user.volume1 = element.volume / 8;
                 user.volume2 = 5;
-              } else if (element.volume > 180) {
+              } else if (element.volume > 216) {
                 user.volume1 = 18;
                 user.volume2 = 18;
-              } else if (element.volume > 120) {
+              } else if (element.volume > 144) {
                 user.volume1 = 18;
-                user.volume2 = element.volume / 15;
+                user.volume2 = element.volume / 12;
               } else {
-                user.volume1 = element.volume / 10;
-                user.volume2 = element.volume / 15;
+                user.volume1 = element.volume / 8;
+                user.volume2 = element.volume / 12;
               }
               notifyListeners();
               break;
             }
           }
-          if (speakers.isNotEmpty) {
-            if (speakers[0].volume < 50) {
-              users[0].volume1 = 5;
-              users[0].volume2 = 5;
-            } else if (speakers[0].volume < 75) {
-              users[0].volume1 = speakers[0].volume / 10;
-              users[0].volume2 = 5;
-            } else if (speakers[0].volume > 180) {
-              users[0].volume1 = 18;
-              users[0].volume2 = 18;
-            } else if (speakers[0].volume > 120) {
-              users[0].volume1 = 18;
-              users[0].volume2 = speakers[0].volume / 15;
-            } else {
-              users[0].volume1 = speakers[0].volume / 10;
-              users[0].volume2 = speakers[0].volume / 15;
-            }
-            notifyListeners();
-          }
         });
+        if (speakers.isNotEmpty) {
+          if (speakers[0].volume < 40) {
+            users[0].volume1 = 5;
+            users[0].volume2 = 5;
+          } else if (speakers[0].volume < 60) {
+            users[0].volume1 = speakers[0].volume / 8;
+            users[0].volume2 = 5;
+          } else if (speakers[0].volume > 216) {
+            users[0].volume1 = 18;
+            users[0].volume2 = 18;
+          } else if (speakers[0].volume > 144) {
+            users[0].volume1 = 18;
+            users[0].volume2 = speakers[0].volume / 12;
+          } else {
+            users[0].volume1 = speakers[0].volume / 8;
+            users[0].volume2 = speakers[0].volume / 12;
+          }
+          notifyListeners();
+        }
       },
     ));
 
