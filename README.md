@@ -1,10 +1,10 @@
-# Gmeet 🤳
-
 <div align="center">
   <img src="android/app/src/main/ic_launcher-playstore.png" width="200">
 </div>
 
-A "clone" of the video conferencing application, Meet, by Google Inc. 
+# Gmeet 🤳
+
+A "clone" of the video conferencing application, Meet, by Google Inc.
 
 ## Description
 Gmeet is a video conferencing application that looks and functions almost alike one of the previous versions of Meet and was developed in Flutter. 
@@ -14,7 +14,7 @@ Similar to Meet, the host creates a meeting code that can be shared among people
 once the host accepts their requests to join, the requesters will be allowed to attend the meeting.
 
 ## Features
-- Group video call upto 7 people
+- Group video call
 - Chat conversation
 - Google UI
 - Private meetings
