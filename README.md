@@ -4,7 +4,7 @@
 
 # Gmeet 🎦
 
-A "clone" of the video conferencing application, Meet, by Google Inc.
+A "clone" of the video conferencing application, Meet, by Google LLC.
 
 ## Description
 Gmeet is a video conferencing application that looks and functions almost alike one of the previous versions of Meet and was developed in Flutter. 
