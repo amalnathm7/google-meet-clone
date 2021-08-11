@@ -2,7 +2,7 @@
   <img src="android/app/src/main/ic_launcher-playstore.png" width="200">
 </div>
 
-# Gmeet 🤳
+# Gmeet 🎦
 
 A "clone" of the video conferencing application, Meet, by Google Inc.
 
@@ -23,17 +23,20 @@ once the host accepts their requests to join, the requesters will be allowed to 
 - Realtime captions (Yet to be implemented)
 
 ## Screenshots
-<img src="screenshots/1.jpeg" width="200"> <img src="screenshots/2.jpeg" width="200">
-<img src="screenshots/3.jpeg" width="200"> <img src="screenshots/4.jpeg" width="200">
-<img src="screenshots/5.jpeg" width="200"> <img src="screenshots/6.jpeg" width="200">
-<img src="screenshots/7.jpeg" width="200"> <img src="screenshots/8.jpeg" width="200">
-<img src="screenshots/9.jpeg" width="200"> <img src="screenshots/10.jpeg" width="200">
-<img src="screenshots/11.jpeg" width="200"> <img src="screenshots/12.jpeg" width="200">
-<img src="screenshots/13.jpeg" width="200"> <img src="screenshots/14.jpeg" width="200">
-<img src="screenshots/15.jpeg" width="200"> <img src="screenshots/16.jpeg" width="200">
+<img src="screenshots/1.jpeg" width="200"> <img src="screenshots/2.jpeg" width="200"> 
+<img src="screenshots/3.jpeg" width="200"> <img src="screenshots/4.jpeg" width="200"> 
+<img src="screenshots/5.jpeg" width="200"> <img src="screenshots/6.jpeg" width="200"> 
+<img src="screenshots/7.jpeg" width="200"> <img src="screenshots/8.jpeg" width="200"> 
+<img src="screenshots/9.jpeg" width="200"> <img src="screenshots/10.jpeg" width="200"> 
+<img src="screenshots/11.jpeg" width="200"> <img src="screenshots/12.jpeg" width="200"> 
+<img src="screenshots/13.jpeg" width="200"> <img src="screenshots/14.jpeg" width="200"> 
+<img src="screenshots/15.jpeg" width="200"> <img src="screenshots/16.jpeg" width="200"> 
 
-## Download
-Download here 👇
-
+## Installation
+The latest APKs (for various Android binaries) are also uploaded. 
+Download the suitable one (for most devices, arm64-v8a is preferred) and install it.
 
 _Disclaimer:- This application was developed only for learning purposes and is not intended for any sort of Copyright breach._
+
+##
+### Meet 'em  all! 🙃🎉
